@@ -32,6 +32,13 @@ a,
 }
 
 /* My edits */
+header {
+  position: absolute;
+  height: 70px;
+  width: 100%;
+  vertical-align: top;
+}
+
 #headerAll {
   display: block;
   float: right;
