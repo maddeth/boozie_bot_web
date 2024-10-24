@@ -19,14 +19,14 @@ async function signOut() {
   }
 }
 
-const {
-  data: { user },
-} = await supabase.auth.getUser()
+// const {
+//   data: { user },
+// } = await supabase.auth.getUser()
 
-const name = user.user_metadata.nickname
-const avatar = user.user_metadata.avatar_url
+// const name = user.user_metadata.nickname
+// const avatar = user.user_metadata.avatar_url
 
-console.log(name, avatar)
+// console.log(name, avatar)
 
 </script>
 
