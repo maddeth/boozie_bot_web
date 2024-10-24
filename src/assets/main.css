@@ -36,6 +36,10 @@ main {
   padding-top: 90px;
 }
 
+body {
+  width: 80%;
+}
+
 header {
   position: absolute;
   height: 70px;
