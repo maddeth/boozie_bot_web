@@ -5,7 +5,7 @@ import { ref } from 'vue'
 const props = defineProps(['session'])
 
 const loading = ref(true)
-const metadata = ref(null)
+// const metadata = ref(null)
 
 async function signOut() {
   try {
@@ -23,7 +23,7 @@ const {
   data: { user },
 } = await supabase.auth.getUser()
 
-metadata = user.user_metadata
+const metadata = user.user_metadata
 
 </script>
 
