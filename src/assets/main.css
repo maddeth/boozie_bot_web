@@ -27,11 +27,15 @@ a,
   }
 
   #app {
-    padding: 90px 0;
+    padding: 0;
   }
 }
 
 /* My edits */
+main {
+  padding-top: 90px;
+}
+
 header {
   position: absolute;
   height: 70px;
@@ -42,6 +46,7 @@ header {
 #headerAll {
   display: block;
   float: right;
+  padding-right: 10px;
 }
 
 #headerAvatar {
