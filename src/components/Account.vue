@@ -37,7 +37,7 @@ onMounted(async () => {
 <template>
   <div>
     <p v-if="metadata">{{ metadata.nickname }}</p>
-    <!--img height="30" width="30" src={{ metadata.avatar_url }}></img-->
+    <img height="30" width="30" src={{ metadata.avatar_url }}/>
   </div>
   <div>
     <p>Logged in</p>
