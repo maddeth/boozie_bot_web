@@ -35,7 +35,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <p v-if="metadata">{{ metadata }}</p>
+    <p v-if="metadata">{{ metadata.nickname }}</p>
   </div>
   <div>
     <p>Logged in</p>
