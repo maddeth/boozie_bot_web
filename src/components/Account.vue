@@ -23,7 +23,7 @@ const {
   data: { user },
 } = await supabase.auth.getUser()
 
-metadata.value = user.user_metadata
+metadata = user.user_metadata
 
 </script>
 
