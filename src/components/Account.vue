@@ -23,13 +23,15 @@ const {
   data: { user },
 } = await supabase.auth.getUser()
 
-const metadata = user.user_metadata
+const name = user.user_metadata.nickname
+const avatar = user.user_metadata.avatar_url
 
 </script>
 
 <template>
   <div>
-    <p v-if="metadata">{{ metadata }}</p>
+    <p>{{ name }}</p>
+    <img>{{ avatar }}</img>
   </div>
   <div>
     <p>Logged in</p>
