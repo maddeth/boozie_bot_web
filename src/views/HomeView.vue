@@ -1,12 +1,12 @@
 <script setup>
-import Account from '@/components/Account.vue';
+import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 import HelloWorld from '@/components/HelloWorld.vue';
 </script>
 
 <template>
   <header>
-    <Account />
+    <Header />
   </header>
   <main>
     <HelloWorld />
