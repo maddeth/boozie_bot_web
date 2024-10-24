@@ -5,7 +5,7 @@ import { ref } from 'vue'
 const props = defineProps(['session'])
 
 const loading = ref(true)
-
+const metadata = ref(null)
 
 async function signOut() {
   try {
@@ -18,13 +18,23 @@ async function signOut() {
     loading.value = false
   }
 }
+
+const {
+  data: { user },
+} = await supabase.auth.getUser()
+
+metadata.value = user.user_metadata
+
 </script>
 
 <template>
-     <div>
-      <p>Logged in</p>
-     </div>
-    <div>
-      <button class="button block" @click="signOut">Sign Out</button>
-    </div>
+  <div>
+    <p v-if="metadata">{{ metadata }}</p>
+  </div>
+  <div>
+    <p>Logged in</p>
+  </div>
+  <div>
+    <button class="button block" @click="signOut">Sign Out</button>
+  </div>
 </template>
