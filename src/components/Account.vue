@@ -1,11 +1,11 @@
 <script setup>
 import { supabase } from '../supabase.js'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const props = defineProps(['session'])
 
 const loading = ref(true)
-// const metadata = ref(null)
+const metadata = ref(null) // Make metadata reactive
 
 async function signOut() {
   try {
@@ -19,22 +19,24 @@ async function signOut() {
   }
 }
 
-// const {
-//   data: { user },
-// } = await supabase.auth.getUser()
-
-// const name = user.user_metadata.nickname
-// const avatar = user.user_metadata.avatar_url
-
-// console.log(name, avatar)
-
+onMounted(async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      metadata.value = user.user_metadata
+    }
+  } catch (error) {
+    console.error('Failed to fetch user data:', error)
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <template>
-  <!-- <div>
-    <p>{{ name }}</p>
-    <img>{{ avatar }}</img>
-  </div> -->
+  <div>
+    <p v-if="metadata">{{ metadata }}</p>
+  </div>
   <div>
     <p>Logged in</p>
   </div>
