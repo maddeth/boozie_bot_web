@@ -26,13 +26,15 @@ const {
 const name = user.user_metadata.nickname
 const avatar = user.user_metadata.avatar_url
 
+console.log(name, avatar)
+
 </script>
 
 <template>
-  <div>
+  <!-- <div>
     <p>{{ name }}</p>
     <img>{{ avatar }}</img>
-  </div>
+  </div> -->
   <div>
     <p>Logged in</p>
   </div>
