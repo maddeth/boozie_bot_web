@@ -76,13 +76,13 @@ header {
 }
 
 .button {
-  border: 2px solid rgb(95, 11, 112);
+  border: 2px solid rgb(125, 46, 141);
   border-radius: 50px;
   opacity: 0.5;
   height: 30px;
   width: 61px;
-  color: rgb(95, 11, 112);
+  color: rgb(125, 46, 141);
   font-weight: bold;
-  padding: 2px 0 0 0;
+  padding: 0;
   background-color: transparent;
 }
