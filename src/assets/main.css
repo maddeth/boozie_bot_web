@@ -33,3 +33,25 @@ a,
     padding: 0 2rem;
   }
 }
+
+/* My edits */
+#headerAll {
+  display: block;
+  float: right;
+  width: 25%;
+}
+
+#headerAvatar {
+  display: inline-block;
+
+}
+
+#headerName {
+  display: inline-block;
+
+}
+
+#headerSignOut {
+  display: inline-block;
+
+}

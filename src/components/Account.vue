@@ -35,13 +35,15 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div id="headerAvatar">
-    <img v-if="metadata" height="30" width="30" v-bind:src="metadata.avatar_url"/>
-  </div>
-  <div id="headerName">
-    <p v-if="metadata">{{ metadata.nickname }}</p>
-  </div>
-  <div id="headerSignOut">
-    <button class="button block" @click="signOut">Sign Out</button>
+  <div id="headerAll">
+    <div id="headerAvatar">
+      <img v-if="metadata" height="30" width="30" v-bind:src="metadata.avatar_url"/>
+    </div>
+    <div id="headerName">
+      <p v-if="metadata">{{ metadata.nickname }}</p>
+    </div>
+    <div id="headerSignOut">
+      <button class="button block" @click="signOut">Sign Out</button>
+    </div>
   </div>
 </template>
