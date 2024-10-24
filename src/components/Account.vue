@@ -31,11 +31,12 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
 </script>
 
 <template>
   <div>
-    <p v-if="metadata">{{ metadata.nickname }}</p><img>{{ metadata.avatar_url }}</img>
+    <p v-if="metadata">{{ metadata.nickname }}</p><img height="30" width="30" src={{ metadata.avatar_url }}></img>
   </div>
   <div>
     <p>Logged in</p>
