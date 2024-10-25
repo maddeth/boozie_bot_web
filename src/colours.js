@@ -7,7 +7,7 @@ const azureTableEndpoint = `https://${account}.table.core.windows.net`;
 const colourTableName = "colours";
 const colourTableClient = new TableClient(azureTableEndpoint, colourTableName, new AzureSASCredential(sas));
 
-export let coloursRowCount = parseInt(await getRowCount(colourTableClient), 10)
+export const coloursRowCount = parseInt(getRowCount(colourTableClient), 10)
 
 async function getRowCount(tableClient) {
     let rowList = []
