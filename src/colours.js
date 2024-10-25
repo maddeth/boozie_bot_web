@@ -1,10 +1,8 @@
-import { TableClient, AzureSASCredential, AzureNamedKeyCredential } from "@azure/data-tables"
-import { InteractiveBrowserCredential } from "@azure/identity";
+import { TableClient, AzureSASCredential } from "@azure/data-tables"
 
 const account = import.meta.env.VITE_AZURE_TABLE_ACCOUNT
-const accountKey = import.meta.env.VITE_AZURE_TABLE_ACCOUNT_KEY
-
 const sas = import.meta.env.VITE_AZURE_STORAGE_SAS
+
 const azureTableEndpoint = `https://${account}.table.core.windows.net`;
 const colourTableName = "colours";
 const colourTableClient = new TableClient(azureTableEndpoint, colourTableName, new AzureSASCredential(sas));
