@@ -5,7 +5,7 @@ import { ref, onMounted } from 'vue'
 const props = defineProps(['session'])
 
 const loading = ref(true)
-const metadata = ref(null) // Make metadata reactive
+const metadata = ref(null)
 
 async function signOut() {
   try {
