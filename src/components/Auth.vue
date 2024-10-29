@@ -23,8 +23,8 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <form id="login" class="row flex-center flex" @submit.prevent="handleLogin">
-    <div class="col-6 form-widget">
+  <form class="row flex-center flex" @submit.prevent="handleLogin">
+    <div class="login-form">
       <h1 class="header">Boozie Bot</h1>
       <p class="description">Sign in via Twitch</p>
       <div>
