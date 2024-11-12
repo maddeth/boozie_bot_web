@@ -1,6 +1,6 @@
 import { neon } from "@neondatabase/serverless"
 
-const sql = neon(import.meta.env.DATABASE_URL)
+const sql = neon(import.meta.env.VITE_DATABASE_URL)
 
 export const coloursRowCount = async (req, res) => {
     const result = await sql`SELECT version()`
