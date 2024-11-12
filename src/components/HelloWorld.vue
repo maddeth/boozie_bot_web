@@ -1,20 +1,20 @@
 <script setup>
-import { coloursRowCount } from '../colours'
+// import { coloursRowCount } from '../colours'
 
 const count = ref(null)
 
-onMounted(async () => {
-  try {
-    const { data: { count } } = await coloursRowCount()
-    if (count) {
-      count.value = count
-    }
-  } catch (error) {
-    console.error('Failed to fetch count:', error)
-  } finally {
-    loading.value = false
-  }
-})
+// onMounted(async () => {
+//   try {
+//     const { data: { count } } = await coloursRowCount()
+//     if (count) {
+//       count.value = count
+//     }
+//   } catch (error) {
+//     console.error('Failed to fetch count:', error)
+//   } finally {
+//     loading.value = false
+//   }
+// })
 
 defineProps({
   msg: {
@@ -30,7 +30,7 @@ defineProps({
     <h3>
       You have Succesfully Logged In
     </h3>
-    <p v-if="count">{{ count }}</p>
+    <!-- <p v-if="count">{{ count }}</p> -->
   </div>
 </template>
 
