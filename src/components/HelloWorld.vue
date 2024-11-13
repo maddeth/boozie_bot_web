@@ -5,14 +5,14 @@ const count = ref(null)
 
 onMounted(async () => {
   try {
-    const { data: { count } } = await coloursRowCount()
-    if (count) {
-      count.value = count
+    const { data: { fetch_count } } = await coloursRowCount()
+    if (fetch_count) {
+      count.value = fetch_count
     }
   } catch (error) {
     console.error('Failed to fetch count:', error)
   } finally {
-    loading.value = false
+    count.value = false
   }
 })
 
