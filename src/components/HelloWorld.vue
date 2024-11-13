@@ -6,7 +6,7 @@ const count = ref()
 
 onMounted(async () => {
   try {
-    const { data: { fetch_count } }= await coloursRowCount()
+    const fetch_count = await coloursRowCount()
 
     if (fetch_count != null) {
       count.value = fetch_count
@@ -21,7 +21,7 @@ onMounted(async () => {
 <template>
   <div class="greetings">
     <h1 class="green">You have Succesfully Logged In</h1>
-    <h3>There are {{ count }} rows in the colours DB</h3>
+    <h3>There are {{ count }} or {{ count[0] }} or {{ count.value }} or {{ count.count }} rows in the colours DB</h3>
   </div>
 </template>
 
