@@ -1,5 +1,5 @@
 <script setup>
-import { coloursRowCount } from '../colours'
+import { coloursRowCount, getLastColour, getSpecificColourById } from '../colours'
 import { ref, onMounted } from 'vue'
 
 const database_count = ref()
