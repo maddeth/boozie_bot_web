@@ -18,10 +18,8 @@ onMounted(async () => {
 
 <template>
   <div class="greetings">
-    <h1 class="green">{{ count }}</h1>
-    <h3>
-      You have Succesfully Logged In
-    </h3>
+    <h1 class="green">You have Succesfully Logged In</h1>
+    <h3 v-if="count !== null">There are {{ count.value }} rows in the colours DB</h3>
   </div>
 </template>
 
