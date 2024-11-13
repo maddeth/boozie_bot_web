@@ -3,15 +3,33 @@ import { coloursRowCount } from '../colours'
 import { ref, onMounted } from 'vue'
 
 const database_count = ref()
+const database_last = ref()
+const database_get_by_id = ref()
 
 onMounted(async () => {
   try {
     const fetch_count = await coloursRowCount()
-
     if (fetch_count != null) {
-      database_count.value = fetch_count
+      database_count.value = fetch_count[0].count
     }
-    console.log(count, fetch_count)
+  } catch (error) {
+    console.error('Failed to fetch database count:', error)
+  }
+
+  try {
+    const fetch_last = await getLastColour()
+    if (fetch_last != null) {
+      database_last.value = fetch_last[0]
+    }
+  } catch (error) {
+    console.error('Failed to fetch count:', error)
+  }
+
+  try {
+    const fetch_by_id = await getSpecificColourById(fetch_count[0].count)
+    if (fetch_by_id != null) {
+      database_get_by_id.value = fetch_by_id[0].colourname
+    }
   } catch (error) {
     console.error('Failed to fetch count:', error)
   }
@@ -21,7 +39,9 @@ onMounted(async () => {
 <template>
   <div class="greetings">
     <h1 class="green">You have Succesfully Logged In</h1>
-    <h3>There are {{ database_count }} or {{ database_count[0].count }} rows in the colours DB</h3>
+    <h3>There are {{ database_count }} rows in the colours DB</h3>
+    <h3>The last entry into the database is {{ database_last }}</h3>
+    <h3>The last colour in the database is {{ database_count }}</h3>    
   </div>
 </template>
 
