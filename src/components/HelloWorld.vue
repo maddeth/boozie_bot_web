@@ -27,11 +27,10 @@ defineProps({
 
 <template>
   <div class="greetings">
-    <h1 class="green">{{ msg }}</h1>
+    <h1 v-if="count" class="green">{{ count }}</h1>
     <h3>
       You have Succesfully Logged In
     </h3>
-    <p v-if="count">{{ count }}</p>
   </div>
 </template>
 
