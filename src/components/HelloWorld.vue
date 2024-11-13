@@ -12,8 +12,6 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error('Failed to fetch count:', error)
-  } finally {
-    count.value = false
   }
 })
 </script>
