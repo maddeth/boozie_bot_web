@@ -2,14 +2,14 @@
 import { coloursRowCount } from '../colours'
 import { ref, onMounted } from 'vue'
 
-const count = ref()
+const database_count = ref()
 
 onMounted(async () => {
   try {
     const fetch_count = await coloursRowCount()
 
     if (fetch_count != null) {
-      count.value = fetch_count
+      database_count.value = fetch_count
     }
     console.log(count, fetch_count)
   } catch (error) {
@@ -21,7 +21,7 @@ onMounted(async () => {
 <template>
   <div class="greetings">
     <h1 class="green">You have Succesfully Logged In</h1>
-    <h3>There are {{ count }} or {{ count[0] }} {{ count[0].count }}rows in the colours DB</h3>
+    <h3>There are {{ database_count }} or {{ database_count[0].count }} rows in the colours DB</h3>
   </div>
 </template>
 
