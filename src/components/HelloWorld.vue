@@ -21,7 +21,7 @@ onMounted(async () => {
 <template>
   <div class="greetings">
     <h1 class="green">You have Succesfully Logged In</h1>
-    <h3>There are {{ count }} or {{ count[0] }} or {{ count.value }} or {{ count.count }} rows in the colours DB</h3>
+    <h3>There are {{ count }} or {{ count[0] }} or {{ fetch_count }} rows in the colours DB</h3>
   </div>
 </template>
 
