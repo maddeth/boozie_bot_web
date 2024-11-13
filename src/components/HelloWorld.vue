@@ -13,7 +13,7 @@ onMounted(async () => {
       database_count.value = fetch_count[0].count
     }
   } catch (error) {
-    console.error('Failed to fetch database count:', error)
+    console.error('Failed to fetch database coloursRowCount:', error)
   }
 
   try {
@@ -22,7 +22,7 @@ onMounted(async () => {
       database_last.value = fetch_last[0]
     }
   } catch (error) {
-    console.error('Failed to fetch count:', error)
+    console.error('Failed to fetch getLastColour:', error)
   }
 
   try {
@@ -31,7 +31,7 @@ onMounted(async () => {
       database_get_by_id.value = fetch_by_id
     }
   } catch (error) {
-    console.error('Failed to fetch count:', error)
+    console.error('Failed to fetch getSpecificColourById:', error)
   }
 })
 </script>

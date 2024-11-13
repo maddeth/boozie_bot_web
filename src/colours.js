@@ -8,7 +8,7 @@ export const coloursRowCount = async () => {
 }
 
 export const getSpecificColourById = async (req) => {
-  const result = await sql`SELECT colourname FROM colours where id='${req}';`
+  const result = await sql`SELECT colourname FROM colours where id=${req};`
   return result
 }
 
