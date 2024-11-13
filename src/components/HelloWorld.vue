@@ -6,7 +6,7 @@ const count = ref()
 
 onMounted(async () => {
   try {
-    const fetch_count = await coloursRowCount()
+    const { fetch_count } = await coloursRowCount()
     if (fetch_count) {
       count.value = fetch_count[0]
     }
