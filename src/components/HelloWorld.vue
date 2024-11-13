@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 // import { coloursRowCount } from '../colours'
 
 const count = ref(null)
@@ -22,11 +22,11 @@ defineProps({
     required: true
   }
 })
-</script>
+</script> -->
 
 <template>
   <div class="greetings">
-    <h1 class="green">{{ msg }}</h1>
+    <!-- <h1 class="green">{{ msg }}</h1> -->
     <h3>
       You have Succesfully Logged In
     </h3>
