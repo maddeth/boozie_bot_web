@@ -26,7 +26,7 @@ onMounted(async () => {
   }
 
   try {
-    const fetch_by_id = await getSpecificColourById(fetch_count[0].count)
+    const fetch_by_id = await getSpecificColourById(database_count)
     if (fetch_by_id != null) {
       database_get_by_id.value = fetch_by_id
     }
