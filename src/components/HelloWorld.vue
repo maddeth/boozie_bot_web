@@ -2,7 +2,7 @@
 import { coloursRowCount } from '../colours'
 import { ref, onMounted } from 'vue'
 
-const count = ref(null)
+const count = ref()
 
 onMounted(async () => {
   try {
@@ -16,18 +16,11 @@ onMounted(async () => {
     count.value = false
   }
 })
-
-defineProps({
-  msg: {
-    type: String,
-    required: true
-  }
-})
 </script>
 
 <template>
   <div class="greetings">
-    <h1 v-if="count" class="green">{{ count }}</h1>
+    <h1 class="green">{{ count }}</h1>
     <h3>
       You have Succesfully Logged In
     </h3>
