@@ -28,7 +28,7 @@ onMounted(async () => {
   try {
     const fetch_by_id = await getSpecificColourById(fetch_count[0].count)
     if (fetch_by_id != null) {
-      database_get_by_id.value = fetch_by_id[0].colourname
+      database_get_by_id.value = fetch_by_id
     }
   } catch (error) {
     console.error('Failed to fetch count:', error)
