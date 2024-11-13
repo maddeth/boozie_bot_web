@@ -8,7 +8,7 @@ onMounted(async () => {
   try {
     const { fetch_count } = await coloursRowCount()
     if (fetch_count) {
-      count.value = fetch_count
+      count.value = fetch_count[0]
     }
   } catch (error) {
     console.error('Failed to fetch count:', error)
