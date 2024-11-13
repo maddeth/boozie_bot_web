@@ -10,6 +10,7 @@ onMounted(async () => {
     if (fetch_count) {
       count.value = fetch_count[0]
     }
+    console.log(count, fetch_count)
   } catch (error) {
     console.error('Failed to fetch count:', error)
   }
