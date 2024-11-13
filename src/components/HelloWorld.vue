@@ -6,9 +6,9 @@ const count = ref()
 
 onMounted(async () => {
   try {
-    const { fetch_count } = await coloursRowCount()
+    const fetch_count = await coloursRowCount()
     if (fetch_count) {
-      count.value = fetch_count[0]
+      count.value = fetch_count
     }
     console.log(count, fetch_count)
   } catch (error) {
@@ -20,7 +20,7 @@ onMounted(async () => {
 <template>
   <div class="greetings">
     <h1 class="green">You have Succesfully Logged In</h1>
-    <h3 v-if="count !== null">There are {{ count }} rows in the colours DB</h3>
+    <h3>There are {{ count }} rows in the colours DB</h3>
   </div>
 </template>
 
