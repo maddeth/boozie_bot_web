@@ -67,7 +67,7 @@ async function submitColour() {
     <h3>The last colour in the database is {{ database_get_by_id }}</h3>
   </div>
   <div id="send_colour">
-    <form @submit.passive="submitColour">
+    <form @submit.prevent="submitColour">
       <label for="colour">Colour Name</label>
       <input type="text" v-model='formData.colour' name='colour_name' placeholder='red'>
       <label for="hex">Hex Value</label>
