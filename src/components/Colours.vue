@@ -9,7 +9,10 @@ const database_get_by_id = ref(null)
 const props = defineProps(['session'])
 const loading = ref(true)
 const metadata = ref(null)
-const colour = ref(null)
+const formData =ref({
+  colour: '',
+  hex: ''
+})
 const hex = ref(null)
 
 onMounted(async () => {
@@ -53,8 +56,7 @@ onMounted(async () => {
 })
 
 async function submitColour() {
-  console.log(colour, hex, "Maddeth")
-  await addColour(colour, hex, metadata)
+  console.log(formData.value)
 }
 
 </script>
@@ -68,9 +70,9 @@ async function submitColour() {
   <div id="send_colour">
     <form @submit.prevent="submitColour">
       <label for="colour">Colour Name</label>
-      <input type="text" v-model='colour' name='colour_name' placeholder='red'>
+      <input type="text" v-model='formData.colour' name='colour_name' placeholder='red'>
       <label for="hex">Hex Value</label>
-      <input type="text" v-model='hex' name='hex_code' placeholder='ff0000' maxlength="25">
+      <input type="text" v-model='formData.hex' name='hex_code' placeholder='ff0000' maxlength="25">
       <button type="submit">Submit</button>
     </form>
   </div>
