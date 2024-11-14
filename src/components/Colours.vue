@@ -56,6 +56,7 @@ onMounted(async () => {
 
 async function submitColour() {
   console.log(formData.value.colour, formData.value.hex, metadata.value.nickname)
+  await addColour(formData.value.colour, formData.value.hex, metadata.value.nickname)
 }
 
 </script>
