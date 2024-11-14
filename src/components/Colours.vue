@@ -53,6 +53,7 @@ onMounted(async () => {
 })
 
 async function submitColour(colour, hex, metadata) {
+  console.log(colour, hex, metadata.value.nickname)
   await addColour(colour, hex, metadata.value.nickname)
 }
 
@@ -65,7 +66,7 @@ async function submitColour(colour, hex, metadata) {
     <h3>The last colour in the database is {{ database_get_by_id }}</h3>
   </div>
   <div id="send_colour">
-    <form @submit.passive="submitColour">
+    <form @submit.prevent="submitColour">
       <label for="colour">Colour Name</label>
       <input type="text" v-model='colour' name='colour_name' placeholder='red'>
       <label for="hex">Hex Value</label>
