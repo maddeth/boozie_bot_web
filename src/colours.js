@@ -18,8 +18,6 @@ export const getLastColour = async () => {
 }
 
 export const addColour = async (colour, hex, user) => {
-  const pool = new Pool({ connectionString: import.meta.env.VITE_DATABASE_URL });
-  const { result } = await pool.query('INSERT INTO colours (colourname, hex_value, username) VALUES ($1, $2, $3)', colour, hex, user);
-  await pool.end();
+  const result = await sql('INSERT INTO colours (colourname, hex_value, username) VALUES ($1, $2, $3)', [colour, hex, user]);
   return result
 }
