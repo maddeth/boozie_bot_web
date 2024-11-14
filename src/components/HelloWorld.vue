@@ -1,10 +1,14 @@
 <script setup>
 import { coloursRowCount, getLastColour, getSpecificColourById } from '../colours'
 import { ref, onMounted } from 'vue'
+import { supabase } from '../supabase.js'
 
 const database_count = ref()
 const database_last = ref()
 const database_get_by_id = ref()
+const props = defineProps(['session'])
+const loading = ref(true)
+const metadata = ref(null)
 
 onMounted(async () => {
   try {
@@ -28,10 +32,21 @@ onMounted(async () => {
   try {
     const fetch_by_id = await getSpecificColourById(database_count.value)
     if (fetch_by_id != null) {
-      database_get_by_id.value = fetch_by_id
+      database_get_by_id.value = fetch_by_id[0].colourname
     }
   } catch (error) {
     console.error('Failed to fetch getSpecificColourById:', error)
+  }
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      metadata.value = user.user_metadata
+    }
+  } catch (error) {
+    console.error('Failed to fetch user data:', error)
+  } finally {
+    loading.value = false
   }
 })
 </script>
@@ -41,7 +56,7 @@ onMounted(async () => {
     <h1 class="green">You have Succesfully Logged In</h1>
     <h3>There are {{ database_count }} rows in the colours DB</h3>
     <h3>The last entry into the database is {{ database_last }}</h3>
-    <h3>The last colour in the database is {{ database_get_by_id }}</h3>    
+    <h3>The last colour in the database is {{ database_get_by_id }}</h3>
   </div>
 </template>
 
