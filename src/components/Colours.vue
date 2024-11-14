@@ -53,8 +53,8 @@ onMounted(async () => {
 })
 
 async function submitColour() {
-  console.log(colour, hex, metadata.value.nickname)
-  await addColour(colour, hex, metadata.value.nickname)
+  console.log(colour, hex, metadata.nickname)
+  await addColour(colour, hex, metadata.nickname)
 }
 
 </script>
@@ -71,6 +71,8 @@ async function submitColour() {
       <input type="text" v-model='colour' name='colour_name' placeholder='red'>
       <label for="hex">Hex Value</label>
       <input type="text" v-model='hex' name='hex_code' placeholder='ff0000' maxlength="25">
+      <label v-if="metadata" for="user">{{ metadata.username }}</label>
+      <input v-if="metadata" type="text" v-model='user' name='username' placeholder={{ metadata.username }} maxlength="25">
       <button type="submit">Submit</button>
     </form>
   </div>
