@@ -1,14 +1,16 @@
 <script setup>
-import { coloursRowCount, getLastColour, getSpecificColourById } from '../colours'
+import { coloursRowCount, getLastColour, getSpecificColourById, addColour } from '../colours'
 import { ref, onMounted } from 'vue'
 import { supabase } from '../supabase.js'
 
-const database_count = ref()
-const database_last = ref()
-const database_get_by_id = ref()
+const database_count = ref(null)
+const database_last = ref(null)
+const database_get_by_id = ref(null)
 const props = defineProps(['session'])
 const loading = ref(true)
 const metadata = ref(null)
+const colour = ref(null)
+const hex = ref(null)
 
 onMounted(async () => {
   try {
@@ -49,6 +51,11 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+async function submitColour(colour, hex, metadata) {
+  await addColour(colour, hex, metadata.value.nickname)
+}
+
 </script>
 
 <template>
@@ -56,6 +63,16 @@ onMounted(async () => {
     <h3>There are {{ database_count }} rows in the colours DB</h3>
     <h3>The last entry into the database is {{ database_last }}</h3>
     <h3>The last colour in the database is {{ database_get_by_id }}</h3>
+  </div>
+  <div id="send_colour">
+    <form @click="submitColour">
+      <label for="colour">Colour Name</label>
+      <input type="text" v-model='colour' name='colour_name' placeholder='red'>
+      <label for="hex">Hex Value</label>
+      <input type="text" v-model='hex' name='hex_code' placeholder='ff0000' maxlength="25">
+      <input type='submit' value="Submit">
+      <button type="submit">Submit</button>
+    </form>
   </div>
 </template>
 

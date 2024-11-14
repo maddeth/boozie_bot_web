@@ -16,3 +16,8 @@ export const getLastColour = async () => {
   const result = await sql`select * from colours order by id desc limit 1;`
   return result
 }
+
+export const addColour = async (colour, hex, user) => {
+  const result = await sql`INSERT INTO colours (colourname, hex_value, username) VALUES ('${colour}', '${hex}', '${user}');`
+  return result
+}
