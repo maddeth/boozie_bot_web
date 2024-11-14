@@ -53,8 +53,8 @@ onMounted(async () => {
 })
 
 async function submitColour() {
-  console.log(colour, hex, await supabase.auth.getUser().user_metadata.nickname)
-  await addColour(colour, hex, await supabase.auth.getUser().user_metadata.nickname)
+  console.log(colour, hex, "Maddeth")
+  await addColour(colour, hex, metadata)
 }
 
 </script>
@@ -71,8 +71,6 @@ async function submitColour() {
       <input type="text" v-model='colour' name='colour_name' placeholder='red'>
       <label for="hex">Hex Value</label>
       <input type="text" v-model='hex' name='hex_code' placeholder='ff0000' maxlength="25">
-      <label v-if="metadata" for="user">{{ metadata.nickname }}</label>
-      <input v-if="metadata" type="text" v-model='user' name='username' placeholder={{ metadata.nickname }} maxlength="25">
       <button type="submit">Submit</button>
     </form>
   </div>
