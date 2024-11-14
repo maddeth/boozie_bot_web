@@ -65,12 +65,11 @@ async function submitColour(colour, hex, metadata) {
     <h3>The last colour in the database is {{ database_get_by_id }}</h3>
   </div>
   <div id="send_colour">
-    <form @click="submitColour">
+    <form @submit.passive="submitColour">
       <label for="colour">Colour Name</label>
       <input type="text" v-model='colour' name='colour_name' placeholder='red'>
       <label for="hex">Hex Value</label>
       <input type="text" v-model='hex' name='hex_code' placeholder='ff0000' maxlength="25">
-      <input type='submit' value="Submit">
       <button type="submit">Submit</button>
     </form>
   </div>
