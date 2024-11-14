@@ -52,7 +52,7 @@ onMounted(async () => {
   }
 })
 
-async function submitColour(colour, hex) {
+async function submitColour() {
   console.log(colour, hex, metadata.value.nickname)
   await addColour(colour, hex, metadata.value.nickname)
 }
