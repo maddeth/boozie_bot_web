@@ -53,8 +53,8 @@ onMounted(async () => {
 })
 
 async function submitColour() {
-  console.log(colour, hex, metadata.nickname)
-  await addColour(colour, hex, metadata.nickname)
+  console.log(colour, hex, await supabase.auth.getUser().metadata.nickname)
+  await addColour(colour, hex, await supabase.auth.getUser().metadata.nickname)
 }
 
 </script>
