@@ -13,7 +13,6 @@ const formData =ref({
   colour: '',
   hex: ''
 })
-const hex = ref(null)
 
 onMounted(async () => {
   try {
@@ -56,7 +55,7 @@ onMounted(async () => {
 })
 
 async function submitColour() {
-  console.log(formData.value)
+  console.log(formData.value.colour, formData.value.colour)
 }
 
 </script>
