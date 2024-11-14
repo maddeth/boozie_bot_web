@@ -1,7 +1,6 @@
 import { neon, Pool } from "@neondatabase/serverless"
 
 const sql = neon(import.meta.env.VITE_DATABASE_URL)
-const pool = new Pool({ connectionString: import.meta.env.VITE_DATABASE_URL });
 
 export const coloursRowCount = async () => {
   const result = await sql`SELECT count(*) FROM colours;`
@@ -19,6 +18,8 @@ export const getLastColour = async () => {
 }
 
 export const addColour = async (colour, hex, user) => {
-  const result = pool.query('INSERT INTO colours (colourname, hex_value, username) VALUES ($1, $2, $3)', colour, hex, user);
+  const pool = new Pool({ connectionString: import.meta.env.VITE_DATABASE_URL });
+  const { result } = await pool.query('INSERT INTO colours (colourname, hex_value, username) VALUES ($1, $2, $3)', colour, hex, user);
+  await pool.end();
   return result
 }
