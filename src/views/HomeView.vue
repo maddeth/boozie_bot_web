@@ -1,7 +1,7 @@
 <script setup>
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
-import HelloWorld from '@/components/HelloWorld.vue';
+import LoggedIn from '@/components/LoggedIn.vue';
 </script>
 
 <template>
@@ -9,7 +9,7 @@ import HelloWorld from '@/components/HelloWorld.vue';
     <Header />
   </header>
   <main>
-    <HelloWorld />
+    <LoggedIn />
   </main>
   <footer>
     <Footer />

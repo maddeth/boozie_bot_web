@@ -54,9 +54,6 @@ onMounted(async () => {
 <template>
   <div class="greetings">
     <h1 class="green">You have Succesfully Logged In</h1>
-    <h3>There are {{ database_count }} rows in the colours DB</h3>
-    <h3>The last entry into the database is {{ database_last }}</h3>
-    <h3>The last colour in the database is {{ database_get_by_id }}</h3>
   </div>
 </template>
 

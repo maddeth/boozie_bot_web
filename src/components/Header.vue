@@ -46,4 +46,32 @@ onMounted(async () => {
       <button v-if="metadata" class="button block" @click="signOut">Sign Out</button>
     </div>
   </div>
+  <nav class="header-nav">
+    <ul>
+      <li><router-link to="/">Home</router-link></li>
+      <li><router-link to="/about">About</router-link></li>
+    </ul>
+  </nav>
 </template>
+
+<style scoped>
+.header-nav {
+  background-color: #333;
+  padding: 1rem;
+}
+.header-nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+}
+.header-nav li {
+  display: inline;
+}
+.header-nav a {
+  color: #fff;
+  text-decoration: none;
+}
+.header-nav a:hover {
+  text-decoration: underline;
+}
+</style>
