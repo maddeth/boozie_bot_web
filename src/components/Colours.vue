@@ -69,9 +69,9 @@ async function submitColour() {
   <div id="send_colour">
     <form @submit.prevent="submitColour">
       <label for="colour">Colour Name</label>
-      <input type="text" v-model='formData.colour' name='colour_name' placeholder='red'>
+      <input type="text" v-model='formData.colour' name='colour_name' placeholder='red' pattern="[0-9a-fA-F]*$" maxlength="24">
       <label for="hex">Hex Value</label>
-      <input type="text" v-model='formData.hex' name='hex_code' placeholder='ff0000' maxlength="25">
+      <input type="text" v-model='formData.hex' name='hex_code' placeholder='ff0000' pattern="[0-9a-f]*$" maxlength="6" minlength="6" required>
       <button type="submit">Submit</button>
     </form>
   </div>
