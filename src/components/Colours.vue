@@ -9,7 +9,7 @@ const database_get_by_id = ref(null)
 const props = defineProps(['session'])
 const loading = ref(true)
 const metadata = ref(null)
-const formData =ref({
+const formData = ref({
   colour: '',
   hex: ''
 })
@@ -69,9 +69,11 @@ async function submitColour() {
   <div id="send_colour">
     <form @submit.prevent="submitColour">
       <label for="colour">Colour Name</label>
-      <input type="text" v-model='formData.colour' name='colour_name' placeholder='red' pattern="[\d\s]" maxlength="24" required>
+      <input type="text" v-model='formData.colour' name='colour_name' placeholder='red' pattern="[a-zA-Z0-9\s]+"
+        maxlength="24" required>
       <label for="hex">Hex Value</label>
-      <input type="text" v-model='formData.hex' name='hex_code' placeholder='ff0000' pattern="[0-9a-f]*$" maxlength="6" minlength="6" required>
+      <input type="text" v-model='formData.hex' name='hex_code' placeholder='ff0000' pattern="[0-9a-fA-F]+"
+        maxlength="6" minlength="6" required>
       <button type="submit">Submit</button>
     </form>
   </div>
