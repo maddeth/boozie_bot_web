@@ -101,10 +101,14 @@ h3 {
   font-size: 1.2rem;
 }
 
+label,
+input {
+  font-size: 1.2rem;
+}
+
 .greetings h1,
 .greetings h3,
 .send_colour {
   text-align: center;
-  font-size: 1.2rem;a
 }
 </style>
