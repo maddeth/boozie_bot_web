@@ -104,6 +104,7 @@ h3 {
 label,
 input {
   font-size: 1.2rem;
+  margin: 0 4;
 }
 
 .greetings h1,
