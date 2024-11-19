@@ -103,6 +103,7 @@ h3 {
 
 label,
 input {
+  display: inline-block;
   font-size: 1.2rem;
   margin: 0 4;
 }
