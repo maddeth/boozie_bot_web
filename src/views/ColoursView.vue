@@ -2,6 +2,7 @@
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 import Colours from '@/components/Colours.vue';
+import ColoursForm from '@/components/ColoursForm.vue';
 </script>
 
 <template>
@@ -10,6 +11,7 @@ import Colours from '@/components/Colours.vue';
   </header>
   <main>
     <Colours />
+    <ColoursForm />
   </main>
   <footer>
     <Footer />
