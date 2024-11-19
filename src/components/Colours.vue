@@ -41,17 +41,6 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to fetch getSpecificColourById:', error)
   }
-
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      metadata.value = user.user_metadata
-    }
-  } catch (error) {
-    console.error('Failed to fetch user data:', error)
-  } finally {
-    loading.value = false
-  }
 })
 
 async function submitColour() {
@@ -66,29 +55,9 @@ async function submitColour() {
     <h3>The last entry into the database is {{ database_last }}</h3>
     <h3>The last colour in the database is {{ database_get_by_id }}</h3>
   </div>
-  <div class="send_colour">
-    <form @submit.prevent="submitColour">
-      <label for="colour">Colour Name</label>
-      <input type="text" v-model='formData.colour' name='colour_name' placeholder='red' pattern="[a-zA-Z0-9\s]+"
-        maxlength="24" required>
-      <label for="hex">Hex Value</label>
-      <input type="text" v-model='formData.hex' name='hex_code' placeholder='ff0000' pattern="[0-9a-fA-F]+"
-        maxlength="6" minlength="6" required>
-      <button type="submit">Submit</button>
-    </form>
-  </div>
 </template>
 
 <style scoped>
-input {
-  &:valid {
-    border: 1px solid green;
-  }
-  
-  &:invalid {
-    border: 1px solid red;
-  }
-}
 
 h1 {
   font-weight: 500;
@@ -101,21 +70,8 @@ h3 {
   font-size: 1.2rem;
 }
 
-label,
-input {
-  display: flex;
-  flex-direction: row;
-  justify-content: centers;
-  text-align: center;
-  margin-bottom: 10px;
-  display: inline-block;
-  font-size: 1.2rem;
-  margin: 0 4;
-}
-
 .greetings h1,
-.greetings h3,
-.send_colour {
+.greetings h3 {
   text-align: center;
 }
 </style>
