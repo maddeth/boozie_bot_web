@@ -103,6 +103,12 @@ h3 {
 
 label,
 input {
+  display: flex;
+  flex-direction: row;
+  justify-content: centers;
+  text-align: center;
+  line-height: 26px;
+  margin-bottom: 10px;
   display: inline-block;
   font-size: 1.2rem;
   margin: 0 4;
