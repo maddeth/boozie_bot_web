@@ -66,7 +66,7 @@ async function submitColour() {
     <h3>The last entry into the database is {{ database_last }}</h3>
     <h3>The last colour in the database is {{ database_get_by_id }}</h3>
   </div>
-  <div id="send_colour">
+  <div class="send_colour">
     <form @submit.prevent="submitColour">
       <label for="colour">Colour Name</label>
       <input type="text" v-model='formData.colour' name='colour_name' placeholder='red' pattern="[a-zA-Z0-9\s]+"
@@ -101,12 +101,10 @@ h3 {
   font-size: 1.2rem;
 }
 
-send_colour {
-  text-align: center
-}
-
 .greetings h1,
-.greetings h3, {
+.greetings h3,
+.send_colour {
   text-align: center;
+  font-size: 1.2rem;a
 }
 </style>
