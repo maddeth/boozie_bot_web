@@ -23,11 +23,10 @@ export const addColour = async (colour, hex, user) => {
     const result = user + " added " + colour + " with hex of " + hex
     return result
   } catch (error) {
-    console.log(error.toString())
-    //if (error.includes("duplicate key value violates unique constraint")) {
-    //  return "Colour already exists"
-    //} else {
-    //  return "Error adding colour"
-    //}
+    if (error.toString().includes("duplicate key value violates unique constraint")) {
+      return "Colour already exists"
+    } else {
+      return "Error adding colour"
+    }
   }
 }
