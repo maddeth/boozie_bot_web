@@ -41,8 +41,8 @@ onMounted(async () => {
 <template>
   <div class="greetings">
     <h3>{{ database_count }}</h3>
-    <h3>The last entry into the database is {{ database_last }}</h3>
-    <h3>The last colour in the database is {{ database_get_by_id }}</h3>
+    <h3>{{ database_last }}</h3>
+    <h3>{{ database_get_by_id }}</h3>
   </div>
 </template>
 
