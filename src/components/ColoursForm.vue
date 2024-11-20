@@ -27,6 +27,8 @@ onMounted(async () => {
 
 async function submitColour() {
   response.value = await addColour(formData.value.colour, formData.value.hex, metadata.value.nickname)
+  console.log(response.value)
+  alert(response.value)
 }
 
 </script>
@@ -42,7 +44,7 @@ async function submitColour() {
         maxlength="6" minlength="6" required>
       <button type="submit">Submit</button>
     </form>
-    <h3>{{ response }}</h3>
+    <h3 v-if=response>{{ response }}</h3>
   </div>
 </template>
 
