@@ -11,7 +11,7 @@ onMounted(async () => {
   try {
     const fetch_count = await coloursRowCount()
     if (fetch_count != null) {
-      database_count.value = fetch_count[0].count
+      database_count.value = fetch_count
     }
   } catch (error) {
     console.error('Failed to fetch database coloursRowCount:', error)
@@ -40,7 +40,7 @@ onMounted(async () => {
 
 <template>
   <div class="greetings">
-    <h3>There are {{ database_count }} rows in the colours DB</h3>
+    <h3>{{ database_count }}</h3>
     <h3>The last entry into the database is {{ database_last }}</h3>
     <h3>The last colour in the database is {{ database_get_by_id }}</h3>
   </div>
