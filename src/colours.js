@@ -1,5 +1,4 @@
 import { neon, Pool } from "@neondatabase/serverless"
-import { response } from "express"
 
 const sql = neon(import.meta.env.VITE_DATABASE_URL)
 
