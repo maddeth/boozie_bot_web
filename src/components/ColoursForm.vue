@@ -35,7 +35,7 @@ async function submitColour() {
 
 <template>
   <div class="send_colour">
-    <form @submit="submitColour">
+    <form @submit.prevent="submitColour">
       <label for="colour">Colour Name</label>
       <input type="text" v-model='formData.colour' name='colour_name' placeholder='red' pattern="[a-zA-Z0-9\s]+"
         maxlength="60" required>
