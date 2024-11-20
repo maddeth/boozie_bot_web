@@ -6,7 +6,8 @@ import { supabase } from '../supabase.js'
 const props = defineProps(['session'])
 const loading = ref(true)
 const metadata = ref(null)
-const response = ref()
+const colourAddResponse = ref()
+const colourSearchResponse = ref()
 const getInitialData = () => ({
   colour: '',
   hex: ''
@@ -30,13 +31,13 @@ onMounted(async () => {
 async function submitColour() {
   const colour = formData.value.colour.toLowerCase().match(/[0-9a-z\s]{0,60}/g)
   const hex = formData.value.hex.toUpperCase().match(/[0-9A-F]{6}/g)
-  response.value = await addColour(colour, hex, metadata.value.nickname)
+  colourAddResponse.value = await addColour(colour, hex, metadata.value.nickname)
   formData.value = getInitialData()
 }
 
 async function SearchByColour(searchColour) {
   const colour = searchColour.toLowerCase().match(/[0-9a-z\s]{0,60}/g)
-  response.value = await getByColourName(colour)
+  colourSearchResponse.value = await getByColourName(colour)
 }
 </script>
 
@@ -51,9 +52,10 @@ async function SearchByColour(searchColour) {
         maxlength="6" minlength="6" required>
       <button type="submit">Submit</button>
     </form>
-    <h3 v-if=response>{{ response }}</h3>
+    <h3 v-if=colourAddResponse>{{ colourAddResponse }}</h3>
     <input type="text" v-model='searchColour'>
     <button @click="SearchByColour">Search for colour</button>
+    <h3 v-if="colourSearchResponse">{{ colourSearchResponse }}</h3>
   </div>
 </template>
 
