@@ -1,4 +1,5 @@
 import { neon, Pool } from "@neondatabase/serverless"
+import { response } from "express"
 
 const sql = neon(import.meta.env.VITE_DATABASE_URL)
 
@@ -23,6 +24,10 @@ export const addColour = async (colour, hex, user) => {
     const result = user + " added " + colour + " with hex of " + hex
     return result
   } catch (error) {
-    return error
+    if (error.includes("duplicate key value violates unique constraint")) {
+      return "Colour already exists"
+    } else {
+      return "Error adding colour"
+    }
   }
 }
