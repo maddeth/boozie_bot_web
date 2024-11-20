@@ -20,16 +20,16 @@ onMounted(async () => {
   try {
     const fetch_last = await getLastColour()
     if (fetch_last != null) {
-      database_last.value = fetch_last[0]
+      database_last.value = fetch_last
     }
   } catch (error) {
     console.error('Failed to fetch getLastColour:', error)
   }
 
   try {
-    const fetch_by_id = await getSpecificColourById(database_last.value.id)
+    const fetch_by_id = await getSpecificColourById(database_last.value)
     if (fetch_by_id != null) {
-      database_get_by_id.value = fetch_by_id[0].colourname
+      database_get_by_id.value = fetch_by_id
     }
   } catch (error) {
     console.error('Failed to fetch getSpecificColourById:', error)
@@ -40,9 +40,9 @@ onMounted(async () => {
 
 <template>
   <div class="greetings">
-    <h3>{{ database_count }}</h3>
-    <h3>{{ database_last }}</h3>
-    <h3>{{ database_get_by_id }}</h3>
+    <h3>Number of rows in the database: {{ database_count }}</h3>
+    <h3>Last entry: {{ database_last }}</h3>
+    <h3>Last colour added: {{ database_get_by_id }}</h3>
   </div>
 </template>
 

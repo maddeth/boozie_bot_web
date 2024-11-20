@@ -5,27 +5,50 @@ const sql = neon(import.meta.env.VITE_DATABASE_URL)
 export const coloursRowCount = async () => {
   try {
     const response = await sql('SELECT count(*) FROM colours')
-    return "There are " + response[0].count + " rows in the colours DB"
+    return response[0].count
   } catch (error) {
-    return "Could not connect to the database"
+    console.log(error)
+    return null
   }
+}
+
+export const getById = async (req) => {
+  const response = sql('select * from colours where id = $1', [req])
+  return response
+}
+
+export const getByColourName = async (req) => {
+  const response = sql('select * from colours where colourname like \'%$1%\'', [req])
+  return response
+
+}
+
+export const getByHex = async (req) => {
+  const response = sql('select * from colours where hex = $1', [req])
+  return response
+
+}
+
+export const getByUserName = async (req) => {
+  const response = sql('select * from colours where username = $1', [req])
+
 }
 
 export const getSpecificColourById = async (req) => {
   try {
     const response = await sql('SELECT colourname FROM colours where id=$1', [req])
-    return "The entry of id " + req + " is " + response[0]
+    return response[0].id
   } catch (error) {
-    return "Could not connect to the database"
+    return null
   }
 }
 
 export const getLastColour = async () => {
   try {
     const response = sql('select * from colours order by id desc limit 1')
-    return "The last colour in the database is  " + response[0].colourname + ", with id " + response[0].id
+    return response[0].colourname
   } catch (error) {
-    return "Could not connect to the database"
+    return null
   }
 }
 
