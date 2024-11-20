@@ -10,6 +10,7 @@ const formData = ref({
   colour: '',
   hex: ''
 })
+const response = ref()
 
 onMounted(async () => {
   try {
@@ -25,7 +26,7 @@ onMounted(async () => {
 })
 
 async function submitColour() {
-  await addColour(formData.value.colour, formData.value.hex, metadata.value.nickname)
+  response.value = await addColour(formData.value.colour, formData.value.hex, metadata.value.nickname)
 }
 
 </script>
@@ -41,6 +42,7 @@ async function submitColour() {
         maxlength="6" minlength="6" required>
       <button type="submit">Submit</button>
     </form>
+    <h3>{{ response }}</h3>
   </div>
 </template>
 

@@ -6,11 +6,6 @@ const database_count = ref(null)
 const database_last = ref(null)
 const database_get_by_id = ref(null)
 const props = defineProps(['session'])
-const metadata = ref(null)
-const formData = ref({
-  colour: '',
-  hex: ''
-})
 
 onMounted(async () => {
   try {
