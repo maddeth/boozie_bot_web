@@ -6,11 +6,12 @@ import { supabase } from '../supabase.js'
 const props = defineProps(['session'])
 const loading = ref(true)
 const metadata = ref(null)
-const formData = ref({
+const response = ref()
+const getInitialData = () => ({
   colour: '',
   hex: ''
 })
-const response = ref()
+const formData = ref(getInitialData());
 
 onMounted(async () => {
   try {
@@ -27,7 +28,7 @@ onMounted(async () => {
 
 async function submitColour() {
   response.value = await addColour(formData.value.colour, formData.value.hex, metadata.value.nickname)
-  this.$refs.colourForm.reset()
+  formData.value = getInitialData()
 }
 
 </script>
