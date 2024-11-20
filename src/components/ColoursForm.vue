@@ -1,5 +1,5 @@
 <script setup>
-import { addColour } from '../colours'
+import { addColour, getByColourName } from '../colours'
 import { ref, onMounted } from 'vue'
 import { supabase } from '../supabase.js'
 
@@ -12,6 +12,7 @@ const getInitialData = () => ({
   hex: ''
 })
 const formData = ref(getInitialData());
+const searchColour = ref()
 
 onMounted(async () => {
   try {
@@ -33,6 +34,10 @@ async function submitColour() {
   formData.value = getInitialData()
 }
 
+async function SearchByColour(searchColour) {
+  const colour = searchColour.toLowerCase().match(/[0-9a-z\s]{0,60}/g)
+  response.value = await getByColourName(colour)
+}
 </script>
 
 <template>
@@ -47,6 +52,8 @@ async function submitColour() {
       <button type="submit">Submit</button>
     </form>
     <h3 v-if=response>{{ response }}</h3>
+    <input type="text" v-model='searchColour'>
+    <button @click="SearchByColour">Search for colour</button>
   </div>
 </template>
 
