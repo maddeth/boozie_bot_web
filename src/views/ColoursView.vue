@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
-import Colours from '@/components/Colours.vue';
+import ColoursList from '@/components/ColoursList.vue';
 import ColoursForm from '@/components/ColoursForm.vue';
 </script>
 
@@ -10,7 +10,7 @@ import ColoursForm from '@/components/ColoursForm.vue';
     <Header />
   </header>
   <main>
-    <Colours />
+    <ColoursList />
     <ColoursForm />
   </main>
   <footer>

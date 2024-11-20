@@ -1,11 +1,8 @@
 <script setup>
-import { coloursRowCount, getLastColour, getSpecificColourById, addColour } from '../colours'
+import { addColour } from '../colours'
 import { ref, onMounted } from 'vue'
 import { supabase } from '../supabase.js'
 
-const database_count = ref(null)
-const database_last = ref(null)
-const database_get_by_id = ref(null)
 const props = defineProps(['session'])
 const loading = ref(true)
 const metadata = ref(null)

@@ -1,13 +1,11 @@
 <script setup>
-import { coloursRowCount, getLastColour, getSpecificColourById, addColour } from '../colours'
+import { coloursRowCount, getLastColour, getSpecificColourById } from '../colours'
 import { ref, onMounted } from 'vue'
-import { supabase } from '../supabase.js'
 
 const database_count = ref(null)
 const database_last = ref(null)
 const database_get_by_id = ref(null)
 const props = defineProps(['session'])
-const loading = ref(true)
 const metadata = ref(null)
 const formData = ref({
   colour: '',
@@ -42,10 +40,6 @@ onMounted(async () => {
     console.error('Failed to fetch getSpecificColourById:', error)
   }
 })
-
-async function submitColour() {
-  await addColour(formData.value.colour, formData.value.hex, metadata.value.nickname)
-}
 
 </script>
 
