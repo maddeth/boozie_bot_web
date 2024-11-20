@@ -20,14 +20,14 @@ onMounted(async () => {
   try {
     const fetch_last = await getLastColour()
     if (fetch_last != null) {
-      database_last.value = fetch_last
+      database_last.value = fetch_last[0]
     }
   } catch (error) {
     console.error('Failed to fetch getLastColour:', error)
   }
 
   try {
-    const fetch_by_id = await getSpecificColourById(database_last.value)
+    const fetch_by_id = await getSpecificColourById(database_last.value.id)
     if (fetch_by_id != null) {
       database_get_by_id.value = fetch_by_id
     }

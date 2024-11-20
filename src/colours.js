@@ -20,24 +20,22 @@ export const getById = async (req) => {
 export const getByColourName = async (req) => {
   const response = sql('select * from colours where colourname like \'%$1%\'', [req])
   return response
-
 }
 
 export const getByHex = async (req) => {
   const response = sql('select * from colours where hex = $1', [req])
   return response
-
 }
 
 export const getByUserName = async (req) => {
   const response = sql('select * from colours where username = $1', [req])
-
+  return response
 }
 
 export const getSpecificColourById = async (req) => {
   try {
     const response = await sql('SELECT colourname FROM colours where id=$1', [req])
-    return response[0].id
+    return response[0].colourname
   } catch (error) {
     return null
   }
@@ -46,7 +44,7 @@ export const getSpecificColourById = async (req) => {
 export const getLastColour = async () => {
   try {
     const response = sql('select * from colours order by id desc limit 1')
-    return response[0]
+    return response
   } catch (error) {
     return null
   }
