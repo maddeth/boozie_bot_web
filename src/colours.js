@@ -19,7 +19,8 @@ export const getLastColour = async () => {
 
 export const addColour = async (colour, hex, user) => {
   try {
-    const result = await sql('INSERT INTO colours (colourname, hex_value, username) VALUES ($1, $2, $3)', [colour, hex, user]);
+    await sql('INSERT INTO colours (colourname, hex_value, username) VALUES ($1, $2, $3)', [colour, hex, user]);
+    const result = user + " added " + colour + " with hex of " + hex
     return result
   } catch (error) {
     return error
