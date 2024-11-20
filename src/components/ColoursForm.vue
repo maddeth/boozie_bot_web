@@ -27,7 +27,9 @@ onMounted(async () => {
 })
 
 async function submitColour() {
-  response.value = await addColour(formData.value.colour, formData.value.hex, metadata.value.nickname)
+  const colour = formData.value.colour.toLowerCase().match(/[0-9a-z\s]{0,60}/g)
+  const hex = formData.value.hex.toUpperCase().match(/[0-9A-F]{6}/g)
+  response.value = await addColour(colour, hex, metadata.value.nickname)
   formData.value = getInitialData()
 }
 
@@ -51,11 +53,11 @@ async function submitColour() {
 <style scoped>
 input {
   &:valid {
-    border: 1px solid green;
+    border: 2px solid green;
   }
   
   &:invalid {
-    border: 1px solid red;
+    border: 2px solid red;
   }
 }
 
