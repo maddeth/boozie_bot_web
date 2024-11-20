@@ -27,15 +27,14 @@ onMounted(async () => {
 
 async function submitColour() {
   response.value = await addColour(formData.value.colour, formData.value.hex, metadata.value.nickname)
-  console.log(response.value)
-  alert(response.value)
+  this.$refs.colourForm.reset()
 }
 
 </script>
 
 <template>
   <div class="send_colour">
-    <form @submit.prevent="submitColour">
+    <form ref="colourForm" @submit.prevent="submitColour">
       <label for="colour">Colour Name</label>
       <input type="text" v-model='formData.colour' name='colour_name' placeholder='red' pattern="[a-zA-Z0-9\s]+"
         maxlength="60" required>
