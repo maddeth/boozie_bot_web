@@ -13,24 +13,24 @@ export const coloursRowCount = async () => {
 }
 
 export const getById = async (req) => {
-  const response = sql('select * from colours where id = $1', [req])
+  const response = await sql('select * from colours where id = $1', [req])
   return response
 }
 
 export const getByColourName = async (req) => {
   const search = "'%" + req + "%'"
-  const response = sql`select * from colours where colourname like ${search}`
+  const response = await sql`select * from colours where colourname like ${search}`
   console.log(response)
   return response
 }
 
 export const getByHex = async (req) => {
-  const response = sql('select * from colours where hex = $1', [req])
+  const response = await sql('select * from colours where hex = $1', [req])
   return response
 }
 
 export const getByUserName = async (req) => {
-  const response = sql('select * from colours where username = $1', [req])
+  const response = await sql('select * from colours where username = $1', [req])
   return response
 }
 
