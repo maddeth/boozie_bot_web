@@ -29,15 +29,15 @@ onMounted(async () => {
 })
 
 async function submitColour() {
-  const colour = formData.colour.toLowerCase().match(/[0-9a-z\s]{0,60}/g)
-  const hex = formData.hex.toUpperCase().match(/[0-9A-F]{6}/g)
+  const colour = formData.colour.match(/[0-9a-z-Z\s]{0,60}/g).toLowerCase()
+  const hex = formData.hex.match(/[0-9A-Fa-fg]{6}/g).toUpperCase()
   console.log(colour, hex)
   // colourAddResponse.value = await addColour(colour, hex, metadata.value.nickname)
   formData.value = getInitialData()
 }
 
 async function SearchByColour(searchColour) {
-  const colour = searchColour.toLowerCase().match(/[0-9a-z\s]{0,60}/g)
+  const colour = searchColour.match(/[0-9a-z\s]{0,60}/g).toLowerCase()
   console.log(searchColour)
   colourSearchResponse.value = await getByColourName(colour)
 }
