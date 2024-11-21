@@ -29,17 +29,14 @@ onMounted(async () => {
 })
 
 async function submitColour() {
-  console.log(formData.value.colour)
   const colour = formData.value.colour.toLowerCase().match(/[0-9a-z\s]{0,60}/g)[0].trim()
   const hex = formData.value.hex.toUpperCase().match(/[0-9A-F]{6}/g)[0].trim()
-  console.log(colour, hex)
-  // colourAddResponse.value = await addColour(colour, hex, metadata.value.nickname)
+  colourAddResponse.value = await addColour(colour, hex, metadata.value.nickname)
   formData.value = getInitialData()
 }
 
 async function SearchByColour() {
   const colour = searchColour.value.toLowerCase().match(/[0-9a-z\s]{0,60}/g)[0].trim()
-  console.log(searchColour.value, colour)
   colourSearchResponse.value = await getByColourName(colour)
 }
 </script>
@@ -55,10 +52,10 @@ async function SearchByColour() {
         maxlength="6" minlength="6" required>
       <button type="submit">Submit</button>
     </form>
-    <!-- <h3 v-if=colourAddResponse>{{ colourAddResponse }}</h3> -->
+    <h3 v-if=colourAddResponse>{{ colourAddResponse }}</h3>
     <input type="text" v-model='searchColour'>
     <button @click="SearchByColour">Search for colour</button>
-    <!-- <h3 v-if="colourSearchResponse">{{ colourSearchResponse }}</h3> -->
+    <h3 v-if="colourSearchResponse">{{ colourSearchResponse }}</h3>
   </div>
 </template>
 
