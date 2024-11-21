@@ -18,9 +18,8 @@ export const getById = async (req) => {
 }
 
 export const getByColourName = async (req) => {
-  const name = "%" + req + "%"
-  console.log(name)
-  const response = sql('select * from colours where colourname like \'$1\'', [name])
+  const response = sql`select * from colours where colourname like '%${req}%'`
+  console.log(response)
   return response
 }
 
