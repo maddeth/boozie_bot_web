@@ -45,7 +45,7 @@ export const getSpecificColourById = async (req) => {
 
 export const getLastColour = async () => {
   try {
-    const response = sql('select * from colours order by id desc limit 1')
+    const response = await sql('select * from colours order by id desc limit 1')
     return response
   } catch (error) {
     return null
