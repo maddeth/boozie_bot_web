@@ -54,10 +54,10 @@ async function SearchByColour() {
         maxlength="6" minlength="6" required>
       <button type="submit">Submit</button>
     </form>
-    <h3 v-if=colourAddResponse>{{ colourAddResponse }}</h3>
+    <!-- <h3 v-if=colourAddResponse>{{ colourAddResponse }}</h3> -->
     <input type="text" v-model='searchColour'>
     <button @click="SearchByColour">Search for colour</button>
-    <h3 v-if="colourSearchResponse">{{ colourSearchResponse }}</h3>
+    <!-- <h3 v-if="colourSearchResponse">{{ colourSearchResponse }}</h3> -->
   </div>
 </template>
 
