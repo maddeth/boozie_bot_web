@@ -56,7 +56,7 @@ async function SearchByColour() {
     <h3 v-if=colourAddResponse>{{ colourAddResponse }}</h3>
     <input type="text" v-model='searchColour'>
     <button @click="SearchByColour">Search for colour</button>
-    <h3 v-if="colourSearchResponse">{{ colourSearchResponse }}</h3>
+    <li v-for="colour in colourSearchResponse">{{ colour.colourname }}{{ colour.hex_value }}</li>
   </div>
 </template>
 
