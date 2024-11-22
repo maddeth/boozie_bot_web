@@ -14,6 +14,7 @@ const getInitialData = () => ({
 })
 const formData = ref(getInitialData());
 const searchColour = ref()
+const upperCased = ref()
 
 onMounted(async () => {
   try {
@@ -40,6 +41,10 @@ async function SearchByColour() {
   console.log(colour)
   colourSearchResponse.value = await getByColourName(colour)
 }
+
+function upperCaseWord(word) {
+  return word.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+}
 </script>
 
 <template>
@@ -61,7 +66,7 @@ async function SearchByColour() {
         <td>{{ colour.colourname }}</td>
         <td>{{ colour.hex_value }}</td>
       </tr>
-    </table><h4 v-for="colour in colourSearchResponse">{{ colour.colourname }} {{ colour.hex_value }}</h4>
+    </table><h4 v-for="colour in colourSearchResponse">{{ upperCaseWord(colour.colourname) }} {{ colour.hex_value }}</h4>
   </div>
 </template>
 
