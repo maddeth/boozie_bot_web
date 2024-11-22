@@ -38,7 +38,6 @@ async function submitColour() {
 
 async function SearchByColour() {
   const colour = searchColour.value.toLowerCase().match(/[0-9a-z\s]{0,60}/g)[0].trim()
-  console.log(colour)
   colourSearchResponse.value = await getByColourName(colour)
 }
 
@@ -63,7 +62,7 @@ function upperCaseWord(word) {
     <button @click="SearchByColour">Search for colour</button>
     <table>
       <tr v-for="colour in colourSearchResponse">
-        <td>{{ colour.colourname }}</td>
+        <td>{{ upperCaseWord(colour.colourname) }}</td>
         <td>{{ colour.hex_value }}</td>
       </tr>
     </table><h4 v-for="colour in colourSearchResponse">{{ upperCaseWord(colour.colourname) }} {{ colour.hex_value }}</h4>
@@ -82,7 +81,8 @@ input {
 }
 
 label,
-input {
+input,
+table {
   display: flex;
   flex-direction: row;
   justify-content: centers;
