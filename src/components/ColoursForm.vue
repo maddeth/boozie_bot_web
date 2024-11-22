@@ -65,7 +65,7 @@ function upperCaseWord(word) {
         <td>{{ upperCaseWord(colour.colourname) }}</td>
         <td>{{ colour.hex_value }}</td>
       </tr>
-    </table><h4 v-for="colour in colourSearchResponse">{{ upperCaseWord(colour.colourname) }} {{ colour.hex_value }}</h4>
+    </table>
   </div>
 </template>
 
@@ -81,8 +81,7 @@ input {
 }
 
 label,
-input,
-table {
+input {
   display: flex;
   flex-direction: row;
   justify-content: centers;
@@ -93,6 +92,16 @@ table {
   margin: 0 4;
 }
 
+table {
+  display: flex;
+  flex-direction: row;
+  justify-content: centers;
+  text-align: center;
+  margin-bottom: 10px;
+  display: inline-block;
+  font-size: 1.1rem;
+  margin: 0 4;
+}
 .send_colour {
   text-align: center;
 }

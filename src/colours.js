@@ -19,9 +19,7 @@ export const getById = async (req) => {
 
 export const getByColourName = async (req) => {
   const search = `select * from colours where colourname like '%${req}%';`
-  console.log(`select * from colours where colourname like '%${req}%';`)
   const response = await sql(search)
-  console.log(response)
   return response
 }
 
