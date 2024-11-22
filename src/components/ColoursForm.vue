@@ -66,6 +66,7 @@ function upperCaseWord(word) {
       <tr v-for="colour in colourSearchResponse">
         <td>{{ upperCaseWord(colour.colourname) }}</td>
         <td>{{ colour.hex_value }}</td>
+        <td type="color" value="#{{ colour.hex_value }}"></td>
       </tr>
     </table>
   </div>
