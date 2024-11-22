@@ -60,6 +60,8 @@ function upperCaseWord(word) {
     <h3 v-if=colourAddResponse>{{ colourAddResponse }}</h3>
     <input type="text" v-model='searchColour'>
     <button @click="SearchByColour">Search for colour</button>
+  </div>
+  <div>
     <table>
       <tr v-for="colour in colourSearchResponse">
         <td>{{ upperCaseWord(colour.colourname) }}</td>
