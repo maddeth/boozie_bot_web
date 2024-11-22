@@ -37,6 +37,7 @@ async function submitColour() {
 
 async function SearchByColour() {
   const colour = searchColour.value.toLowerCase().match(/[0-9a-z\s]{0,60}/g)[0].trim()
+  console.log(colour)
   colourSearchResponse.value = await getByColourName(colour)
 }
 </script>
