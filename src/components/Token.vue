@@ -24,7 +24,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div id="token">
+  <div class="token">
     <h3>This is your Bearer token</h3>
     <p>
       {{ token }}
@@ -33,6 +33,9 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+  div.token {
+    max-width: 800px;
+  }
   p {    
     display: inline-block;
   }
