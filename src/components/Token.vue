@@ -9,9 +9,9 @@ const token = ref(null)
 
 onMounted(async () => {
   try {
-    const { data: { user } } = await supabase.auth.getSession().data.session.access_token
+    const { data: { user } } = await supabase.auth.getSession()
     if (user) {
-      token.value = user
+      token.value = user.data
     }
   } catch (error) {
     console.error('Failed to fetch user data:', error)
