@@ -23,20 +23,17 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="token">
+  <div >
     <h3>This is your Bearer token</h3>
-    <p>
+    <div class="token">
       {{ token }}
-    </p>
+    </div>
   </div>
 </template>
 
 <style scoped>
   div.token {
-    max-width: 800px;
-    height: 100%
-  }
-  p {    
-    display: inline-block;
+    width: 800px;
+    word-wrap: break-word;
   }
 </style>
