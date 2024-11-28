@@ -11,7 +11,6 @@ onMounted(async () => {
   try {
     const user  = await supabase.auth.getSession()
     if (user) {
-      console.log(user)
       token.value = user.data.session.access_token
     }
   } catch (error) {
@@ -35,6 +34,7 @@ onMounted(async () => {
 <style scoped>
   div.token {
     max-width: 800px;
+    height: 100%
   }
   p {    
     display: inline-block;
