@@ -50,6 +50,7 @@ onMounted(async () => {
     <ul>
       <li><router-link to="/">Home</router-link></li>
       <li><router-link to="/colours">Colours</router-link></li>
+      <li><router-link to="/token">Api Token</router-link></li>
     </ul>
   </nav>
 </template>

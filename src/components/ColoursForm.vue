@@ -21,7 +21,6 @@ onMounted(async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       metadata.value = user.user_metadata
-      console.log(await supabase.auth.getSession())
     }
   } catch (error) {
     console.error('Failed to fetch user data:', error)
