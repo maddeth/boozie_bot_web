@@ -33,4 +33,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+  p {    
+    display: inline-block;
+  }
 </style>
