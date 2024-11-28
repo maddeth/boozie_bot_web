@@ -11,6 +11,7 @@ onMounted(async () => {
   try {
     const { data: { user } } = await supabase.auth.getSession()
     if (user) {
+      console.log(user)
       token.value = user.data
     }
   } catch (error) {
