@@ -9,10 +9,10 @@ const token = ref(null)
 
 onMounted(async () => {
   try {
-    const { data: { user } } = await supabase.auth.getSession()
+    const user  = await supabase.auth.getSession()
     if (user) {
       console.log(user)
-      token.value = user.data
+      token.value = user
     }
   } catch (error) {
     console.error('Failed to fetch user data:', error)
@@ -25,6 +25,7 @@ onMounted(async () => {
 
 <template>
   <div id="token">
+    <h6>This is your Bearer token</h6>
     <p>
       {{ token }}
     </p>
