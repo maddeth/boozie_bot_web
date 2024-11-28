@@ -12,7 +12,7 @@ onMounted(async () => {
     const user  = await supabase.auth.getSession()
     if (user) {
       console.log(user)
-      token.value = user
+      token.value = user.data.session.access_token
     }
   } catch (error) {
     console.error('Failed to fetch user data:', error)
@@ -25,7 +25,7 @@ onMounted(async () => {
 
 <template>
   <div id="token">
-    <h6>This is your Bearer token</h6>
+    <h3>This is your Bearer token</h3>
     <p>
       {{ token }}
     </p>
