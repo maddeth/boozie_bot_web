@@ -47,8 +47,9 @@ async function submitColour() {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin':'*',
+        'Access-Control-Allow-Methods':'POST,PATCH,OPTIONS',
         'Authorization': 'Bearer ' + token.value,
-        'Access-Control-Allow-Origin': '*',
       },
       body: JSON.stringify({ colour: colour, hex_value: hex })
   };
