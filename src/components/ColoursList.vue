@@ -17,14 +17,20 @@ onMounted(async () => {
     console.error('Failed to fetch database coloursRowCount:', error)
   }
 
-  try {
-    const fetch_last = await getLastColour()
-    if (fetch_last != null) {
-      database_last.value = fetch_last[0]
+  try{
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token.value,
+      },
     }
-  } catch (error) {
-    console.error('Failed to fetch getLastColour:', error)
-  }
+    const response = await fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
+    database_last.value = await response.json()
+    console.log(database_last.value.response)
+  } catch (error){
+    console.error('Failed to fetch last db entry', error)
+  } 
 
   try {
     const fetch_by_id = await getSpecificColourById(database_last.value.id)
@@ -41,7 +47,7 @@ onMounted(async () => {
 <template>
   <div class="greetings">
     <h3 v-if="database_count != null">Number of rows in the database: {{ database_count }}</h3>
-    <h3 v-if="database_last != null">Last entry was by {{ database_last.username }}, was {{ database_last.colourname }} with a hex value of {{ database_last.hex_value }}</h3>
+    <h3 v-if="database_last != null">Last entry was by {{ database_last.response.username }}, was {{ database_last.colourname }} with a hex value of {{ database_last.hex_value }}</h3>
     <h3 v-if="database_get_by_id != null">Last colour added: {{ database_get_by_id }}</h3>
   </div>
 </template>
