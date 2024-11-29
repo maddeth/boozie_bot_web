@@ -51,7 +51,7 @@ async function submitColour() {
       },
       body: JSON.stringify({ colour: colour, hex: hex })
   }
-  const response = await fetch('https://maddeth.com/api/colours', requestOptions);
+  const response = await fetch('https://maddeth.com/api/colours', requestOptions).json()
   colourAddResponse.value = await response.json()
 
   // colourAddResponse.value = await addColour(colour, hex, metadata.value.nickname)
@@ -68,9 +68,9 @@ async function SearchByColour() {
       },
       body: JSON.stringify({ colour: colour })
   }
-  const response = await fetch('https://maddeth.com/api/colours/colourName', requestOptions)
-  
+  const response = await fetch('https://maddeth.com/api/colours/colourName', requestOptions).json()
   colourSearchResponse.value = response
+  
 }
 
 function upperCaseWord(word) {
@@ -95,7 +95,7 @@ function upperCaseWord(word) {
   </div>
   <div>
     <table>
-      <tr v-for="colour in colourSearchResponse.response">
+      <tr v-for="colour in colourSearchResponse">
         <td>{{ upperCaseWord(colour.colourname) }}</td>
         <td>{{ colour.hex_value }}</td>
         <td type="color" value="#{{ colour.hex_value }}"></td>
