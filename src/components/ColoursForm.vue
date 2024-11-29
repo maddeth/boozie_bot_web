@@ -50,9 +50,9 @@ async function submitColour() {
         'Authorization': 'Bearer ' + token.value,
       },
       body: JSON.stringify({ colour: colour, hex: hex })
-  };
+  }
   const response = await fetch('https://maddeth.com/api/colours', requestOptions);
-  colourAddResponse.value = await response.json();
+  colourAddResponse.value = await response.json().response
 
   // colourAddResponse.value = await addColour(colour, hex, metadata.value.nickname)
   formData.value = getInitialData()
@@ -60,7 +60,17 @@ async function submitColour() {
 
 async function SearchByColour() {
   const colour = searchColour.value.toLowerCase().match(/[0-9a-z\s]{0,60}/g)[0].trim()
-  colourSearchResponse.value = await getByColourName(colour)
+  const requestOptions = {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token.value,
+      },
+      body: JSON.stringify({ colour: colour })
+  }
+  const response = await fetch('https://maddeth.com/api/colours/colourName', requestOptions)
+  
+  colourSearchResponse.value = response.response
 }
 
 function upperCaseWord(word) {
