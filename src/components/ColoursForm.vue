@@ -52,8 +52,8 @@ async function submitColour() {
       body: JSON.stringify({ colour: colour, hex: hex })
   }
   const response = await fetch('https://maddeth.com/api/colours', requestOptions)
-  // console.log(await response.json())
-  colourAddResponse.value = await response.json()
+  // console.log(await response.json().response)
+  colourAddResponse.value = await response.json().response
 
   // colourAddResponse.value = await addColour(colour, hex, metadata.value.nickname)
   formData.value = getInitialData()
