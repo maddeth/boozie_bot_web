@@ -53,7 +53,7 @@ async function submitColour() {
   }
   const response = await fetch('https://maddeth.com/api/colours', requestOptions)
   // console.log(await response.json().response)
-  colourAddResponse.value = await response.json().response
+  colourAddResponse.value = response.json()
 
   // colourAddResponse.value = await addColour(colour, hex, metadata.value.nickname)
   formData.value = getInitialData()
@@ -70,8 +70,8 @@ async function SearchByColour() {
       body: JSON.stringify({ colour: colour })
   }
   const response = await fetch('https://maddeth.com/api/colours/colourName', requestOptions)
-  // console.log(await response.json())
-  colourSearchResponse.value = await response.json()
+  console.log(response.json())
+  colourSearchResponse.value = response.json()
   
 }
 
