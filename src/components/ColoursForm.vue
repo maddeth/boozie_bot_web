@@ -6,6 +6,7 @@ import { supabase } from '../supabase.js'
 const props = defineProps(['session'])
 const loading = ref(true)
 const metadata = ref(null)
+const token = ref(null)
 const colourAddResponse = ref()
 const colourSearchResponse = ref()
 const getInitialData = () => ({
@@ -27,12 +28,33 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+  try {
+    const userSession  = await supabase.auth.getSession()
+    if (userSession) {
+      token.value = userSession.data.session.access_token
+    }
+  } catch (error) {
+    console.error('Failed to fetch user data:', error)
+  } finally {
+    loading.value = false
+  }
 })
 
 async function submitColour() {
   const colour = formData.value.colour.toLowerCase().match(/[0-9a-z\s]{0,60}/g)[0].trim()
   const hex = formData.value.hex.toUpperCase().match(/[0-9A-F]{6}/g)[0].trim()
-  colourAddResponse.value = await addColour(colour, hex, metadata.value.nickname)
+  const requestOptions = {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token.value,
+      },
+      body: JSON.stringify({ colour: colour, hex_value: hex })
+  };
+  const response = await fetch('https://maddeth.com/colours', requestOptions);
+  colourAddResponse.value = await response.json();
+
+  // colourAddResponse.value = await addColour(colour, hex, metadata.value.nickname)
   formData.value = getInitialData()
 }
 
