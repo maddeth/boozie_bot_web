@@ -52,7 +52,7 @@ async function submitColour() {
       },
       body: JSON.stringify({ colour: colour, hex_value: hex })
   };
-  const response = await fetch('https://maddeth.com/colours', requestOptions);
+  const response = await fetch('https://maddeth.com/api/colours', requestOptions);
   colourAddResponse.value = await response.json();
 
   // colourAddResponse.value = await addColour(colour, hex, metadata.value.nickname)
