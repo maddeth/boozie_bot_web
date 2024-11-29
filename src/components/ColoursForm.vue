@@ -52,7 +52,7 @@ async function submitColour() {
       body: JSON.stringify({ colour: colour, hex: hex })
   }
   const response = await fetch('https://maddeth.com/api/colours', requestOptions);
-  colourAddResponse.value = await response.json().response
+  colourAddResponse.value = await response.json()
 
   // colourAddResponse.value = await addColour(colour, hex, metadata.value.nickname)
   formData.value = getInitialData()
@@ -70,7 +70,7 @@ async function SearchByColour() {
   }
   const response = await fetch('https://maddeth.com/api/colours/colourName', requestOptions)
   
-  colourSearchResponse.value = response.response
+  colourSearchResponse.value = response
 }
 
 function upperCaseWord(word) {
