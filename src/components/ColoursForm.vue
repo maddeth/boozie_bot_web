@@ -69,9 +69,11 @@ async function SearchByColour() {
       },
       body: JSON.stringify({ colour: colour })
   }
-  const response = await fetch('https://maddeth.com/api/colours/colourName', requestOptions)
-  colourSearchResponse.value = await response.json()
-  console.log(colourSearchResponse.value.response)
+  fetch('https://maddeth.com/api/colours/colourName', requestOptions)
+  .then(response => response.json())
+  .then(data => colourSearchResponse.value = data);
+  // colourSearchResponse.value = await response.json()
+  console.log(colourSearchResponse.value)
   
 }
 
