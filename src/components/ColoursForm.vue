@@ -49,7 +49,7 @@ async function submitColour() {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token.value,
       },
-      body: JSON.stringify({ colour: colour, hex_value: hex })
+      body: JSON.stringify({ colour: colour, hex: hex })
   };
   const response = await fetch('https://maddeth.com/api/colours', requestOptions);
   colourAddResponse.value = await response.json();
