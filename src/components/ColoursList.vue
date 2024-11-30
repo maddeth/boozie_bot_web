@@ -25,11 +25,9 @@ onMounted(async () => {
         'Authorization': 'Bearer ' + token.value,
       },
     }
-    fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
-    .then(response => response.json())
-    .then(data => database_last.value = data);
-    // database_last.value = await response.json()
-    console.log(database_last.value)
+    const response = fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
+    database_last.value = await response.json()
+    // console.log(database_last.value)
   } catch (error){
     console.error('Failed to fetch last db entry', error)
   } 
