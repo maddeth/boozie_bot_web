@@ -70,11 +70,7 @@ async function SearchByColour() {
       body: JSON.stringify({ colour: colour })
   }
   fetch('https://maddeth.com/api/colours/colourName', requestOptions)
-  .then(response => response.json())
-  .then(data => colourSearchResponse.value = data);
-  // colourSearchResponse.value = await response.json()
-  console.log(colourSearchResponse.value)
-  
+  colourSearchResponse.value = await response.json()
 }
 
 function upperCaseWord(word) {
