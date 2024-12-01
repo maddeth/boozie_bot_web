@@ -39,8 +39,11 @@ onMounted(async () => {
         'Authorization': 'Bearer ' + token.value,
       },
     }
-    const response = fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
-    database_last.value = await response[0]
+    fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
+      .then(response => response.json())
+      .then(data => database_last.value = data)
+    // database_last.value = 
+
     // console.log(database_last.value)
   } catch (error){
     console.error('Failed to fetch last db entry', error)
@@ -61,7 +64,7 @@ onMounted(async () => {
 <template>
   <div class="greetings">
     <h3 v-if="database_count != null">Number of rows in the database: {{ database_count }}</h3>
-    <h3 v-for="item in database_last" v-if="database_last != null">Last entry was by {{ item.username }}, was {{ item.colourname }} with a hex value of {{ item.hex_value }}</h3>
+    <h3 v-if="database_last != null">Last entry was by {{ item.username }}, was {{ item.colourname }} with a hex value of {{ item.hex_value }}</h3>
     <h3 v-if="database_get_by_id != null">Last colour added: {{ database_get_by_id }}</h3>
   </div>
 </template>
