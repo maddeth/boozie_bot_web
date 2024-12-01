@@ -58,9 +58,7 @@ async function fetchData() {
   }
   return fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
     .then(res => {
-      // a non-200 response code
       if (!res.ok) {
-        // create error instance with HTTP status text
         const error = new Error(res.statusText);
         error.json = res.json();
         throw error;
@@ -69,16 +67,19 @@ async function fetchData() {
       return res.json();
     })
     .then(json => {
-      // set the response data
-      database_last.value = json.data;
-      console.log(database_last.value)
+      // Assign the first item in the array to `database_last`
+      if (json && Array.isArray(json) && json.length > 0) {
+        database_last.value = json[0]; // First object in the array
+      } else {
+        console.warn("API response was empty or invalid:", json);
+        database_last.value = null; // Handle empty responses gracefully
+      }
+      console.log("Database last entry:", database_last.value);
     })
     .catch(err => {
       error.value = err;
-      // In case a custom JSON error response was provided
       if (err.json) {
         return err.json.then(json => {
-          // set the JSON response message
           error.value.message = json.message;
         });
       }
