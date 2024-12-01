@@ -1,5 +1,4 @@
 <script setup>
-// import { coloursRowCount, getLastColour, getSpecificColourById } from '../colours'
 import { ref, onMounted } from 'vue'
 import { supabase } from '../supabase.js'
 
@@ -23,11 +22,22 @@ onMounted(async () => {
   }
  
   try{
-    await fetchData()
+    await getLastColour()
   } catch (error){
     console.error('Failed to fetch last db entry', error)
-  } 
+  }
 
+  try{
+    await coloursRowCount()
+  } catch (error){
+    console.error('Failed to fetch database coloursRowCount', error)
+  }
+
+  try{
+    await getSpecificColourById()
+  } catch (error){
+    console.error('Failed to fetch getSpecificColourById', error)
+  }
   // try {
   //   const fetch_count = await coloursRowCount()
   //   if (fetch_count != null) {
@@ -47,7 +57,7 @@ onMounted(async () => {
   // }
 })
 
-async function fetchData() {
+async function getLastColour() {
   loading.value = true
   const requestOptions = {
     method: "GET",
@@ -63,29 +73,102 @@ async function fetchData() {
         error.json = res.json()
         throw error
       }
-
       return res.json();
     })
     .then(json => {
       if (json && Array.isArray(json) && json.length > 0) {
         database_last.value = json[0]
       } else {
-        console.warn("API response was empty or invalid:", json)
         database_last.value = null
       }
-      console.log("Database last entry:", database_last.value)
     })
     .catch(err => {
       error.value = err
       if (err.json) {
         return err.json.then(json => {
           error.value.message = json.message
-        });
+        })
       }
     })
     .then(() => {
       loading.value = false
-    });
+    })
+}
+
+async function coloursRowCount() {
+  loading.value = true
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + await token.value,
+    },
+  }
+  return fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
+    .then(res => {
+      if (!res.ok) {
+        const error = new Error(res.statusText)
+        error.json = res.json()
+        throw error
+      }
+      return res.json();
+    })
+    .then(json => {
+      if (json && Array.isArray(json) && json.length > 0) {
+        database_count.value = json[0]
+      } else {
+        database_count.value = null
+      }
+    })
+    .catch(err => {
+      error.value = err
+      if (err.json) {
+        return err.json.then(json => {
+          error.value.message = json.message
+        })
+      }
+    })
+    .then(() => {
+      loading.value = false
+    })
+}
+
+async function getSpecificColourById() {
+  loading.value = true
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + await token.value,
+    },
+  }
+  return fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
+    .then(res => {
+      if (!res.ok) {
+        const error = new Error(res.statusText)
+        error.json = res.json()
+        throw error
+      }
+      return res.json()
+    })
+    .then(json => {
+      if (json && Array.isArray(json) && json.length > 0) {
+        database_get_by_id.value = json[0]
+      } else {
+        database_get_by_id.value = null
+      }
+    })
+    .catch(err => {
+      error.value = err
+      if (err.json) {
+        return err.json.then(json => {
+          error.value.message = json.message
+        })
+      }
+    })
+    .then(() => {
+      loading.value = false
+    })
 }
 
 </script>
