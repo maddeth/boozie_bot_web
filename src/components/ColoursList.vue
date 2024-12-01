@@ -16,7 +16,7 @@ async function fetchData() {
     method: "GET",
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token.value,
+      'Authorization': 'Bearer ' + await token.value,
     },
   }
   return fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
@@ -52,12 +52,6 @@ async function fetchData() {
 }
 
 onMounted(async () => {
-  try{
-    await fetchData()
-  } catch (error){
-    console.error('Failed to fetch last db entry', error)
-  } 
-
   try {
     const userSession  = await supabase.auth.getSession()
     if (userSession) {
@@ -68,6 +62,12 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+ 
+  try{
+    await fetchData()
+  } catch (error){
+    console.error('Failed to fetch last db entry', error)
+  } 
 
   // try {
   //   const fetch_count = await coloursRowCount()
