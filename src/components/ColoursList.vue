@@ -4,11 +4,11 @@ import { ref, onMounted } from 'vue'
 import { supabase } from '../supabase.js'
 
 const database_count = ref(null)
-const database_last = ref(null)
 const database_get_by_id = ref(null)
 const props = defineProps(['session'])
 const token = ref(null)
 const loading = ref(true)
+const database_last = ref(null)
 
 async function fetchData() {
   loading.value = true;
@@ -54,6 +54,12 @@ async function fetchData() {
 }
 
 onMounted(async () => {
+  try{
+    await fetchData()
+  } catch (error){
+    console.error('Failed to fetch last db entry', error)
+  } 
+
   try {
     const userSession  = await supabase.auth.getSession()
     if (userSession) {
@@ -74,12 +80,6 @@ onMounted(async () => {
     console.error('Failed to fetch database coloursRowCount:', error)
   }
 
-  try{
-    await fetchData()
-  } catch (error){
-    console.error('Failed to fetch last db entry', error)
-  } 
-
   try {
     const fetch_by_id = await getSpecificColourById(database_last.value.id)
     if (fetch_by_id != null) {
@@ -95,7 +95,7 @@ onMounted(async () => {
 <template>
   <div class="greetings">
     <h3 v-if="database_count != null">Number of rows in the database: {{ database_count }}</h3>
-    <h3 v-if="database_last != null">Last entry was by {{ item.username }}, was {{ item.colourname }} with a hex value of {{ item.hex_value }}</h3>
+    <h3 v-if="database_last != null">Last entry was by {{ database_last.username }}, was {{ database_last.colourname }} with a hex value of {{ database_last.hex_value }}</h3>
     <h3 v-if="database_get_by_id != null">Last colour added: {{ database_get_by_id }}</h3>
   </div>
 </template>
