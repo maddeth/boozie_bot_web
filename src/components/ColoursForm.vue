@@ -19,16 +19,6 @@ const upperCased = ref()
 
 onMounted(async () => {
   try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      metadata.value = user.user_metadata
-    }
-  } catch (error) {
-    console.error('Failed to fetch user data:', error)
-  } finally {
-    loading.value = false
-  }
-  try {
     const userSession  = await supabase.auth.getSession()
     if (userSession) {
       token.value = userSession.data.session.access_token
@@ -51,12 +41,34 @@ async function submitColour() {
       },
       body: JSON.stringify({ colour: colour, hex: hex })
   }
-  const response = await fetch('https://maddeth.com/api/colours', requestOptions)
-  colourAddResponse.value = await response.json()
-  console.log(colourAddResponse.value)
-
-  // colourAddResponse.value = await addColour(colour, hex, metadata.value.nickname)
-  formData.value = getInitialData()
+  return fetch('https://maddeth.com/api/colours', requestOptions)
+    .then(res => {
+      if (!res.ok) {
+        const error = new Error(res.statusText)
+        error.json = res.json()
+        throw error
+      }
+      return res.json()
+    })
+    .then(json => {
+      if (json && Array.isArray(json) && json.length > 0) {
+        colourAddResponse.value = json[0]
+        formData.value = getInitialData()
+      } else {
+        colourAddResponse.value = null
+      }
+    })
+    .catch(err => {
+      error.value = err
+      if (err.json) {
+        return err.json.then(json => {
+          error.value.message = json.message
+        })
+      }
+    })
+    .then(() => {
+      loading.value = false
+    })
 }
 
 async function SearchByColour() {
@@ -69,8 +81,33 @@ async function SearchByColour() {
       },
       body: JSON.stringify({ colour: colour })
   }
-  const response = fetch('https://maddeth.com/api/colours/colourName', requestOptions)
-  colourSearchResponse.value = await response.json()
+  return fetch('https://maddeth.com/api/colours/colourName', requestOptions)
+  .then(res => {
+      if (!res.ok) {
+        const error = new Error(res.statusText)
+        error.json = res.json()
+        throw error
+      }
+      return res.json();
+    })
+    .then(json => {
+      if (json && Array.isArray(json) && json.length > 0) {
+        colourSearchResponse.value = json[0]
+      } else {
+        colourSearchResponse.value = null
+      }
+    })
+    .catch(err => {
+      error.value = err
+      if (err.json) {
+        return err.json.then(json => {
+          error.value.message = json.message
+        })
+      }
+    })
+    .then(() => {
+      loading.value = false
+    })
 }
 
 function upperCaseWord(word) {

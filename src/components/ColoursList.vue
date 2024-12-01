@@ -38,23 +38,7 @@ onMounted(async () => {
   } catch (error){
     console.error('Failed to fetch getSpecificColourById', error)
   }
-  // try {
-  //   const fetch_count = await coloursRowCount()
-  //   if (fetch_count != null) {
-  //     database_count.value = fetch_count
-  //   }
-  // } catch (error) {
-  //   console.error('Failed to fetch database coloursRowCount:', error)
-  // }
 
-  // try {
-  //   const fetch_by_id = await getSpecificColourById(database_last.value.id)
-  //   if (fetch_by_id != null) {
-  //     database_get_by_id.value = fetch_by_id.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
-  //   }
-  // } catch (error) {
-  //   console.error('Failed to fetch getSpecificColourById:', error)
-  // }
 })
 
 async function getLastColour() {
@@ -73,7 +57,7 @@ async function getLastColour() {
         error.json = res.json()
         throw error
       }
-      return res.json();
+      return res.json()
     })
     .then(json => {
       if (json && Array.isArray(json) && json.length > 0) {
@@ -111,7 +95,7 @@ async function coloursRowCount() {
         error.json = res.json()
         throw error
       }
-      return res.json();
+      return res.json()
     })
     .then(json => {
       if (json && Array.isArray(json) && json.length > 0) {
