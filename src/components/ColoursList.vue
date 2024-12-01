@@ -36,6 +36,7 @@ async function fetchData() {
     .then(json => {
       // set the response data
       database_last.value = json.data;
+      console.log(database_last.value)
     })
     .catch(err => {
       error.value = err;
