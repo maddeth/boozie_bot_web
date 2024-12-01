@@ -10,6 +10,43 @@ const token = ref(null)
 const loading = ref(true)
 const database_last = ref(null)
 
+onMounted(async () => {
+  try {
+    const userSession  = await supabase.auth.getSession()
+    if (userSession) {
+      token.value = userSession.data.session.access_token
+    }
+  } catch (error) {
+    console.error('Failed to fetch user data:', error)
+  } finally {
+    loading.value = false
+  }
+ 
+  try{
+    await fetchData()
+  } catch (error){
+    console.error('Failed to fetch last db entry', error)
+  } 
+
+  // try {
+  //   const fetch_count = await coloursRowCount()
+  //   if (fetch_count != null) {
+  //     database_count.value = fetch_count
+  //   }
+  // } catch (error) {
+  //   console.error('Failed to fetch database coloursRowCount:', error)
+  // }
+
+  // try {
+  //   const fetch_by_id = await getSpecificColourById(database_last.value.id)
+  //   if (fetch_by_id != null) {
+  //     database_get_by_id.value = fetch_by_id.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+  //   }
+  // } catch (error) {
+  //   console.error('Failed to fetch getSpecificColourById:', error)
+  // }
+})
+
 async function fetchData() {
   loading.value = true
   const requestOptions = {
@@ -50,43 +87,6 @@ async function fetchData() {
       loading.value = false;
     });
 }
-
-onMounted(async () => {
-  try {
-    const userSession  = await supabase.auth.getSession()
-    if (userSession) {
-      token.value = userSession.data.session.access_token
-    }
-  } catch (error) {
-    console.error('Failed to fetch user data:', error)
-  } finally {
-    loading.value = false
-  }
- 
-  try{
-    await fetchData()
-  } catch (error){
-    console.error('Failed to fetch last db entry', error)
-  } 
-
-  // try {
-  //   const fetch_count = await coloursRowCount()
-  //   if (fetch_count != null) {
-  //     database_count.value = fetch_count
-  //   }
-  // } catch (error) {
-  //   console.error('Failed to fetch database coloursRowCount:', error)
-  // }
-
-  // try {
-  //   const fetch_by_id = await getSpecificColourById(database_last.value.id)
-  //   if (fetch_by_id != null) {
-  //     database_get_by_id.value = fetch_by_id.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
-  //   }
-  // } catch (error) {
-  //   console.error('Failed to fetch getSpecificColourById:', error)
-  // }
-})
 
 </script>
 
