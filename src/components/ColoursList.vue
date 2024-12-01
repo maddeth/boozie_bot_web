@@ -65,25 +65,16 @@ onMounted(async () => {
   }
 
   try {
-    fetchData()
+    const fetch_count = await coloursRowCount()
+    if (fetch_count != null) {
+      database_count.value = fetch_count
+    }
   } catch (error) {
     console.error('Failed to fetch database coloursRowCount:', error)
   }
 
   try{
-    const requestOptions = {
-      method: "GET",
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token.value,
-      },
-    }
-    fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
-      .then(response => response.json())
-      .then(data => database_last.value = data)
-    // database_last.value = 
-
-    // console.log(database_last.value)
+    fetchData()
   } catch (error){
     console.error('Failed to fetch last db entry', error)
   } 
