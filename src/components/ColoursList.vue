@@ -1,5 +1,5 @@
 <script setup>
-import { coloursRowCount, getLastColour, getSpecificColourById } from '../colours'
+// import { coloursRowCount, getLastColour, getSpecificColourById } from '../colours'
 import { ref, onMounted } from 'vue'
 import { supabase } from '../supabase.js'
 
@@ -11,9 +11,7 @@ const loading = ref(true)
 const database_last = ref(null)
 
 async function fetchData() {
-  loading.value = true;
-  // I prefer to use fetch
-  // you can use use axios as an alternative
+  loading.value = true
   const requestOptions = {
     method: "GET",
     headers: {
@@ -71,32 +69,32 @@ onMounted(async () => {
     loading.value = false
   }
 
-  try {
-    const fetch_count = await coloursRowCount()
-    if (fetch_count != null) {
-      database_count.value = fetch_count
-    }
-  } catch (error) {
-    console.error('Failed to fetch database coloursRowCount:', error)
-  }
+  // try {
+  //   const fetch_count = await coloursRowCount()
+  //   if (fetch_count != null) {
+  //     database_count.value = fetch_count
+  //   }
+  // } catch (error) {
+  //   console.error('Failed to fetch database coloursRowCount:', error)
+  // }
 
-  try {
-    const fetch_by_id = await getSpecificColourById(database_last.value.id)
-    if (fetch_by_id != null) {
-      database_get_by_id.value = fetch_by_id.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
-    }
-  } catch (error) {
-    console.error('Failed to fetch getSpecificColourById:', error)
-  }
+  // try {
+  //   const fetch_by_id = await getSpecificColourById(database_last.value.id)
+  //   if (fetch_by_id != null) {
+  //     database_get_by_id.value = fetch_by_id.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+  //   }
+  // } catch (error) {
+  //   console.error('Failed to fetch getSpecificColourById:', error)
+  // }
 })
 
 </script>
 
 <template>
   <div class="greetings">
-    <h3 v-if="database_count != null">Number of rows in the database: {{ database_count }}</h3>
+    <!-- <h3 v-if="database_count != null">Number of rows in the database: {{ database_count }}</h3> -->
     <h3 v-if="database_last != null">Last entry was by {{ database_last.username }}, was {{ database_last.colourname }} with a hex value of {{ database_last.hex_value }}</h3>
-    <h3 v-if="database_get_by_id != null">Last colour added: {{ database_get_by_id }}</h3>
+    <!-- <h3 v-if="database_get_by_id != null">Last colour added: {{ database_get_by_id }}</h3> -->
   </div>
 </template>
 
