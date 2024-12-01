@@ -10,6 +10,48 @@ const props = defineProps(['session'])
 const token = ref(null)
 const loading = ref(true)
 
+function fetchData() {
+  loading.value = true;
+  // I prefer to use fetch
+  // you can use use axios as an alternative
+  const requestOptions = {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token.value,
+      },
+    }
+  return fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
+    .then(res => {
+      // a non-200 response code
+      if (!res.ok) {
+        // create error instance with HTTP status text
+        const error = new Error(res.statusText);
+        error.json = res.json();
+        throw error;
+      }
+
+      return res.json();
+    })
+    .then(json => {
+      // set the response data
+      database_last.value = json.data;
+    })
+    .catch(err => {
+      error.value = err;
+      // In case a custom JSON error response was provided
+      if (err.json) {
+        return err.json.then(json => {
+          // set the JSON response message
+          error.value.message = json.message;
+        });
+      }
+    })
+    .then(() => {
+      loading.value = false;
+    });
+}
+
 onMounted(async () => {
   try {
     const userSession  = await supabase.auth.getSession()
@@ -23,10 +65,7 @@ onMounted(async () => {
   }
 
   try {
-    const fetch_count = await coloursRowCount()
-    if (fetch_count != null) {
-      database_count.value = fetch_count
-    }
+    fetchData()
   } catch (error) {
     console.error('Failed to fetch database coloursRowCount:', error)
   }
