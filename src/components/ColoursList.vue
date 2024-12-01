@@ -59,33 +59,32 @@ async function fetchData() {
   return fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
     .then(res => {
       if (!res.ok) {
-        const error = new Error(res.statusText);
-        error.json = res.json();
-        throw error;
+        const error = new Error(res.statusText)
+        error.json = res.json()
+        throw error
       }
 
       return res.json();
     })
     .then(json => {
-      // Assign the first item in the array to `database_last`
       if (json && Array.isArray(json) && json.length > 0) {
-        database_last.value = json[0]; // First object in the array
+        database_last.value = json[0]
       } else {
-        console.warn("API response was empty or invalid:", json);
-        database_last.value = null; // Handle empty responses gracefully
+        console.warn("API response was empty or invalid:", json)
+        database_last.value = null
       }
-      console.log("Database last entry:", database_last.value);
+      console.log("Database last entry:", database_last.value)
     })
     .catch(err => {
-      error.value = err;
+      error.value = err
       if (err.json) {
         return err.json.then(json => {
-          error.value.message = json.message;
+          error.value.message = json.message
         });
       }
     })
     .then(() => {
-      loading.value = false;
+      loading.value = false
     });
 }
 
