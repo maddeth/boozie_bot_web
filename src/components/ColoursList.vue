@@ -61,7 +61,7 @@ onMounted(async () => {
 <template>
   <div class="greetings">
     <h3 v-if="database_count != null">Number of rows in the database: {{ database_count }}</h3>
-    <h3 v-if="database_last != null">Last entry was by {{ database_last.username }}, was {{ database_last.colourname }} with a hex value of {{ database_last.hex_value }}</h3>
+    <h3 v-if="database_last != null">Last entry was by {{ database_last[0].username }}, was {{ database_last.colourname }} with a hex value of {{ database_last.hex_value }}</h3>
     <h3 v-if="database_get_by_id != null">Last colour added: {{ database_get_by_id }}</h3>
   </div>
 </template>
