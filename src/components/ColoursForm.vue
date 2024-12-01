@@ -5,7 +5,6 @@ import { supabase } from '../supabase.js'
 
 const props = defineProps(['session'])
 const loading = ref(true)
-const metadata = ref(null)
 const token = ref(null)
 const colourAddResponse = ref()
 const colourSearchResponse = ref()
@@ -55,7 +54,8 @@ async function submitColour() {
         colourAddResponse.value = json[0]
         formData.value = getInitialData()
       } else {
-        colourAddResponse.value = null
+        colourAddResponse.value = json
+        formData.value = getInitialData()
       }
     })
     .catch(err => {
@@ -94,7 +94,7 @@ async function SearchByColour() {
       if (json && Array.isArray(json) && json.length > 0) {
         colourSearchResponse.value = json[0]
       } else {
-        colourSearchResponse.value = null
+        colourSearchResponse.value = json
       }
     })
     .catch(err => {
@@ -135,7 +135,6 @@ function upperCaseWord(word) {
       <tr v-for="colour in colourSearchResponse">
         <td>{{ upperCaseWord(colour.colourname) }}</td>
         <td>{{ colour.hex_value }}</td>
-        <td type="color" value="#{{ colour.hex_value }}"></td>
       </tr>
     </table>
   </div>
