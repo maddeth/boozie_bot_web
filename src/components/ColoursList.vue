@@ -10,17 +10,17 @@ const props = defineProps(['session'])
 const token = ref(null)
 const loading = ref(true)
 
-function fetchData() {
+async function fetchData() {
   loading.value = true;
   // I prefer to use fetch
   // you can use use axios as an alternative
   const requestOptions = {
-      method: "GET",
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token.value,
-      },
-    }
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token.value,
+    },
+  }
   return fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
     .then(res => {
       // a non-200 response code
@@ -74,7 +74,7 @@ onMounted(async () => {
   }
 
   try{
-    fetchData()
+    await fetchData()
   } catch (error){
     console.error('Failed to fetch last db entry', error)
   } 
