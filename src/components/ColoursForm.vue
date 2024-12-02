@@ -92,9 +92,9 @@ async function SearchByColour() {
     })
     .then(json => {
       if (json && Array.isArray(json) && json.length > 0) {
-        colourSearchResponse.value = json[0]
-      } else {
         colourSearchResponse.value = json
+      } else {
+        colourSearchResponse.value = json[0]
       }
     })
     .catch(err => {
