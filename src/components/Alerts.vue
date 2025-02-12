@@ -6,7 +6,7 @@ const audioQueue = []
 start(server)
 
 function start(server) {
-  socket = new WebSocket('wss://maddeth.com/websocket/');
+  let socket = new WebSocket('wss://maddeth.com/websocket/');
   
   socket.addEventListener('open', function (event) {
     socket.send('Web Client Connected');
