@@ -1,5 +1,5 @@
 <script>
-isPlaying = false
+let isPlaying = false
 let server = 'wss://maddeth.com/websocket/'
 const audioQueue = []
 
