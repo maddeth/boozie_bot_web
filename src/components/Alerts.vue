@@ -75,5 +75,4 @@ function dequeueAudio() {
 </script>
 
 <template>
- <iframe allow="autoplay"></iframe>
 </template>
