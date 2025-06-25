@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useUserRole } from '../composables/useUserRole.js'
-import Header from '../components/Header.vue'
 import Footer from '../components/Footer.vue'
 
 const { 
@@ -80,9 +79,7 @@ const getRoleText = (user) => {
 </script>
 
 <template>
-  <Header />
-  
-  <main class="moderator-page">
+  <div class="moderator-page">
     <div class="container">
       <div class="page-header">
         <h1>🛡️ Moderator Panel</h1>
@@ -211,9 +208,8 @@ const getRoleText = (user) => {
 
       </div>
     </div>
-  </main>
-
-  <Footer />
+    <Footer />
+  </div>
 </template>
 
 <style scoped>

@@ -1,17 +1,26 @@
 <script setup>
-import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 import LoggedIn from '@/components/LoggedIn.vue';
 </script>
 
 <template>
-  <header>
-    <Header />
-  </header>
-  <main>
-    <LoggedIn />
-  </main>
-  <footer>
+  <div class="page">
+    <div class="container">
+      <LoggedIn />
+    </div>
     <Footer />
-  </footer>
+  </div>
 </template>
+
+<style scoped>
+.page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  flex: 1;
+  padding: 2rem 1rem;
+}
+</style>
