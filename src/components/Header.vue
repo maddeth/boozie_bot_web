@@ -1,11 +1,13 @@
 <script setup>
 import { supabase } from '../supabase.js'
 import { ref, onMounted } from 'vue'
+import { useUserRole } from '../composables/useUserRole.js'
 
 const props = defineProps(['session'])
 
 const loading = ref(true)
 const metadata = ref(null)
+const { userRole, isModerator, loadUserRole } = useUserRole()
 
 async function signOut() {
   try {
@@ -24,6 +26,8 @@ onMounted(async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       metadata.value = user.user_metadata
+      // Load user role to determine if they're a moderator
+      await loadUserRole()
     }
   } catch (error) {
     console.error('Failed to fetch user data:', error)
@@ -51,6 +55,9 @@ onMounted(async () => {
       <li><router-link to="/">Home</router-link></li>
       <li><router-link to="/colours">Colours</router-link></li>
       <li><router-link to="/token">Api Token</router-link></li>
+      <li v-if="isModerator" class="moderator-link">
+        <router-link to="/moderator">🛡️ Moderator</router-link>
+      </li>
     </ul>
   </nav>
 </template>
@@ -74,5 +81,12 @@ onMounted(async () => {
 }
 .header-nav a:hover {
   text-decoration: underline;
+}
+.moderator-link a {
+  color: #10b981 !important;
+  font-weight: bold;
+}
+.moderator-link a:hover {
+  color: #059669 !important;
 }
 </style>
