@@ -22,7 +22,7 @@ export function useUserRole() {
       }
       
       const token = session.data.session.access_token
-      const response = await fetch('/api/user/me', {
+      const response = await fetch('https://maddeth.com/api/user/me', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -32,9 +32,44 @@ export function useUserRole() {
       if (response.ok) {
         userRole.value = await response.json()
       } else if (response.status === 404) {
-        // User not found in database - they need to visit stream first
+        // User not found in database - try to link with existing Twitch user
+        const user = session.data.session.user
+        const twitchUsername = user.user_metadata.name || user.user_metadata.preferred_username
+        
+        if (twitchUsername) {
+          // Try to link the account by calling a special endpoint
+          const linkResponse = await fetch('https://maddeth.com/api/user/link', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              twitchUsername: twitchUsername.toLowerCase(),
+              supabaseUserId: user.id,
+              email: user.email
+            })
+          })
+          
+          if (linkResponse.ok) {
+            // Account linked successfully, try loading role again
+            const retryResponse = await fetch('https://maddeth.com/api/user/me', {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            })
+            
+            if (retryResponse.ok) {
+              userRole.value = await retryResponse.json()
+              return
+            }
+          }
+        }
+        
+        // Fallback - user not found in database
         userRole.value = {
-          username: session.data.session.user.user_metadata.name || 'Unknown',
+          username: twitchUsername || 'Unknown',
           roles: {
             isModerator: false,
             isAdmin: false,
@@ -61,7 +96,7 @@ export function useUserRole() {
       if (!session.data.session) return false
       
       const token = session.data.session.access_token
-      const response = await fetch('/api/user/me/moderator', {
+      const response = await fetch('https://maddeth.com/api/user/me/moderator', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -85,7 +120,7 @@ export function useUserRole() {
       if (!session.data.session) throw new Error('No session')
       
       const token = session.data.session.access_token
-      const response = await fetch('/api/user/stats', {
+      const response = await fetch('https://maddeth.com/api/user/stats', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -109,7 +144,7 @@ export function useUserRole() {
       if (!session.data.session) throw new Error('No session')
       
       const token = session.data.session.access_token
-      const response = await fetch('/api/user/moderators', {
+      const response = await fetch('https://maddeth.com/api/user/moderators', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
