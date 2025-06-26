@@ -2,17 +2,13 @@
 import { ref, onMounted } from 'vue'
 import { supabase } from '../supabase.js'
 
-const database_count = ref(null)
 const props = defineProps(['session'])
 const token = ref(null)
 const loading = ref(true)
 const database_last = ref(null)
-const database_get_by_id = ref(null)
 const error = ref(null)
 const loadingStates = ref({
-  count: true,
-  last: true,
-  byId: true
+  last: true
 })
 
 onMounted(async () => {
@@ -33,12 +29,11 @@ onMounted(async () => {
     return
   }
  
-  // Fetch all data in parallel
-  await Promise.all([
-    getLastColour().catch(err => console.error('Failed to fetch last colour:', err)),
-    coloursRowCount().catch(err => console.error('Failed to fetch count:', err)),
-    getSpecificColourById().catch(err => console.error('Failed to fetch by ID:', err))
-  ])
+  // Fetch latest colour data
+  await getLastColour().catch(err => {
+    console.error('Failed to fetch last colour:', err)
+    error.value = 'Failed to load latest colour'
+  })
   
   // Set overall loading to false when all requests complete
   loading.value = Object.values(loadingStates.value).some(state => state)
@@ -81,81 +76,8 @@ async function getLastColour() {
   }
 }
 
-async function coloursRowCount() {
-  loadingStates.value.count = true
-  try {
-    const requestOptions = {
-      method: "GET",
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token.value,
-      },
-    }
-    
-    console.log('Fetching colours count...')
-    const res = await fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
-    
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`)
-    }
-    
-    const json = await res.json()
-    console.log('Count response:', json)
-    
-    if (json && Array.isArray(json) && json.length > 0) {
-      database_count.value = json[0]
-    } else {
-      database_count.value = null
-    }
-  } catch (err) {
-    console.error('Error fetching count:', err)
-    error.value = 'Failed to load colour count'
-  } finally {
-    loadingStates.value.count = false
-    updateLoadingState()
-  }
-}
-
-
-async function getSpecificColourById() {
-  loadingStates.value.byId = true
-  try {
-    const requestOptions = {
-      method: "GET",
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token.value,
-      },
-    }
-    
-    console.log('Fetching colour by ID...')
-    const res = await fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
-    
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`)
-    }
-    
-    const json = await res.json()
-    console.log('By ID response:', json)
-    
-    if (json && Array.isArray(json) && json.length > 0) {
-      database_get_by_id.value = json[0]
-    } else if (json && !Array.isArray(json)) {
-      database_get_by_id.value = json
-    } else {
-      database_get_by_id.value = null
-    }
-  } catch (err) {
-    console.error('Error fetching by ID:', err)
-    error.value = 'Failed to load colour by ID'
-  } finally {
-    loadingStates.value.byId = false
-    updateLoadingState()
-  }
-}
-
 function updateLoadingState() {
-  loading.value = Object.values(loadingStates.value).some(state => state)
+  loading.value = loadingStates.value.last
 }
 
 </script>
@@ -170,16 +92,7 @@ function updateLoadingState() {
     </div>
     
     <div v-else class="stats-grid">
-      <!-- Database Count Card -->
-      <div v-if="database_count != null" class="stat-card">
-        <div class="stat-icon">📊</div>
-        <div class="stat-content">
-          <h3 class="stat-label">Total Colours</h3>
-          <p class="stat-value">{{ database_count }}</p>
-        </div>
-      </div>
-      
-      <!-- Last Entry Card -->
+      <!-- Latest Colour Card -->
       <div v-if="database_last != null" class="stat-card highlight-card">
         <div class="stat-icon">✨</div>
         <div class="stat-content">
@@ -192,15 +105,6 @@ function updateLoadingState() {
               <p class="colour-author">by {{ database_last.username }}</p>
             </div>
           </div>
-        </div>
-      </div>
-      
-      <!-- Recent Addition Card -->
-      <div v-if="database_get_by_id != null" class="stat-card">
-        <div class="stat-icon">🆕</div>
-        <div class="stat-content">
-          <h3 class="stat-label">Recent Addition</h3>
-          <p class="stat-value">{{ database_get_by_id }}</p>
         </div>
       </div>
     </div>
@@ -246,9 +150,8 @@ function updateLoadingState() {
 }
 
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  justify-content: center;
   margin-bottom: 2rem;
 }
 
@@ -271,7 +174,8 @@ function updateLoadingState() {
 }
 
 .highlight-card {
-  grid-column: span 2;
+  max-width: 500px;
+  width: 100%;
   background: linear-gradient(135deg, #1f2937 0%, #2d3748 100%);
   border-color: rgba(16, 185, 129, 0.3);
 }
@@ -350,13 +254,6 @@ function updateLoadingState() {
 }
 
 @media (max-width: 768px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .highlight-card {
-    grid-column: span 1;
-  }
   
   .stat-card {
     flex-direction: column;
