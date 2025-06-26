@@ -3,11 +3,11 @@ import { ref, onMounted } from 'vue'
 import { supabase } from '../supabase.js'
 
 const database_count = ref(null)
-const database_get_by_id = ref(null)
 const props = defineProps(['session'])
 const token = ref(null)
 const loading = ref(true)
 const database_last = ref(null)
+const database_get_by_id = ref(null)
 const error = ref(null)
 const loadingStates = ref({
   count: true,
@@ -93,7 +93,7 @@ async function coloursRowCount() {
     }
     
     console.log('Fetching colours count...')
-    const res = await fetch('https://maddeth.com/api/colours/count', requestOptions)
+    const res = await fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
     
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`)
@@ -102,8 +102,8 @@ async function coloursRowCount() {
     const json = await res.json()
     console.log('Count response:', json)
     
-    if (json !== null && json !== undefined) {
-      database_count.value = json.count || json
+    if (json && Array.isArray(json) && json.length > 0) {
+      database_count.value = json[0]
     } else {
       database_count.value = null
     }
@@ -115,6 +115,7 @@ async function coloursRowCount() {
     updateLoadingState()
   }
 }
+
 
 async function getSpecificColourById() {
   loadingStates.value.byId = true
@@ -128,7 +129,7 @@ async function getSpecificColourById() {
     }
     
     console.log('Fetching colour by ID...')
-    const res = await fetch('https://maddeth.com/api/colours/1', requestOptions)
+    const res = await fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
     
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`)
@@ -198,13 +199,8 @@ function updateLoadingState() {
       <div v-if="database_get_by_id != null" class="stat-card">
         <div class="stat-icon">🆕</div>
         <div class="stat-content">
-          <h3 class="stat-label">Colour ID #1</h3>
-          <div class="colour-preview compact">
-            <div class="colour-swatch small" :style="{ backgroundColor: database_get_by_id.hex_value || '#000' }"></div>
-            <div class="colour-info">
-              <p class="colour-name small">{{ database_get_by_id.colourname || database_get_by_id }}</p>
-            </div>
-          </div>
+          <h3 class="stat-label">Recent Addition</h3>
+          <p class="stat-value">{{ database_get_by_id }}</p>
         </div>
       </div>
     </div>
@@ -343,18 +339,6 @@ function updateLoadingState() {
   margin: 0;
 }
 
-.colour-preview.compact {
-  gap: 0.75rem;
-}
-
-.colour-swatch.small {
-  width: 40px;
-  height: 40px;
-}
-
-.colour-name.small {
-  font-size: 1rem;
-}
 
 .error-message {
   background: rgba(239, 68, 68, 0.1);
