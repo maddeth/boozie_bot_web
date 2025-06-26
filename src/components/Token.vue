@@ -561,6 +561,8 @@ curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   background: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   padding: 1rem;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .example h4 {
@@ -577,9 +579,12 @@ curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   padding: 1rem;
   border-radius: 6px;
   display: block;
-  white-space: pre;
+  white-space: pre-wrap;
+  word-wrap: break-word;
   overflow-x: auto;
   line-height: 1.4;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .security-notice {
