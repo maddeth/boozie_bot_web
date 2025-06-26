@@ -2,13 +2,15 @@
 import Footer from '@/components/Footer.vue';
 import ColoursList from '@/components/ColoursList.vue';
 import ColoursForm from '@/components/ColoursForm.vue';
+
+const props = defineProps(['session'])
 </script>
 
 <template>
   <div class="page">
     <div class="container">
-      <ColoursList />
-      <ColoursForm />
+      <ColoursList :session="session" />
+      <ColoursForm :session="session" />
     </div>
     <Footer />
   </div>

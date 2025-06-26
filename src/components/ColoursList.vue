@@ -9,151 +9,152 @@ const token = ref(null)
 const loading = ref(true)
 const database_last = ref(null)
 const error = ref(null)
+const loadingStates = ref({
+  count: true,
+  last: true,
+  byId: true
+})
 
 onMounted(async () => {
+  error.value = null
+  
   try {
-    const userSession  = await supabase.auth.getSession()
-    if (userSession) {
+    const userSession = await supabase.auth.getSession()
+    if (userSession && userSession.data.session) {
       token.value = userSession.data.session.access_token
+      console.log('Token obtained successfully')
+    } else {
+      throw new Error('No session found')
     }
-  } catch (error) {
-    console.error('Failed to fetch user data:', error)
-  } finally {
+  } catch (err) {
+    console.error('Failed to fetch user session:', err)
+    error.value = 'Authentication failed. Please sign in again.'
     loading.value = false
+    return
   }
  
-  try{
-    await getLastColour()
-  } catch (error){
-    console.error('Failed to fetch last db entry', error)
-  }
-
-  try{
-    await coloursRowCount()
-  } catch (error){
-    console.error('Failed to fetch database coloursRowCount', error)
-  }
-
-  try{
-    await getSpecificColourById()
-  } catch (error){
-    console.error('Failed to fetch getSpecificColourById', error)
-  }
-
+  // Fetch all data in parallel
+  await Promise.all([
+    getLastColour().catch(err => console.error('Failed to fetch last colour:', err)),
+    coloursRowCount().catch(err => console.error('Failed to fetch count:', err)),
+    getSpecificColourById().catch(err => console.error('Failed to fetch by ID:', err))
+  ])
+  
+  // Set overall loading to false when all requests complete
+  loading.value = Object.values(loadingStates.value).some(state => state)
 })
 
 async function getLastColour() {
-  loading.value = true
-  const requestOptions = {
-    method: "GET",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + await token.value,
-    },
+  loadingStates.value.last = true
+  try {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token.value,
+      },
+    }
+    
+    console.log('Fetching last colour...')
+    const res = await fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
+    
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`)
+    }
+    
+    const json = await res.json()
+    console.log('Last colour response:', json)
+    
+    if (json && Array.isArray(json) && json.length > 0) {
+      database_last.value = json[0]
+    } else if (json && !Array.isArray(json)) {
+      database_last.value = json
+    } else {
+      database_last.value = null
+    }
+  } catch (err) {
+    console.error('Error fetching last colour:', err)
+    error.value = 'Failed to load latest colour'
+  } finally {
+    loadingStates.value.last = false
+    updateLoadingState()
   }
-  return fetch('https://maddeth.com/api/colours/getLastColour', requestOptions)
-    .then(res => {
-      if (!res.ok) {
-        const error = new Error(res.statusText)
-        error.json = res.json()
-        throw error
-      }
-      return res.json()
-    })
-    .then(json => {
-      if (json && Array.isArray(json) && json.length > 0) {
-        database_last.value = json[0]
-      } else {
-        database_last.value = null
-      }
-    })
-    .catch(err => {
-      error.value = err
-      if (err.json) {
-        return err.json.then(json => {
-          error.value.message = json.message
-        })
-      }
-    })
-    .then(() => {
-      loading.value = false
-    })
 }
 
 async function coloursRowCount() {
-  loading.value = true
-  const requestOptions = {
-    method: "GET",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + await token.value,
-    },
+  loadingStates.value.count = true
+  try {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token.value,
+      },
+    }
+    
+    console.log('Fetching colours count...')
+    const res = await fetch('https://maddeth.com/api/colours/count', requestOptions)
+    
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`)
+    }
+    
+    const json = await res.json()
+    console.log('Count response:', json)
+    
+    if (json !== null && json !== undefined) {
+      database_count.value = json.count || json
+    } else {
+      database_count.value = null
+    }
+  } catch (err) {
+    console.error('Error fetching count:', err)
+    error.value = 'Failed to load colour count'
+  } finally {
+    loadingStates.value.count = false
+    updateLoadingState()
   }
-  return fetch('https://maddeth.com/api/colours/count', requestOptions)
-    .then(res => {
-      if (!res.ok) {
-        const error = new Error(res.statusText)
-        error.json = res.json()
-        throw error
-      }
-      return res.json()
-    })
-    .then(json => {
-      if (json !== null && json !== undefined) {
-        database_count.value = json.count || json
-      } else {
-        database_count.value = null
-      }
-    })
-    .catch(err => {
-      error.value = err
-      if (err.json) {
-        return err.json.then(json => {
-          error.value.message = json.message
-        })
-      }
-    })
-    .then(() => {
-      loading.value = false
-    })
 }
 
 async function getSpecificColourById() {
-  loading.value = true
-  const requestOptions = {
-    method: "GET",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + await token.value,
-    },
+  loadingStates.value.byId = true
+  try {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token.value,
+      },
+    }
+    
+    console.log('Fetching colour by ID...')
+    const res = await fetch('https://maddeth.com/api/colours/1', requestOptions)
+    
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`)
+    }
+    
+    const json = await res.json()
+    console.log('By ID response:', json)
+    
+    if (json && Array.isArray(json) && json.length > 0) {
+      database_get_by_id.value = json[0]
+    } else if (json && !Array.isArray(json)) {
+      database_get_by_id.value = json
+    } else {
+      database_get_by_id.value = null
+    }
+  } catch (err) {
+    console.error('Error fetching by ID:', err)
+    error.value = 'Failed to load colour by ID'
+  } finally {
+    loadingStates.value.byId = false
+    updateLoadingState()
   }
-  return fetch('https://maddeth.com/api/colours/1', requestOptions)
-    .then(res => {
-      if (!res.ok) {
-        const error = new Error(res.statusText)
-        error.json = res.json()
-        throw error
-      }
-      return res.json()
-    })
-    .then(json => {
-      if (json && Array.isArray(json) && json.length > 0) {
-        database_get_by_id.value = json[0]
-      } else {
-        database_get_by_id.value = null
-      }
-    })
-    .catch(err => {
-      error.value = err
-      if (err.json) {
-        return err.json.then(json => {
-          error.value.message = json.message
-        })
-      }
-    })
-    .then(() => {
-      loading.value = false
-    })
+}
+
+function updateLoadingState() {
+  loading.value = Object.values(loadingStates.value).some(state => state)
 }
 
 </script>
@@ -209,8 +210,8 @@ async function getSpecificColourById() {
     </div>
     
     <!-- Error Message -->
-    <div v-if="error" class="error-message">
-      <p>⚠️ Unable to load colour statistics. Please try again later.</p>
+    <div v-if="error && !loading" class="error-message">
+      <p>⚠️ {{ error }}</p>
     </div>
   </div>
 </template>
