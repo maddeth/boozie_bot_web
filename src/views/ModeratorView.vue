@@ -2,6 +2,9 @@
 import { ref, onMounted } from 'vue'
 import { useUserRole } from '../composables/useUserRole.js'
 import Footer from '../components/Footer.vue'
+import { supabase } from '../supabase'
+
+const props = defineProps(['session'])
 
 const { 
   userRole, 
@@ -90,15 +93,22 @@ const getRoleText = (user) => {
   return roles.length > 0 ? roles.join(', ') : 'Viewer'
 }
 
-// Mock functions for commands (will be replaced with real API calls)
+// Load commands from API
 const loadCommands = async () => {
   loadingCommands.value = true
   try {
-    // TODO: Replace with actual API call
-    commands.value = [
-      { id: 1, trigger: '!hello', response: 'Hello {user}!', cooldown: 5, permission: 'everyone' },
-      { id: 2, trigger: '!discord', response: 'Join our Discord: discord.gg/example', cooldown: 30, permission: 'everyone' }
-    ]
+    const response = await fetch('https://maddeth.com/api/commands/all', {
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    commands.value = data.commands || []
   } catch (err) {
     error.value = `Failed to load commands: ${err.message}`
   } finally {
@@ -113,18 +123,36 @@ const saveCommand = async () => {
       return
     }
 
-    // TODO: Replace with actual API call
+    let response
     if (editingCommand.value) {
       // Update existing command
-      const index = commands.value.findIndex(c => c.id === editingCommand.value.id)
-      if (index > -1) {
-        commands.value[index] = { ...commandForm.value, id: editingCommand.value.id }
-      }
+      response = await fetch(`https://maddeth.com/api/commands/${editingCommand.value.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${props.session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(commandForm.value)
+      })
     } else {
-      // Add new command
-      commands.value.push({ ...commandForm.value, id: Date.now() })
+      // Create new command
+      response = await fetch('https://maddeth.com/api/commands', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${props.session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(commandForm.value)
+      })
     }
 
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+    }
+
+    // Reload commands list
+    await loadCommands()
     resetCommandForm()
   } catch (err) {
     error.value = `Failed to save command: ${err.message}`
@@ -141,8 +169,20 @@ const deleteCommand = async (commandId) => {
   if (!confirm('Are you sure you want to delete this command?')) return
   
   try {
-    // TODO: Replace with actual API call
-    commands.value = commands.value.filter(c => c.id !== commandId)
+    const response = await fetch(`https://maddeth.com/api/commands/${commandId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`
+      }
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+    }
+
+    // Reload commands list
+    await loadCommands()
   } catch (err) {
     error.value = `Failed to delete command: ${err.message}`
   }
