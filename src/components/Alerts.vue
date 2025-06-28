@@ -54,7 +54,13 @@ function playTts(id) {
 
 function dequeueAudio() {
   if (audioQueue.length > 0) {
-    const audio = new Audio(audioQueue.shift());
+    const audioUrl = audioQueue.shift();
+    const audio = new Audio(audioUrl);
+    
+    // Start muted to bypass autoplay restrictions
+    audio.muted = true;
+    audio.volume = 1.0;
+    
     audio.onended = () => {
       if (audioQueue.length > 0) {
         dequeueAudio();
@@ -62,17 +68,49 @@ function dequeueAudio() {
         isPlaying = false;
       }
     };
+    
     audio.onerror = (error) => {
+      console.log('Audio error for:', audioUrl);
       if (audioQueue.length > 0) {
         dequeueAudio();
       } else {
         isPlaying = false;
       }
     };
-    audio.play();
+    
+    // Play muted first, then unmute
+    audio.play().then(() => {
+      // Small delay then unmute
+      setTimeout(() => {
+        audio.muted = false;
+      }, 10);
+    }).catch((error) => {
+      console.log('Muted audio play failed:', error);
+      // Fallback to direct play attempt
+      audio.muted = false;
+      audio.play().catch(e => console.log('Direct play failed:', e));
+    });
   }
 }
 </script>
 
 <template>
+  <div class="alerts-container">
+    <!-- Hidden audio element to help with autoplay -->
+    <audio ref="hiddenAudio" muted autoplay loop>
+      <source src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=" type="audio/wav">
+    </audio>
+  </div>
 </template>
+
+<style scoped>
+.alerts-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+audio {
+  display: none;
+}
+</style>
