@@ -18,6 +18,18 @@ const loadingStats = ref(false)
 const loadingModerators = ref(false)
 const error = ref(null)
 
+// Custom Commands State
+const commands = ref([])
+const loadingCommands = ref(false)
+const showCommandForm = ref(false)
+const editingCommand = ref(null)
+const commandForm = ref({
+  trigger: '',
+  response: '',
+  cooldown: 0,
+  permission: 'everyone'
+})
+
 onMounted(async () => {
   await loadUserRole()
   if (isModerator.value) {
@@ -28,7 +40,8 @@ onMounted(async () => {
 const loadModeratorData = async () => {
   await Promise.all([
     loadStats(),
-    loadModerators()
+    loadModerators(),
+    loadCommands()
   ])
 }
 
@@ -75,6 +88,75 @@ const getRoleText = (user) => {
   if (user.roles.isSubscriber) roles.push(`Subscriber (Tier ${user.subscriptionTier})`)
   
   return roles.length > 0 ? roles.join(', ') : 'Viewer'
+}
+
+// Mock functions for commands (will be replaced with real API calls)
+const loadCommands = async () => {
+  loadingCommands.value = true
+  try {
+    // TODO: Replace with actual API call
+    commands.value = [
+      { id: 1, trigger: '!hello', response: 'Hello {user}!', cooldown: 5, permission: 'everyone' },
+      { id: 2, trigger: '!discord', response: 'Join our Discord: discord.gg/example', cooldown: 30, permission: 'everyone' }
+    ]
+  } catch (err) {
+    error.value = `Failed to load commands: ${err.message}`
+  } finally {
+    loadingCommands.value = false
+  }
+}
+
+const saveCommand = async () => {
+  try {
+    if (!commandForm.value.trigger || !commandForm.value.response) {
+      error.value = 'Command trigger and response are required'
+      return
+    }
+
+    // TODO: Replace with actual API call
+    if (editingCommand.value) {
+      // Update existing command
+      const index = commands.value.findIndex(c => c.id === editingCommand.value.id)
+      if (index > -1) {
+        commands.value[index] = { ...commandForm.value, id: editingCommand.value.id }
+      }
+    } else {
+      // Add new command
+      commands.value.push({ ...commandForm.value, id: Date.now() })
+    }
+
+    resetCommandForm()
+  } catch (err) {
+    error.value = `Failed to save command: ${err.message}`
+  }
+}
+
+const editCommand = (command) => {
+  editingCommand.value = command
+  commandForm.value = { ...command }
+  showCommandForm.value = true
+}
+
+const deleteCommand = async (commandId) => {
+  if (!confirm('Are you sure you want to delete this command?')) return
+  
+  try {
+    // TODO: Replace with actual API call
+    commands.value = commands.value.filter(c => c.id !== commandId)
+  } catch (err) {
+    error.value = `Failed to delete command: ${err.message}`
+  }
+}
+
+const resetCommandForm = () => {
+  showCommandForm.value = false
+  editingCommand.value = null
+  commandForm.value = {
+    trigger: '',
+    response: '',
+    cooldown: 0,
+    permission: 'everyone'
+  }
 }
 </script>
 
@@ -203,6 +285,90 @@ const getRoleText = (user) => {
               <h3>🔔 View Alerts</h3>
               <p>Check alert configurations</p>
             </router-link>
+          </div>
+        </div>
+
+        <!-- Custom Commands -->
+        <div class="commands-section">
+          <div class="section-header">
+            <h2>🤖 Custom Commands</h2>
+            <button @click="showCommandForm = !showCommandForm" class="button">
+              {{ showCommandForm ? 'Cancel' : 'Add Command' }}
+            </button>
+          </div>
+
+          <!-- Command Form -->
+          <div v-if="showCommandForm" class="command-form">
+            <h3>{{ editingCommand ? 'Edit Command' : 'New Command' }}</h3>
+            <div class="form-group">
+              <label for="trigger">Command Trigger</label>
+              <input 
+                id="trigger"
+                v-model="commandForm.trigger" 
+                type="text" 
+                placeholder="!example"
+                class="form-input"
+              >
+            </div>
+            <div class="form-group">
+              <label for="response">Response</label>
+              <textarea 
+                id="response"
+                v-model="commandForm.response" 
+                placeholder="Command response... Use {user} for username"
+                class="form-input"
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="cooldown">Cooldown (seconds)</label>
+                <input 
+                  id="cooldown"
+                  v-model.number="commandForm.cooldown" 
+                  type="number" 
+                  min="0"
+                  class="form-input"
+                >
+              </div>
+              <div class="form-group">
+                <label for="permission">Permission Level</label>
+                <select id="permission" v-model="commandForm.permission" class="form-input">
+                  <option value="everyone">Everyone</option>
+                  <option value="subscriber">Subscribers</option>
+                  <option value="vip">VIP</option>
+                  <option value="moderator">Moderators</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button @click="saveCommand" class="button">
+                {{ editingCommand ? 'Update' : 'Create' }} Command
+              </button>
+              <button @click="resetCommandForm" class="button secondary">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Commands List -->
+          <div v-if="loadingCommands" class="loading">Loading commands...</div>
+          <div v-else-if="commands.length > 0" class="commands-list">
+            <div v-for="cmd in commands" :key="cmd.id" class="command-card">
+              <div class="command-info">
+                <div class="command-trigger">{{ cmd.trigger }}</div>
+                <div class="command-response">{{ cmd.response }}</div>
+                <div class="command-meta">
+                  <span>💿 {{ cmd.cooldown }}s cooldown</span>
+                  <span>🔒 {{ cmd.permission }}</span>
+                </div>
+              </div>
+              <div class="command-actions">
+                <button @click="editCommand(cmd)" class="icon-button edit">✏️</button>
+                <button @click="deleteCommand(cmd.id)" class="icon-button delete">🗑️</button>
+              </div>
+            </div>
+          </div>
+          <div v-else class="no-commands">
+            <p>No custom commands yet. Click "Add Command" to create one!</p>
           </div>
         </div>
 
@@ -337,7 +503,7 @@ const getRoleText = (user) => {
   color: #991b1b;
 }
 
-.stats-section, .moderators-section, .quick-actions {
+.stats-section, .moderators-section, .quick-actions, .commands-section {
   background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
   border-radius: 12px;
   padding: 1.5rem;
@@ -345,7 +511,7 @@ const getRoleText = (user) => {
   border: 1px solid #4b5563;
 }
 
-.stats-section h2, .moderators-section h2, .quick-actions h2 {
+.stats-section h2, .moderators-section h2, .quick-actions h2, .commands-section h2 {
   color: #10b981;
   margin-bottom: 1.5rem;
 }
@@ -484,6 +650,163 @@ const getRoleText = (user) => {
   
   .actions-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Commands Section Styles */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.command-form {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.command-form h3 {
+  color: #10b981;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  color: #d1d5db;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  background: #1f2937;
+  border: 1px solid #4b5563;
+  border-radius: 6px;
+  color: #f3f4f6;
+  font-size: 1rem;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.commands-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.command-card {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.command-info {
+  flex: 1;
+}
+
+.command-trigger {
+  color: #10b981;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.command-response {
+  color: #d1d5db;
+  margin-bottom: 0.5rem;
+}
+
+.command-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.command-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.icon-button {
+  background: none;
+  border: 1px solid transparent;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.2s;
+}
+
+.icon-button.edit {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.icon-button.edit:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.icon-button.delete {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.icon-button.delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.no-commands {
+  text-align: center;
+  color: #6b7280;
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .command-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .command-actions {
+    margin-top: 0.5rem;
   }
 }
 </style>
