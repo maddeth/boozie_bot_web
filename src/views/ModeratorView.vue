@@ -445,7 +445,7 @@ const resetCommandForm = () => {
 
 .action-bar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 2rem;
 }
@@ -458,9 +458,17 @@ const resetCommandForm = () => {
   border-radius: 8px;
   cursor: pointer;
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-weight: 500;
   transition: all 0.2s;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.2;
+  box-sizing: border-box;
+  min-width: fit-content;
 }
 
 .button:hover {
@@ -659,6 +667,7 @@ const resetCommandForm = () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  gap: 1rem;
 }
 
 .command-form {
