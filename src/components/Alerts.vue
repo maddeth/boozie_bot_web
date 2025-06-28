@@ -9,18 +9,16 @@ function start(server) {
   let socket = new WebSocket('wss://maddeth.com/websocket/');
   
   socket.addEventListener('open', function (event) {
-    console.log('WebSocket connected to:', server);
     socket.send('Web Client Connected');
   });
 
   socket.addEventListener('message', function (event) {
     var newEvent = JSON.parse(event.data)
-    console.log('Event from server:', newEvent.type, newEvent);
+    console.log('Event from server ', newEvent.type);
     //if (newEvent.type == "tts") {
       //  playTts(newEvent.id)
       //}
       if (newEvent.type == "redeem") {
-        console.log('Playing redeem audio:', newEvent.id);
         playRedeem(newEvent.id)
       }
     });
@@ -56,39 +54,22 @@ function playTts(id) {
 
 function dequeueAudio() {
   if (audioQueue.length > 0) {
-    const audioUrl = audioQueue.shift();
-    console.log('Attempting to play audio:', audioUrl);
-    const audio = new Audio(audioUrl);
-    
+    const audio = new Audio(audioQueue.shift());
     audio.onended = () => {
-      console.log('Audio ended');
       if (audioQueue.length > 0) {
         dequeueAudio();
       } else {
         isPlaying = false;
       }
     };
-    
     audio.onerror = (error) => {
-      console.error('Audio error:', error, 'URL:', audioUrl);
       if (audioQueue.length > 0) {
         dequeueAudio();
       } else {
         isPlaying = false;
       }
     };
-    
-    audio.play().then(() => {
-      console.log('Audio started playing');
-    }).catch((error) => {
-      console.error('Failed to play audio:', error);
-      // Try next audio or stop
-      if (audioQueue.length > 0) {
-        dequeueAudio();
-      } else {
-        isPlaying = false;
-      }
-    });
+    audio.play();
   }
 }
 </script>
