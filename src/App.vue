@@ -20,6 +20,16 @@ onMounted(() => {
     session.value = _session
   })
 })
+
+// Watch for route changes to update body class
+import { watch } from 'vue'
+watch(() => route.name, (newRoute) => {
+  if (newRoute === 'Alerts') {
+    document.body.classList.add('alerts-page')
+  } else {
+    document.body.classList.remove('alerts-page')
+  }
+}, { immediate: true })
 </script>
 
 <template>
@@ -51,6 +61,7 @@ onMounted(() => {
 .main-content.no-header {
   padding-top: 0;
   min-height: 100vh;
+  background: transparent;
 }
 
 /* Global styles */
@@ -63,6 +74,10 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: #111827;
   color: #f3f4f6;
+}
+
+body.alerts-page {
+  background: transparent;
 }
 
 .container {
