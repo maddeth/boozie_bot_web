@@ -40,6 +40,12 @@ const loadingBotAdmins = ref(false)
 const showAddAdminForm = ref(false)
 const newAdminUsername = ref('')
 
+// Stats Detail Modal State
+const showStatsModal = ref(false)
+const modalTitle = ref('')
+const modalData = ref([])
+const loadingModalData = ref(false)
+
 onMounted(async () => {
   await loadUserRole()
   if (isModerator.value) {
@@ -304,6 +310,67 @@ const removeBotAdmin = async (username) => {
   if (!confirm(`Remove bot admin privileges from ${username}?`)) return
   await updateBotAdmin(username, false)
 }
+
+// Stats Detail Functions
+const showStatDetails = async (statType) => {
+  showStatsModal.value = true
+  loadingModalData.value = true
+  modalData.value = []
+  
+  try {
+    let endpoint = ''
+    
+    switch (statType) {
+      case 'totalUsers':
+        modalTitle.value = 'All Users'
+        endpoint = '/api/user/stats/users'
+        break
+      case 'moderators':
+        modalTitle.value = 'Moderators'
+        endpoint = '/api/user/stats/moderators'
+        break
+      case 'subscribers':
+        modalTitle.value = 'Subscribers'
+        endpoint = '/api/user/stats/subscribers'
+        break
+      case 'registeredUsers':
+        modalTitle.value = 'Registered Users (With Supabase Account)'
+        endpoint = '/api/user/stats/registered'
+        break
+      case 'activeWeekly':
+        modalTitle.value = 'Active This Week'
+        endpoint = '/api/user/stats/active-weekly'
+        break
+      default:
+        throw new Error('Unknown stat type')
+    }
+    
+    const response = await fetch(`https://maddeth.com${endpoint}`, {
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    modalData.value = data.users || []
+    
+  } catch (err) {
+    error.value = `Failed to load ${modalTitle.value.toLowerCase()}: ${err.message}`
+    showStatsModal.value = false
+  } finally {
+    loadingModalData.value = false
+  }
+}
+
+const closeStatsModal = () => {
+  showStatsModal.value = false
+  modalTitle.value = ''
+  modalData.value = []
+}
 </script>
 
 <template>
@@ -378,25 +445,30 @@ const removeBotAdmin = async (username) => {
           <h2>📊 Bot Statistics</h2>
           <div v-if="loadingStats" class="loading">Loading statistics...</div>
           <div v-else-if="stats" class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card clickable" @click="showStatDetails('totalUsers')">
               <h3>Total Users</h3>
               <div class="stat-number">{{ stats.totalUsers.toLocaleString() }}</div>
+              <div class="stat-hint">Click to view</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card clickable" @click="showStatDetails('moderators')">
               <h3>Moderators</h3>
               <div class="stat-number">{{ stats.moderators.toLocaleString() }}</div>
+              <div class="stat-hint">Click to view</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card clickable" @click="showStatDetails('subscribers')">
               <h3>Subscribers</h3>
               <div class="stat-number">{{ stats.subscribers.toLocaleString() }}</div>
+              <div class="stat-hint">Click to view</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card clickable" @click="showStatDetails('registeredUsers')">
               <h3>Registered Users</h3>
               <div class="stat-number">{{ stats.registeredUsers.toLocaleString() }}</div>
+              <div class="stat-hint">Click to view</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card clickable" @click="showStatDetails('activeWeekly')">
               <h3>Active This Week</h3>
               <div class="stat-number">{{ stats.activeWeekly.toLocaleString() }}</div>
+              <div class="stat-hint">Click to view</div>
             </div>
           </div>
         </div>
@@ -604,6 +676,45 @@ const removeBotAdmin = async (username) => {
 
       </div>
     </div>
+    
+    <!-- Stats Detail Modal -->
+    <div v-if="showStatsModal" class="modal-overlay" @click="closeStatsModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>{{ modalTitle }}</h3>
+          <button @click="closeStatsModal" class="modal-close">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+          <div v-if="loadingModalData" class="loading">Loading...</div>
+          <div v-else-if="modalData.length > 0" class="users-list">
+            <div v-for="user in modalData" :key="user.username" class="user-item">
+              <div class="user-info">
+                <strong>{{ user.display_name || user.username }}</strong>
+                <small>@{{ user.username }}</small>
+                <div class="user-badges" v-if="user.is_superadmin || user.is_admin || user.is_moderator || user.is_vip || user.is_subscriber">
+                  <span v-if="user.is_superadmin" class="badge superadmin">SUPERADMIN</span>
+                  <span v-if="user.is_admin" class="badge admin">Bot Admin</span>
+                  <span v-if="user.is_moderator" class="badge moderator">Moderator</span>
+                  <span v-if="user.is_vip" class="badge vip">VIP</span>
+                  <span v-if="user.is_subscriber" class="badge subscriber">Sub T{{ user.subscription_tier || '1' }}</span>
+                </div>
+              </div>
+              <div class="user-details">
+                <div class="user-dates">
+                  <span v-if="user.last_seen">Last seen: {{ formatDate(user.last_seen) }}</span>
+                  <span v-if="user.created_at">Joined: {{ formatDate(user.created_at) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="no-data">
+            <p>No users found for this category.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <Footer />
   </div>
 </template>
@@ -775,6 +886,17 @@ const removeBotAdmin = async (username) => {
   border-radius: 8px;
   padding: 1.5rem;
   text-align: center;
+  transition: all 0.2s;
+}
+
+.stat-card.clickable {
+  cursor: pointer;
+}
+
+.stat-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  border-color: rgba(16, 185, 129, 0.4);
 }
 
 .stat-card h3 {
@@ -789,6 +911,13 @@ const removeBotAdmin = async (username) => {
   font-size: 2rem;
   font-weight: bold;
   color: #10b981;
+}
+
+.stat-hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+  opacity: 0.8;
 }
 
 .moderators-list {
@@ -1127,6 +1256,136 @@ const removeBotAdmin = async (username) => {
 }
 
 .no-admins {
+  text-align: center;
+  color: #6b7280;
+  padding: 2rem;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  border-radius: 12px;
+  border: 1px solid #4b5563;
+  max-width: 800px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #4b5563;
+}
+
+.modal-header h3 {
+  color: #10b981;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.users-list {
+  display: grid;
+  gap: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.user-item {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-info strong {
+  color: #d1d5db;
+  display: block;
+}
+
+.user-info small {
+  color: #9ca3af;
+}
+
+.user-badges {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge.vip {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.badge.subscriber {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.user-details {
+  text-align: right;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.user-dates span {
+  display: block;
+  margin: 0.2rem 0;
+}
+
+.no-data {
   text-align: center;
   color: #6b7280;
   padding: 2rem;
