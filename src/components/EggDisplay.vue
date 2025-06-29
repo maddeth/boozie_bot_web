@@ -99,7 +99,7 @@ export default {
     const leaderboard = ref([])
     const stats = ref(null)
     
-    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+    const API_BASE = 'https://maddeth.com'
     
     const fetchMyEggs = async () => {
       try {
