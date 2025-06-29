@@ -98,7 +98,7 @@ function updateLoadingState() {
         <div class="stat-content">
           <h3 class="stat-label">Latest Colour</h3>
           <div class="colour-preview">
-            <div class="colour-swatch" :style="{ backgroundColor: database_last.hex_value }"></div>
+            <div class="colour-swatch" :style="{ backgroundColor: '#' + database_last.hex_value }"></div>
             <div class="colour-info">
               <p class="colour-name">{{ database_last.colourname }}</p>
               <p class="colour-hex">{{ database_last.hex_value }}</p>
