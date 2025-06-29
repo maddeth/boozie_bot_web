@@ -1,75 +1,65 @@
 <template>
   <div class="eggs-view">
-    <Header />
+    <div class="page-header">
+      <h1>🥚 Egg System</h1>
+      <p class="page-description">
+        Earn eggs by watching the stream and participating in chat! 
+        Subscribers get bonus eggs every 15 minutes while the stream is live.
+      </p>
+    </div>
     
-    <main class="main-content">
-      <div class="page-header">
-        <h1>🥚 Egg System</h1>
-        <p class="page-description">
-          Earn eggs by watching the stream and participating in chat! 
-          Subscribers get bonus eggs every 15 minutes while the stream is live.
-        </p>
-      </div>
-      
-      <EggDisplay />
-      
-      <div class="info-section">
-        <h2>How to Earn Eggs</h2>
-        <div class="info-grid">
-          <div class="info-card">
-            <h3>💬 Chat Participation</h3>
-            <p>Be active in chat while the stream is live to earn eggs every 15 minutes.</p>
-          </div>
-          
-          <div class="info-card">
-            <h3>⭐ Subscription Bonuses</h3>
-            <div class="tier-list">
-              <div class="tier">
-                <span class="tier-name">Viewer:</span>
-                <span class="tier-eggs">5 eggs</span>
-              </div>
-              <div class="tier">
-                <span class="tier-name">Tier 1 Sub:</span>
-                <span class="tier-eggs">10 eggs</span>
-              </div>
-              <div class="tier">
-                <span class="tier-name">Tier 2 Sub:</span>
-                <span class="tier-eggs">15 eggs</span>
-              </div>
-              <div class="tier">
-                <span class="tier-name">Tier 3 Sub:</span>
-                <span class="tier-eggs">20 eggs</span>
-              </div>
+    <EggDisplay />
+    
+    <div class="info-section">
+      <h2>How to Earn Eggs</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>💬 Chat Participation</h3>
+          <p>Be active in chat while the stream is live to earn eggs every 15 minutes.</p>
+        </div>
+        
+        <div class="info-card">
+          <h3>⭐ Subscription Bonuses</h3>
+          <div class="tier-list">
+            <div class="tier">
+              <span class="tier-name">Viewer:</span>
+              <span class="tier-eggs">5 eggs</span>
+            </div>
+            <div class="tier">
+              <span class="tier-name">Tier 1 Sub:</span>
+              <span class="tier-eggs">10 eggs</span>
+            </div>
+            <div class="tier">
+              <span class="tier-name">Tier 2 Sub:</span>
+              <span class="tier-eggs">15 eggs</span>
+            </div>
+            <div class="tier">
+              <span class="tier-name">Tier 3 Sub:</span>
+              <span class="tier-eggs">20 eggs</span>
             </div>
           </div>
-          
-          <div class="info-card">
-            <h3>🎮 Special Events</h3>
-            <p>Moderators can award bonus eggs for special occasions, games, and community events.</p>
-          </div>
-          
-          <div class="info-card">
-            <h3>🔗 Account Linking</h3>
-            <p>Link your Twitch account here to track your eggs across username changes and view them on this page.</p>
-          </div>
+        </div>
+        
+        <div class="info-card">
+          <h3>🎮 Special Events</h3>
+          <p>Moderators can award bonus eggs for special occasions, games, and community events.</p>
+        </div>
+        
+        <div class="info-card">
+          <h3>🔗 Account Linking</h3>
+          <p>Link your Twitch account here to track your eggs across username changes and view them on this page.</p>
         </div>
       </div>
-    </main>
-    
-    <Footer />
+    </div>
   </div>
 </template>
 
 <script>
-import Header from '../components/Header.vue'
-import Footer from '../components/Footer.vue'
 import EggDisplay from '../components/EggDisplay.vue'
 
 export default {
   name: 'EggsView',
   components: {
-    Header,
-    Footer,
     EggDisplay
   }
 }
@@ -77,13 +67,6 @@ export default {
 
 <style scoped>
 .eggs-view {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.main-content {
-  flex: 1;
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
