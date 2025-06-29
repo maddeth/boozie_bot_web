@@ -60,6 +60,7 @@ onMounted(async () => {
       <ul class="nav-list">
         <li><router-link to="/" class="nav-link">🏠 Home</router-link></li>
         <li><router-link to="/colours" class="nav-link">🎨 Colours</router-link></li>
+        <li><router-link to="/eggs" class="nav-link">🥚 Eggs</router-link></li>
         <li><router-link to="/token" class="nav-link">🔑 API Token</router-link></li>
         <li v-if="isModerator" class="moderator-link">
           <router-link to="/moderator" class="nav-link">🛡️ Moderator</router-link>
