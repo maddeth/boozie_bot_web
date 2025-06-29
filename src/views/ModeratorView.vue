@@ -478,10 +478,14 @@ const closeStatsModal = () => {
           <h2>👥 Current Moderators</h2>
           <div v-if="loadingModerators" class="loading">Loading moderators...</div>
           <div v-else-if="moderators.length > 0" class="moderators-list">
-            <div v-for="mod in moderators" :key="mod.username" class="moderator-card">
+            <div v-for="mod in moderators" :key="mod.username" class="moderator-card" :class="{ 'broadcaster': mod.twitchUserId === '30758517' }">
               <div class="mod-info">
                 <strong>{{ mod.displayName || mod.username }}</strong>
                 <small>@{{ mod.username }}</small>
+                <div class="mod-badges">
+                  <span v-if="mod.twitchUserId === '30758517'" class="badge broadcaster">📺 BROADCASTER</span>
+                  <span v-else class="badge moderator">🛡️ MODERATOR</span>
+                </div>
               </div>
               <div class="mod-details">
                 <span class="mod-since">Since: {{ formatDate(mod.moderatorSince) }}</span>
@@ -942,6 +946,44 @@ const closeStatsModal = () => {
 
 .mod-info small {
   color: #9ca3af;
+}
+
+.mod-badges {
+  margin-top: 0.5rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge.broadcaster {
+  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+  color: white;
+  border: 1px solid #8b5cf6;
+  box-shadow: 0 2px 4px rgba(147, 51, 234, 0.3);
+}
+
+.badge.moderator {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: 1px solid #34d399;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.moderator-card.broadcaster {
+  border: 2px solid #9333ea;
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%);
+}
+
+.moderator-card.broadcaster:hover {
+  border-color: #8b5cf6;
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.2);
 }
 
 .mod-details {
