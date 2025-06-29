@@ -2,14 +2,15 @@
 import { ref, onMounted } from 'vue'
 import { useUserRole } from '../composables/useUserRole.js'
 import Footer from '../components/Footer.vue'
-import { supabase } from '../supabase'
 
 const props = defineProps(['session'])
 
 const { 
   userRole, 
   loading: roleLoading, 
-  isModerator, 
+  isModerator,
+  isBotModerator,
+  isSuperAdmin, 
   loadUserRole, 
   getUserStats, 
   getModerators 
@@ -33,6 +34,12 @@ const commandForm = ref({
   permission: 'everyone'
 })
 
+// Bot Admins State (for superadmin)
+const botAdmins = ref([])
+const loadingBotAdmins = ref(false)
+const showAddAdminForm = ref(false)
+const newAdminUsername = ref('')
+
 onMounted(async () => {
   await loadUserRole()
   if (isModerator.value) {
@@ -41,11 +48,17 @@ onMounted(async () => {
 })
 
 const loadModeratorData = async () => {
-  await Promise.all([
+  const promises = [
     loadStats(),
     loadModerators(),
     loadCommands()
-  ])
+  ]
+  
+  if (isSuperAdmin.value) {
+    promises.push(loadBotAdmins())
+  }
+  
+  await Promise.all(promises)
 }
 
 const loadStats = async () => {
@@ -74,6 +87,35 @@ const loadModerators = async () => {
 const refreshData = async () => {
   error.value = null
   await loadModeratorData()
+}
+
+const refreshModeratorStatus = async () => {
+  try {
+    const response = await fetch('https://maddeth.com/api/user/me/refresh', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+    }
+    
+    await response.json()
+    
+    // Reload user role to update UI
+    await loadUserRole()
+    
+    // Show success message
+    error.value = null
+    alert('Moderator status refreshed successfully!')
+    
+  } catch (err) {
+    error.value = `Failed to refresh moderator status: ${err.message}`
+  }
 }
 
 const formatDate = (dateString) => {
@@ -198,6 +240,70 @@ const resetCommandForm = () => {
     permission: 'everyone'
   }
 }
+
+// Bot Admin Management Functions
+const loadBotAdmins = async () => {
+  loadingBotAdmins.value = true
+  try {
+    const response = await fetch('https://maddeth.com/api/user/admins', {
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    botAdmins.value = data.admins || []
+  } catch (err) {
+    error.value = `Failed to load bot admins: ${err.message}`
+  } finally {
+    loadingBotAdmins.value = false
+  }
+}
+
+const updateBotAdmin = async (username, isAdmin) => {
+  try {
+    const response = await fetch(`https://maddeth.com/api/user/admin/${username}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ isAdmin })
+    })
+    
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+    }
+    
+    await loadBotAdmins()
+    error.value = null
+  } catch (err) {
+    error.value = `Failed to update bot admin: ${err.message}`
+  }
+}
+
+const addBotAdmin = async () => {
+  if (!newAdminUsername.value.trim()) {
+    error.value = 'Please enter a username'
+    return
+  }
+  
+  await updateBotAdmin(newAdminUsername.value.trim(), true)
+  if (!error.value) {
+    newAdminUsername.value = ''
+    showAddAdminForm.value = false
+  }
+}
+
+const removeBotAdmin = async (username) => {
+  if (!confirm(`Remove bot admin privileges from ${username}?`)) return
+  await updateBotAdmin(username, false)
+}
 </script>
 
 <template>
@@ -242,6 +348,13 @@ const resetCommandForm = () => {
           <a href="https://twitch.tv/maddeth" target="_blank" class="button">Visit Stream</a>
           <button @click="loadUserRole" class="button secondary">Refresh</button>
         </div>
+      </div>
+      
+      <!-- Moderator Status Not Synced -->
+      <div v-if="userRole && !userRole.needsVisit && !isModerator && userRole.username" class="need-sync">
+        <h2>🔄 Sync Required</h2>
+        <p>If you've recently been made a moderator on Twitch, click the button below to sync your status.</p>
+        <button @click="refreshModeratorStatus" class="button">Sync Moderator Status</button>
       </div>
 
       <!-- Moderator Content -->
@@ -327,11 +440,65 @@ const resetCommandForm = () => {
             </router-link>
           </div>
         </div>
+        
+        <!-- Bot Admin Management (Superadmin Only) -->
+        <div v-if="isSuperAdmin" class="bot-admins-section">
+          <div class="section-header">
+            <h2>👑 Bot Admin Management (Superadmin)</h2>
+            <button @click="showAddAdminForm = !showAddAdminForm" class="button">
+              {{ showAddAdminForm ? 'Cancel' : 'Add Bot Admin' }}
+            </button>
+          </div>
+          
+          <!-- Add Admin Form -->
+          <div v-if="showAddAdminForm" class="admin-form">
+            <div class="form-group">
+              <label for="newAdmin">Username</label>
+              <input 
+                id="newAdmin"
+                v-model="newAdminUsername" 
+                type="text" 
+                placeholder="Enter Twitch username"
+                class="form-input"
+                @keyup.enter="addBotAdmin"
+              >
+            </div>
+            <button @click="addBotAdmin" class="button">Grant Bot Admin</button>
+          </div>
+          
+          <!-- Bot Admins List -->
+          <div v-if="loadingBotAdmins" class="loading">Loading bot admins...</div>
+          <div v-else-if="botAdmins.length > 0" class="admins-list">
+            <div v-for="admin in botAdmins" :key="admin.username" class="admin-card">
+              <div class="admin-info">
+                <strong>{{ admin.display_name || admin.username }}</strong>
+                <small>@{{ admin.username }}</small>
+                <div class="admin-badges">
+                  <span v-if="admin.is_superadmin" class="badge superadmin">SUPERADMIN</span>
+                  <span v-if="admin.is_admin" class="badge admin">Bot Admin</span>
+                  <span v-if="admin.is_moderator" class="badge moderator">Moderator</span>
+                </div>
+              </div>
+              <div class="admin-actions">
+                <button 
+                  v-if="!admin.is_superadmin && admin.username !== userRole.username"
+                  @click="removeBotAdmin(admin.username)" 
+                  class="icon-button delete"
+                >
+                  Remove Admin
+                </button>
+              </div>
+            </div>
+          </div>
+          <div v-else class="no-admins">
+            <p>No bot admins configured.</p>
+          </div>
+        </div>
 
         <!-- Custom Commands -->
-        <div class="commands-section">
+        <div v-if="isBotModerator" class="commands-section">
           <div class="section-header">
-            <h2>🤖 Custom Commands</h2>
+            <h2>🤖 Custom Commands (Bot Admin)</h2>
             <button @click="showCommandForm = !showCommandForm" class="button">
               {{ showCommandForm ? 'Cancel' : 'Add Command' }}
             </button>
@@ -411,6 +578,29 @@ const resetCommandForm = () => {
             <p>No custom commands yet. Click "Add Command" to create one!</p>
           </div>
         </div>
+        
+        <!-- Commands View Only (for non-bot-admins) -->
+        <div v-if="!isBotModerator" class="commands-section">
+          <h2>🤖 Custom Commands</h2>
+          <p class="info-message">Bot admin privileges required to manage commands. Current commands:</p>
+          
+          <div v-if="loadingCommands" class="loading">Loading commands...</div>
+          <div v-else-if="commands.length > 0" class="commands-list view-only">
+            <div v-for="cmd in commands" :key="cmd.id" class="command-card">
+              <div class="command-info">
+                <div class="command-trigger">{{ cmd.trigger }}</div>
+                <div class="command-response">{{ cmd.response }}</div>
+                <div class="command-meta">
+                  <span>💿 {{ cmd.cooldown }}s cooldown</span>
+                  <span>🔒 {{ cmd.permission }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="no-commands">
+            <p>No custom commands configured yet.</p>
+          </div>
+        </div>
 
       </div>
     </div>
@@ -477,6 +667,15 @@ const resetCommandForm = () => {
 .need-visit {
   background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
   border-color: #3b82f6;
+}
+
+.need-sync {
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+  border: 2px solid #a78bfa;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  margin: 2rem 0;
 }
 
 .moderator-content {
@@ -551,7 +750,7 @@ const resetCommandForm = () => {
   color: #991b1b;
 }
 
-.stats-section, .moderators-section, .quick-actions, .commands-section {
+.stats-section, .moderators-section, .quick-actions, .commands-section, .bot-admins-section {
   background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
   border-radius: 12px;
   padding: 1.5rem;
@@ -559,7 +758,7 @@ const resetCommandForm = () => {
   border: 1px solid #4b5563;
 }
 
-.stats-section h2, .moderators-section h2, .quick-actions h2, .commands-section h2 {
+.stats-section h2, .moderators-section h2, .quick-actions h2, .commands-section h2, .bot-admins-section h2 {
   color: #10b981;
   margin-bottom: 1.5rem;
 }
@@ -834,6 +1033,100 @@ const resetCommandForm = () => {
 }
 
 .no-commands {
+  text-align: center;
+  color: #6b7280;
+  padding: 2rem;
+}
+
+.info-message {
+  color: #9ca3af;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.commands-list.view-only .command-card {
+  opacity: 0.9;
+}
+
+/* Bot Admin Styles */
+.admin-form {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.admin-form .form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.admins-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-card {
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-info strong {
+  color: #a78bfa;
+  display: block;
+}
+
+.admin-info small {
+  color: #9ca3af;
+}
+
+.admin-badges {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.badge.superadmin {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.badge.admin {
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.badge.moderator {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.admin-actions .icon-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.no-admins {
   text-align: center;
   color: #6b7280;
   padding: 2rem;
