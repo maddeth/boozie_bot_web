@@ -46,6 +46,18 @@ const modalTitle = ref('')
 const modalData = ref([])
 const loadingModalData = ref(false)
 
+// Alerts State
+const alerts = ref([])
+const loadingAlerts = ref(false)
+const showAlertForm = ref(false)
+const editingAlert = ref(null)
+const alertForm = ref({
+  event_title: '',
+  audio_url: '',
+  gif_url: '',
+  duration_ms: 5000
+})
+
 onMounted(async () => {
   await loadUserRole()
   if (isModerator.value) {
@@ -57,7 +69,8 @@ const loadModeratorData = async () => {
   const promises = [
     loadStats(),
     loadModerators(),
-    loadCommands()
+    loadCommands(),
+    loadAlerts()
   ]
   
   if (isSuperAdmin.value) {
@@ -371,6 +384,125 @@ const closeStatsModal = () => {
   modalTitle.value = ''
   modalData.value = []
 }
+
+// Alerts Management Functions
+const loadAlerts = async () => {
+  loadingAlerts.value = true
+  try {
+    const response = await fetch('https://maddeth.com/api/alerts', {
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    // Convert object to array for easier display
+    alerts.value = Object.entries(data).map(([event_title, config]) => ({
+      event_title,
+      ...config
+    }))
+  } catch (err) {
+    error.value = `Failed to load alerts: ${err.message}`
+  } finally {
+    loadingAlerts.value = false
+  }
+}
+
+const saveAlert = async () => {
+  try {
+    if (!alertForm.value.event_title || !alertForm.value.audio_url) {
+      error.value = 'Event title and audio URL are required'
+      return
+    }
+
+    let response
+    if (editingAlert.value) {
+      // Update existing alert
+      response = await fetch(`https://maddeth.com/api/alerts/${encodeURIComponent(editingAlert.value.event_title)}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${props.session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          audio_url: alertForm.value.audio_url,
+          gif_url: alertForm.value.gif_url,
+          duration_ms: alertForm.value.duration_ms
+        })
+      })
+    } else {
+      // Create new alert
+      response = await fetch('https://maddeth.com/api/alerts', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${props.session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(alertForm.value)
+      })
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+    }
+
+    // Reload alerts list
+    await loadAlerts()
+    resetAlertForm()
+  } catch (err) {
+    error.value = `Failed to save alert: ${err.message}`
+  }
+}
+
+const editAlert = (alert) => {
+  editingAlert.value = alert
+  alertForm.value = {
+    event_title: alert.event_title,
+    audio_url: alert.audio || '',
+    gif_url: alert.gifUrl || '',
+    duration_ms: alert.duration || 5000
+  }
+  showAlertForm.value = true
+}
+
+const deleteAlert = async (eventTitle) => {
+  if (!confirm('Are you sure you want to delete this alert?')) return
+  
+  try {
+    const response = await fetch(`https://maddeth.com/api/alerts/${encodeURIComponent(eventTitle)}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`
+      }
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+    }
+
+    // Reload alerts list
+    await loadAlerts()
+  } catch (err) {
+    error.value = `Failed to delete alert: ${err.message}`
+  }
+}
+
+const resetAlertForm = () => {
+  showAlertForm.value = false
+  editingAlert.value = null
+  alertForm.value = {
+    event_title: '',
+    audio_url: '',
+    gif_url: '',
+    duration_ms: 5000
+  }
+}
 </script>
 
 <template>
@@ -678,6 +810,103 @@ const closeStatsModal = () => {
           </div>
         </div>
 
+        <!-- Alerts Management -->
+        <div class="alerts-section">
+          <div class="section-header">
+            <h2>🔔 Alert Configurations</h2>
+            <button @click="showAlertForm = !showAlertForm" class="button">
+              {{ showAlertForm ? 'Cancel' : 'Add Alert' }}
+            </button>
+          </div>
+
+          <!-- Alert Form -->
+          <div v-if="showAlertForm" class="alert-form">
+            <h3>{{ editingAlert ? 'Edit Alert' : 'New Alert' }}</h3>
+            <div class="form-group">
+              <label for="eventTitle">Event Title</label>
+              <input 
+                id="eventTitle"
+                v-model="alertForm.event_title" 
+                type="text" 
+                placeholder="Shadow Colour"
+                class="form-input"
+                :disabled="editingAlert"
+              >
+              <small v-if="editingAlert" class="form-hint">Event title cannot be changed</small>
+            </div>
+            <div class="form-group">
+              <label for="audioUrl">Audio URL</label>
+              <input 
+                id="audioUrl"
+                v-model="alertForm.audio_url" 
+                type="url" 
+                placeholder="https://example.com/sound.mp3"
+                class="form-input"
+              >
+            </div>
+            <div class="form-group">
+              <label for="gifUrl">GIF URL (optional)</label>
+              <input 
+                id="gifUrl"
+                v-model="alertForm.gif_url" 
+                type="url" 
+                placeholder="https://media.giphy.com/media/..."
+                class="form-input"
+              >
+            </div>
+            <div class="form-group">
+              <label for="duration">Duration (milliseconds)</label>
+              <input 
+                id="duration"
+                v-model.number="alertForm.duration_ms" 
+                type="number" 
+                min="1000"
+                max="30000"
+                step="1000"
+                class="form-input"
+              >
+              <small class="form-hint">How long to display the GIF (1000 = 1 second)</small>
+            </div>
+            <div class="form-actions">
+              <button @click="saveAlert" class="button">
+                {{ editingAlert ? 'Update' : 'Create' }} Alert
+              </button>
+              <button @click="resetAlertForm" class="button secondary">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Alerts List -->
+          <div v-if="loadingAlerts" class="loading">Loading alerts...</div>
+          <div v-else-if="alerts.length > 0" class="alerts-list">
+            <div v-for="alert in alerts" :key="alert.event_title" class="alert-card">
+              <div class="alert-info">
+                <div class="alert-title">{{ alert.event_title }}</div>
+                <div class="alert-details">
+                  <div class="alert-audio">
+                    <span class="label">🔊 Audio:</span>
+                    <a :href="alert.audio" target="_blank" class="alert-link">{{ alert.audio.split('/').pop() }}</a>
+                  </div>
+                  <div v-if="alert.gifUrl" class="alert-gif">
+                    <span class="label">🎬 GIF:</span>
+                    <a :href="alert.gifUrl" target="_blank" class="alert-link">View GIF</a>
+                  </div>
+                  <div class="alert-duration">
+                    <span class="label">⏱️ Duration:</span>
+                    {{ (alert.duration / 1000).toFixed(1) }}s
+                  </div>
+                </div>
+              </div>
+              <div class="alert-actions">
+                <button @click="editAlert(alert)" class="icon-button edit">✏️</button>
+                <button @click="deleteAlert(alert.event_title)" class="icon-button delete">🗑️</button>
+              </div>
+            </div>
+          </div>
+          <div v-else class="no-alerts">
+            <p>No alerts configured yet. Click "Add Alert" to create one!</p>
+          </div>
+        </div>
+
       </div>
     </div>
     
@@ -865,7 +1094,7 @@ const closeStatsModal = () => {
   color: #991b1b;
 }
 
-.stats-section, .moderators-section, .quick-actions, .commands-section, .bot-admins-section {
+.stats-section, .moderators-section, .quick-actions, .commands-section, .bot-admins-section, .alerts-section {
   background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
   border-radius: 12px;
   padding: 1.5rem;
@@ -873,7 +1102,7 @@ const closeStatsModal = () => {
   border: 1px solid #4b5563;
 }
 
-.stats-section h2, .moderators-section h2, .quick-actions h2, .commands-section h2, .bot-admins-section h2 {
+.stats-section h2, .moderators-section h2, .quick-actions h2, .commands-section h2, .bot-admins-section h2, .alerts-section h2 {
   color: #10b981;
   margin-bottom: 1.5rem;
 }
@@ -1428,6 +1657,84 @@ const closeStatsModal = () => {
 }
 
 .no-data {
+  text-align: center;
+  color: #6b7280;
+  padding: 2rem;
+}
+
+/* Alerts Section Styles */
+.alert-form {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.alert-form h3 {
+  color: #10b981;
+  margin-bottom: 1rem;
+}
+
+.form-hint {
+  display: block;
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+.alerts-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.alert-card {
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert-info {
+  flex: 1;
+}
+
+.alert-title {
+  color: #ef4444;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.alert-details {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.alert-details .label {
+  color: #9ca3af;
+  margin-right: 0.5rem;
+}
+
+.alert-link {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.alert-link:hover {
+  text-decoration: underline;
+}
+
+.alert-audio, .alert-gif, .alert-duration {
+  color: #d1d5db;
+}
+
+.no-alerts {
   text-align: center;
   color: #6b7280;
   padding: 2rem;
