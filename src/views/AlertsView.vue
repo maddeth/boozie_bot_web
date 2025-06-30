@@ -12,13 +12,17 @@ import Alerts from '@/components/Alerts.vue';
 
 <style scoped>
 .page {
-  min-height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: transparent;
+  position: relative;
 }
 
 .container {
   flex: 1;
-  padding: 2rem 1rem;
+  padding: 0;
+  width: 100%;
+  height: 100%;
 }
 </style>
