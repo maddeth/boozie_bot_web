@@ -32,7 +32,8 @@ const commandForm = ref({
   response: '',
   cooldown: 0,
   permission: 'everyone',
-  trigger_type: 'exact'
+  trigger_type: 'exact',
+  audio_url: ''
 })
 
 // Bot Admins State (for superadmin)
@@ -180,8 +181,13 @@ const loadCommands = async () => {
 
 const saveCommand = async () => {
   try {
-    if (!commandForm.value.trigger || !commandForm.value.response) {
-      error.value = 'Command trigger and response are required'
+    if (!commandForm.value.trigger) {
+      error.value = 'Command trigger is required'
+      return
+    }
+    
+    if (!commandForm.value.response && !commandForm.value.audio_url) {
+      error.value = 'Either text response or audio URL is required'
       return
     }
 
@@ -258,7 +264,8 @@ const resetCommandForm = () => {
     response: '',
     cooldown: 0,
     permission: 'everyone',
-    trigger_type: 'exact'
+    trigger_type: 'exact',
+    audio_url: ''
   }
 }
 
@@ -750,14 +757,27 @@ const resetAlertForm = () => {
               </div>
             </div>
             <div class="form-group">
-              <label for="response">Response</label>
+              <label for="response">Text Response (Optional)</label>
               <textarea 
                 id="response"
                 v-model="commandForm.response" 
-                placeholder="Command response... Use {user} for username"
+                placeholder="Command response... Use {user} for username (leave empty for audio-only)"
                 class="form-input"
                 rows="3"
               ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="audio_url">Audio File URL (Optional)</label>
+              <input 
+                id="audio_url"
+                v-model="commandForm.audio_url" 
+                type="url" 
+                placeholder="https://example.com/audio.mp3"
+                class="form-input"
+              >
+              <small class="help-text">
+                Link to an audio file (MP3, WAV, etc.) to play when command triggers
+              </small>
             </div>
             <div class="form-row">
               <div class="form-group">
@@ -798,10 +818,13 @@ const resetAlertForm = () => {
                   <span v-else-if="cmd.trigger_type === 'regex'" class="trigger-type">[Regex]</span>
                   {{ cmd.trigger }}
                 </div>
-                <div class="command-response">{{ cmd.response }}</div>
+                <div class="command-response">
+                  {{ cmd.response || (cmd.audio_url ? '(Audio only)' : '(No response)') }}
+                </div>
                 <div class="command-meta">
                   <span>💿 {{ cmd.cooldown }}s cooldown</span>
                   <span>🔒 {{ cmd.permission }}</span>
+                  <span v-if="cmd.audio_url" title="Has audio file">🔊 Audio</span>
                 </div>
               </div>
               <div class="command-actions">
@@ -829,10 +852,13 @@ const resetAlertForm = () => {
                   <span v-else-if="cmd.trigger_type === 'regex'" class="trigger-type">[Regex]</span>
                   {{ cmd.trigger }}
                 </div>
-                <div class="command-response">{{ cmd.response }}</div>
+                <div class="command-response">
+                  {{ cmd.response || (cmd.audio_url ? '(Audio only)' : '(No response)') }}
+                </div>
                 <div class="command-meta">
                   <span>💿 {{ cmd.cooldown }}s cooldown</span>
                   <span>🔒 {{ cmd.permission }}</span>
+                  <span v-if="cmd.audio_url" title="Has audio file">🔊 Audio</span>
                 </div>
               </div>
             </div>
