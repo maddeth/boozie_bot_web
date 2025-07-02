@@ -44,18 +44,34 @@ export default {
           return; // Heartbeat response received
         }
         
-        if (newEvent.type == "redeem") {
-          playRedeem(newEvent.id)
+        // Handle batched messages
+        if (newEvent.type == "batch") {
+          console.log(`Processing batch of ${newEvent.count} messages`);
+          newEvent.messages.forEach(msg => processMessage(msg));
+          return;
+        }
+        
+        // Handle single message
+        processMessage(newEvent);
+      });
+      
+      function processMessage(msg) {
+        if (msg.type == "redeem") {
+          playRedeem(msg.id)
           // Check if this redeem has an associated gif
-          if (newEvent.gifUrl) {
-            displayGif(newEvent.gifUrl, newEvent.duration || 5000)
+          if (msg.gifUrl) {
+            displayGif(msg.gifUrl, msg.duration || 5000)
           }
         }
         
-        if (newEvent.type == "gif") {
-          displayGif(newEvent.url, newEvent.duration || 5000)
+        if (msg.type == "gif") {
+          displayGif(msg.url, msg.duration || 5000)
         }
-      });
+        
+        if (msg.type == "tts") {
+          playTts(msg.id)
+        }
+      }
         
       socket.addEventListener('close', (event) => {
         console.log("WebSocket connection closed", event.code, event.reason)
@@ -128,7 +144,7 @@ export default {
           }
         };
         
-        audio.onerror = (error) => {
+        audio.onerror = () => {
           console.log('Audio error for:', audioUrl);
           if (audioQueue.length > 0) {
             dequeueAudio();

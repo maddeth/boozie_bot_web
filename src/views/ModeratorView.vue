@@ -31,7 +31,8 @@ const commandForm = ref({
   trigger: '',
   response: '',
   cooldown: 0,
-  permission: 'everyone'
+  permission: 'everyone',
+  trigger_type: 'exact'
 })
 
 // Bot Admins State (for superadmin)
@@ -256,7 +257,8 @@ const resetCommandForm = () => {
     trigger: '',
     response: '',
     cooldown: 0,
-    permission: 'everyone'
+    permission: 'everyone',
+    trigger_type: 'exact'
   }
 }
 
@@ -715,15 +717,37 @@ const resetAlertForm = () => {
           <!-- Command Form -->
           <div v-if="showCommandForm" class="command-form">
             <h3>{{ editingCommand ? 'Edit Command' : 'New Command' }}</h3>
-            <div class="form-group">
-              <label for="trigger">Command Trigger</label>
-              <input 
-                id="trigger"
-                v-model="commandForm.trigger" 
-                type="text" 
-                placeholder="!example"
-                class="form-input"
-              >
+            <div class="form-row">
+              <div class="form-group">
+                <label for="trigger_type">Trigger Type</label>
+                <select id="trigger_type" v-model="commandForm.trigger_type" class="form-input">
+                  <option value="exact">Exact Match (!command)</option>
+                  <option value="contains">Contains Word</option>
+                  <option value="regex">Regular Expression</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="trigger">
+                  {{ commandForm.trigger_type === 'exact' ? 'Command Trigger' :
+                     commandForm.trigger_type === 'contains' ? 'Word/Phrase to Match' :
+                     'Regex Pattern' }}
+                </label>
+                <input 
+                  id="trigger"
+                  v-model="commandForm.trigger" 
+                  type="text" 
+                  :placeholder="commandForm.trigger_type === 'exact' ? '!example' :
+                               commandForm.trigger_type === 'contains' ? 'poggers' :
+                               '^(hi|hello|hey)'"
+                  class="form-input"
+                >
+                <small v-if="commandForm.trigger_type === 'contains'" class="help-text">
+                  Triggers when message contains this word/phrase anywhere
+                </small>
+                <small v-if="commandForm.trigger_type === 'regex'" class="help-text">
+                  Advanced: Use regex patterns for complex matching
+                </small>
+              </div>
             </div>
             <div class="form-group">
               <label for="response">Response</label>
@@ -769,7 +793,11 @@ const resetAlertForm = () => {
           <div v-else-if="commands.length > 0" class="commands-list">
             <div v-for="cmd in commands" :key="cmd.id" class="command-card">
               <div class="command-info">
-                <div class="command-trigger">{{ cmd.trigger }}</div>
+                <div class="command-trigger">
+                  <span v-if="cmd.trigger_type === 'contains'" class="trigger-type">[Contains]</span>
+                  <span v-else-if="cmd.trigger_type === 'regex'" class="trigger-type">[Regex]</span>
+                  {{ cmd.trigger }}
+                </div>
                 <div class="command-response">{{ cmd.response }}</div>
                 <div class="command-meta">
                   <span>💿 {{ cmd.cooldown }}s cooldown</span>
@@ -796,7 +824,11 @@ const resetAlertForm = () => {
           <div v-else-if="commands.length > 0" class="commands-list view-only">
             <div v-for="cmd in commands" :key="cmd.id" class="command-card">
               <div class="command-info">
-                <div class="command-trigger">{{ cmd.trigger }}</div>
+                <div class="command-trigger">
+                  <span v-if="cmd.trigger_type === 'contains'" class="trigger-type">[Contains]</span>
+                  <span v-else-if="cmd.trigger_type === 'regex'" class="trigger-type">[Regex]</span>
+                  {{ cmd.trigger }}
+                </div>
                 <div class="command-response">{{ cmd.response }}</div>
                 <div class="command-meta">
                   <span>💿 {{ cmd.cooldown }}s cooldown</span>
@@ -1758,5 +1790,23 @@ const resetAlertForm = () => {
   .command-actions {
     margin-top: 0.5rem;
   }
+}
+
+/* Trigger Type Styles */
+.trigger-type {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.help-text {
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
 }
 </style>
