@@ -11,17 +11,38 @@ export default {
     let server = 'wss://maddeth.com/websocket/'
     const audioQueue = []
     let gifTimeout = null
+    let socket = null
+    let reconnectTimer = null
+    let reconnectDelay = 1000 // Start with 1 second
+    const maxReconnectDelay = 30000 // Max 30 seconds
+    let heartbeatTimer = null
 
     function start(server) {
-      let socket = new WebSocket('wss://maddeth.com/websocket/');
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        return // Already connected
+      }
+      
+      socket = new WebSocket('wss://maddeth.com/websocket/');
       
       socket.addEventListener('open', function (event) {
+        console.log('WebSocket connected');
         socket.send('Web Client Connected');
+        
+        // Reset reconnect delay on successful connection
+        reconnectDelay = 1000;
+        
+        // Start client-side heartbeat
+        startHeartbeat();
       });
 
       socket.addEventListener('message', function (event) {
         var newEvent = JSON.parse(event.data)
         console.log('Event from server ', newEvent.type);
+        
+        // Handle pong response from server
+        if (newEvent.type == "pong") {
+          return; // Heartbeat response received
+        }
         
         if (newEvent.type == "redeem") {
           playRedeem(newEvent.id)
@@ -37,15 +58,13 @@ export default {
       });
         
       socket.addEventListener('close', (event) => {
-        console.log("lost connection to websocket:", socket.readyState)
-        setInterval(function () {
-          console.log("retry connection to websocket")
-          if (socket.readyState === WebSocket.OPEN) {
-            return
-          } else {
-            start(server)
-          }
-        }, 5000)
+        console.log("WebSocket connection closed", event.code, event.reason)
+        stopHeartbeat()
+        scheduleReconnect()
+      });
+      
+      socket.addEventListener('error', (event) => {
+        console.error("WebSocket error", event)
       });
     }
 
@@ -133,6 +152,35 @@ export default {
       }
     }
 
+    function scheduleReconnect() {
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer)
+      }
+      
+      console.log(`Scheduling reconnect in ${reconnectDelay}ms`)
+      reconnectTimer = setTimeout(() => {
+        start(server)
+        // Exponential backoff with jitter
+        reconnectDelay = Math.min(reconnectDelay * 2 + Math.random() * 1000, maxReconnectDelay)
+      }, reconnectDelay)
+    }
+    
+    function startHeartbeat() {
+      // Send ping every 25 seconds (less than server's 30 second timeout)
+      heartbeatTimer = setInterval(() => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }))
+        }
+      }, 25000)
+    }
+    
+    function stopHeartbeat() {
+      if (heartbeatTimer) {
+        clearInterval(heartbeatTimer)
+        heartbeatTimer = null
+      }
+    }
+
     onMounted(() => {
       start(server)
     })
@@ -140,6 +188,13 @@ export default {
     onUnmounted(() => {
       if (gifTimeout) {
         clearTimeout(gifTimeout)
+      }
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer)
+      }
+      stopHeartbeat()
+      if (socket) {
+        socket.close()
       }
     })
 
