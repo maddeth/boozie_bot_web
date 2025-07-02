@@ -33,7 +33,8 @@ const commandForm = ref({
   cooldown: 0,
   permission: 'everyone',
   trigger_type: 'exact',
-  audio_url: ''
+  audio_url: '',
+  egg_cost: 0
 })
 
 // Bot Admins State (for superadmin)
@@ -265,7 +266,8 @@ const resetCommandForm = () => {
     cooldown: 0,
     permission: 'everyone',
     trigger_type: 'exact',
-    audio_url: ''
+    audio_url: '',
+    egg_cost: 0
   }
 }
 
@@ -791,6 +793,22 @@ const resetAlertForm = () => {
                 >
               </div>
               <div class="form-group">
+                <label for="egg_cost">Egg Cost (Optional)</label>
+                <input 
+                  id="egg_cost"
+                  v-model.number="commandForm.egg_cost" 
+                  type="number" 
+                  min="0"
+                  placeholder="0"
+                  class="form-input"
+                >
+                <small class="help-text">
+                  Users must spend this many eggs to trigger the command (0 = free)
+                </small>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
                 <label for="permission">Permission Level</label>
                 <select id="permission" v-model="commandForm.permission" class="form-input">
                   <option value="everyone">Everyone</option>
@@ -825,6 +843,7 @@ const resetAlertForm = () => {
                   <span>💿 {{ cmd.cooldown }}s cooldown</span>
                   <span>🔒 {{ cmd.permission }}</span>
                   <span v-if="cmd.audio_url" title="Has audio file">🔊 Audio</span>
+                  <span v-if="cmd.egg_cost > 0" title="Costs eggs to use">🥚 {{ cmd.egg_cost }} eggs</span>
                 </div>
               </div>
               <div class="command-actions">
@@ -859,6 +878,7 @@ const resetAlertForm = () => {
                   <span>💿 {{ cmd.cooldown }}s cooldown</span>
                   <span>🔒 {{ cmd.permission }}</span>
                   <span v-if="cmd.audio_url" title="Has audio file">🔊 Audio</span>
+                  <span v-if="cmd.egg_cost > 0" title="Costs eggs to use">🥚 {{ cmd.egg_cost }} eggs</span>
                 </div>
               </div>
             </div>
