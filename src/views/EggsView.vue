@@ -44,11 +44,6 @@
           <h3>🎮 Special Events</h3>
           <p>Moderators can award bonus eggs for special occasions, games, and community events.</p>
         </div>
-        
-        <div class="info-card">
-          <h3>🔗 Account Linking</h3>
-          <p>Link your Twitch account here to track your eggs across username changes and view them on this page.</p>
-        </div>
       </div>
     </div>
   </div>
