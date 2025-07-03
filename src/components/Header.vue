@@ -1,6 +1,6 @@
 <script setup>
 import { supabase } from '../supabase.js'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useUserRole } from '../composables/useUserRole.js'
 
 const props = defineProps(['session'])
@@ -8,6 +8,9 @@ const props = defineProps(['session'])
 const loading = ref(true)
 const metadata = ref(null)
 const { userRole, isModerator, loadUserRole } = useUserRole()
+const showProfileDropdown = ref(false)
+const profileButton = ref(null)
+const profileDropdown = ref(null)
 
 async function signOut() {
   try {
@@ -18,6 +21,22 @@ async function signOut() {
     alert(error.message)
   } finally {
     loading.value = false
+  }
+}
+
+const toggleProfileDropdown = () => {
+  showProfileDropdown.value = !showProfileDropdown.value
+}
+
+const closeDropdown = () => {
+  showProfileDropdown.value = false
+}
+
+const handleClickOutside = (event) => {
+  if (profileButton.value && profileDropdown.value) {
+    if (!profileButton.value.contains(event.target) && !profileDropdown.value.contains(event.target)) {
+      showProfileDropdown.value = false
+    }
   }
 }
 
@@ -34,6 +53,13 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+  
+  // Add click outside listener
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 
 </script>
@@ -47,13 +73,26 @@ onMounted(async () => {
       </div>
       
       <div v-if="metadata" class="header-user">
-        <div class="user-info">
+        <div class="user-profile" @click="toggleProfileDropdown" ref="profileButton">
           <img class="user-avatar" :src="metadata.avatar_url" :alt="metadata.nickname" />
           <span class="user-name">{{ metadata.nickname }}</span>
+          <svg class="dropdown-arrow" :class="{ 'rotated': showProfileDropdown }" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M7 10l5 5 5-5z"/>
+          </svg>
         </div>
-        <button class="sign-out-btn" @click="signOut" :disabled="loading">
-          {{ loading ? 'Signing out...' : 'Sign Out' }}
-        </button>
+        
+        <!-- Profile Dropdown -->
+        <div v-if="showProfileDropdown" class="profile-dropdown" ref="profileDropdown">
+          <router-link to="/" class="dropdown-item" @click="closeDropdown">
+            <span class="dropdown-icon">👤</span>
+            Your Account
+          </router-link>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item sign-out-item" @click="signOut" :disabled="loading">
+            <span class="dropdown-icon">🚪</span>
+            {{ loading ? 'Signing out...' : 'Sign Out' }}
+          </button>
+        </div>
       </div>
     </div>
     
@@ -112,12 +151,12 @@ onMounted(async () => {
 }
 
 .header-user {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 1rem;
 }
 
-.user-info {
+.user-profile {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -125,6 +164,14 @@ onMounted(async () => {
   background: rgba(16, 185, 129, 0.1);
   border-radius: 25px;
   border: 1px solid rgba(16, 185, 129, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.user-profile:hover {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 .user-avatar {
@@ -141,29 +188,70 @@ onMounted(async () => {
   font-size: 0.95rem;
 }
 
-.sign-out-btn {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.9rem;
+.dropdown-arrow {
+  transition: transform 0.2s ease;
+  color: #d1d5db;
+}
+
+.dropdown-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  border: 1px solid #4b5563;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  min-width: 200px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: #d1d5db;
+  text-decoration: none;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
 }
 
-.sign-out-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
+.dropdown-item:hover {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
 }
 
-.sign-out-btn:disabled {
+.dropdown-item.sign-out-item:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.dropdown-item:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
+}
+
+.dropdown-icon {
+  font-size: 1rem;
+  width: 1.2rem;
+  text-align: center;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #4b5563;
+  margin: 0.5rem 0;
 }
 
 .header-nav {
@@ -206,17 +294,14 @@ onMounted(async () => {
 }
 
 .moderator-link .nav-link {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
-  color: #34d399 !important;
+  color: #34d399;
   font-weight: 600;
-  border-bottom-color: rgba(52, 211, 153, 0.3);
 }
 
 .moderator-link .nav-link:hover {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%);
-  color: #10b981 !important;
-  border-bottom-color: #34d399;
-  box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.1);
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border-bottom-color: rgba(16, 185, 129, 0.3);
 }
 
 .moderator-link .nav-link.router-link-active {

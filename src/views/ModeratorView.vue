@@ -529,17 +529,6 @@ const resetAlertForm = () => {
         <div class="loading">Loading user information...</div>
       </div>
 
-      <!-- User Info -->
-      <div v-else-if="userRole" class="user-info-card">
-        <h2>👤 Your Account</h2>
-        <div class="user-details">
-          <p><strong>Username:</strong> {{ userRole.username }}</p>
-          <p><strong>Display Name:</strong> {{ userRole.displayName || userRole.username }}</p>
-          <p><strong>Roles:</strong> {{ getRoleText(userRole) }}</p>
-          <p v-if="userRole.moderatorSince"><strong>Moderator Since:</strong> {{ formatDate(userRole.moderatorSince) }}</p>
-          <p><strong>Last Seen:</strong> {{ formatDate(userRole.lastSeen) }}</p>
-        </div>
-      </div>
 
       <!-- Access Denied -->
       <div v-if="userRole && !userRole.needsVisit && !isModerator" class="access-denied">
