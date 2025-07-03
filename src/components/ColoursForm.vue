@@ -114,10 +114,12 @@ async function SearchByColour() {
     
     const json = await res.json()
     
-    if (json && Array.isArray(json) && json.length > 0) {
+    if (json && Array.isArray(json)) {
       colourSearchResponse.value = json
+    } else if (json) {
+      colourSearchResponse.value = [json]
     } else {
-      colourSearchResponse.value = json[0]
+      colourSearchResponse.value = []
     }
   } catch (err) {
     console.error('Error searching colour:', err)
@@ -256,9 +258,11 @@ function clearSearch() {
         </div>
       </div>
       
-      <!-- No Results -->
-      <div v-else-if="colourSearchResponse && colourSearchResponse.length === 0" class="no-results">
-        <p>🤷‍♀️ No colours found matching your search.</p>
+      <!-- No Results Found -->
+      <div v-else-if="colourSearchResponse !== null && (!colourSearchResponse || colourSearchResponse.length === 0)" class="no-results">
+        <h3 class="results-title">No Results Found</h3>
+        <p>🤷‍♀️ No colours found matching "{{ searchColour }}".</p>
+        <p class="no-results-hint">Try a different search term or check the spelling.</p>
       </div>
     </div>
     
@@ -582,9 +586,26 @@ function clearSearch() {
 
 .no-results {
   text-align: center;
-  color: #9ca3af;
+  background: rgba(107, 114, 128, 0.1);
+  border: 1px solid rgba(107, 114, 128, 0.2);
+  border-radius: 8px;
   padding: 2rem;
-  font-style: italic;
+  margin-top: 1.5rem;
+}
+
+.no-results h3 {
+  color: #d1d5db;
+  margin-bottom: 1rem;
+}
+
+.no-results p {
+  color: #9ca3af;
+  margin: 0.5rem 0;
+}
+
+.no-results-hint {
+  font-size: 0.9rem;
+  opacity: 0.8;
 }
 
 @media (max-width: 768px) {
