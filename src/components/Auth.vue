@@ -27,7 +27,8 @@ const handleLogin = async () => {
     <div class="auth-card">
       <div class="auth-header">
         <div class="logo">
-          <h1>🤖 Boozie Bot</h1>
+          <img src="https://static-cdn.jtvnw.net/jtv_user_pictures/6351700d-d3e6-4c31-ac7f-f6b9b1fb9d75-profile_image-70x70.png" alt="Boozie Bot" class="logo-image" />
+          <h1>Boozie Bot</h1>
           <div class="logo-accent"></div>
         </div>
         <p class="welcome-text">Welcome to the stream companion bot</p>
@@ -110,6 +111,21 @@ const handleLogin = async () => {
   background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
   border-radius: 20px 20px 0 0;
   position: relative;
+}
+
+.logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #10b981;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .logo h1 {

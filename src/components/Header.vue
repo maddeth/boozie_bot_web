@@ -42,7 +42,8 @@ onMounted(async () => {
   <header class="app-header">
     <div class="header-top">
       <div class="header-brand">
-        <h1>🤖 Boozie Bot</h1>
+        <img src="https://static-cdn.jtvnw.net/jtv_user_pictures/6351700d-d3e6-4c31-ac7f-f6b9b1fb9d75-profile_image-70x70.png" alt="Boozie Bot" class="brand-logo" />
+        <h1>Boozie Bot</h1>
       </div>
       
       <div v-if="metadata" class="header-user">
@@ -86,6 +87,20 @@ onMounted(async () => {
   align-items: center;
   padding: 1rem 2rem;
   background: rgba(0, 0, 0, 0.1);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #10b981;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
 }
 
 .header-brand h1 {
