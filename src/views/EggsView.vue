@@ -68,15 +68,14 @@ export default {
 
 <style scoped>
 .eggs-view {
-  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
-  width: 100%;
+  padding: 0 1rem;
 }
 
 .page-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 2rem;
 }
 
 .page-header h1 {

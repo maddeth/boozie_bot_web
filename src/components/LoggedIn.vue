@@ -42,22 +42,20 @@ const fetchUserStats = async () => {
     const token = userSession.access_token
     
     // Fetch user eggs
-    if (userRole.value?.username) {
-      try {
-        const eggsResponse = await fetch(`https://maddeth.com/api/eggs/${userRole.value.username}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        
-        if (eggsResponse.ok) {
-          const eggsData = await eggsResponse.json()
-          userEggs.value = eggsData.egg_count?.toLocaleString() || '0'
+    try {
+      const eggsResponse = await fetch('https://maddeth.com/api/eggs/my-eggs', {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      } catch (error) {
-        console.error('Failed to fetch eggs:', error)
-        userEggs.value = '0'
+      })
+      
+      if (eggsResponse.ok) {
+        const eggsData = await eggsResponse.json()
+        userEggs.value = eggsData.egg_count?.toLocaleString() || '0'
       }
+    } catch (error) {
+      console.error('Failed to fetch eggs:', error)
+      userEggs.value = '0'
     }
     
     // Fetch egg leaderboard to find user's rank
@@ -69,11 +67,25 @@ const fetchUserStats = async () => {
       })
       
       if (leaderboardResponse.ok) {
-        const leaderboard = await leaderboardResponse.json()
-        const userPosition = leaderboard.findIndex(entry => 
-          entry.username === userRole.value?.username
-        )
-        userRank.value = userPosition >= 0 ? `#${userPosition + 1}` : 'Unranked'
+        const leaderboardData = await leaderboardResponse.json()
+        console.log('Leaderboard response:', leaderboardData)
+        
+        // Handle different response formats
+        let leaderboard = leaderboardData
+        if (leaderboardData.leaderboard) {
+          leaderboard = leaderboardData.leaderboard
+        } else if (leaderboardData.users) {
+          leaderboard = leaderboardData.users
+        }
+        
+        if (Array.isArray(leaderboard) && userRole.value?.username) {
+          const userPosition = leaderboard.findIndex(entry => 
+            entry.username === userRole.value.username
+          )
+          userRank.value = userPosition >= 0 ? `#${userPosition + 1}` : 'Unranked'
+        } else {
+          userRank.value = 'N/A'
+        }
       }
     } catch (error) {
       console.error('Failed to fetch leaderboard:', error)
@@ -202,7 +214,7 @@ onMounted(async () => {
 .home-welcome {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 0 1rem;
   color: #f3f4f6;
 }
 

@@ -271,9 +271,9 @@ curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
 
 <style scoped>
 .token-manager {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0 1rem;
 }
 
 .page-header {
