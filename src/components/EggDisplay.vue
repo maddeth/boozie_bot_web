@@ -55,7 +55,11 @@
           v-for="(user, index) in leaderboard" 
           :key="user.username"
           class="leaderboard-item"
-          :class="{ 'top-three': index < 3 }"
+          :class="{ 
+            'first-place': index === 0,
+            'second-place': index === 1,
+            'third-place': index === 2
+          }"
         >
           <span class="rank">{{ user.rank }}</span>
           <span class="username">{{ user.username }}</span>
@@ -379,13 +383,31 @@ export default {
   background: #e9ecef;
 }
 
-.leaderboard-item.top-three {
+.leaderboard-item.first-place {
   background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
   font-weight: bold;
 }
 
-.leaderboard-item.top-three:hover {
+.leaderboard-item.first-place:hover {
   background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
+}
+
+.leaderboard-item.second-place {
+  background: linear-gradient(135deg, #c0c0c0 0%, #e0e0e0 100%);
+  font-weight: bold;
+}
+
+.leaderboard-item.second-place:hover {
+  background: linear-gradient(135deg, #e0e0e0 0%, #c0c0c0 100%);
+}
+
+.leaderboard-item.third-place {
+  background: linear-gradient(135deg, #cd7f32 0%, #e4a160 100%);
+  font-weight: bold;
+}
+
+.leaderboard-item.third-place:hover {
+  background: linear-gradient(135deg, #e4a160 0%, #cd7f32 100%);
 }
 
 .rank {
@@ -394,7 +416,15 @@ export default {
   color: #666;
 }
 
-.top-three .rank {
+.first-place .rank {
+  color: #8b4513;
+}
+
+.second-place .rank {
+  color: #5a5a5a;
+}
+
+.third-place .rank {
   color: #8b4513;
 }
 
