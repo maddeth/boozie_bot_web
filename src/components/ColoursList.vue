@@ -123,11 +123,11 @@ function updateLoadingState() {
 
 .section-title {
   text-align: center;
-  font-size: 2rem;
+  font-size: 2.2rem;
   color: #10b981;
   margin-bottom: 2rem;
   font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
 }
 
 .loading-spinner {

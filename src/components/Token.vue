@@ -156,11 +156,13 @@ onUnmounted(() => {
 
 <template>
   <div class="token-manager">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>🔑 API Token</h1>
+      <p>Get your personal API token to authenticate with external tools and applications.</p>
+    </div>
+    
     <div class="section-card">
-      <div class="section-header">
-        <h2 class="section-title">🔑 API Bearer Token</h2>
-        <p class="section-subtitle">Use this token to authenticate with the API</p>
-      </div>
       
       <!-- Loading State -->
       <div v-if="loading" class="loading-container">
@@ -274,6 +276,25 @@ curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   padding: 1rem;
 }
 
+.page-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #10b981;
+  text-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.page-header p {
+  color: #d1d5db;
+  font-size: 1.1rem;
+  margin: 0;
+  opacity: 0.9;
+}
+
 .section-card {
   background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
   border: 2px solid rgba(16, 185, 129, 0.2);
@@ -282,24 +303,6 @@ curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.section-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.section-title {
-  color: #10b981;
-  font-size: 1.75rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.section-subtitle {
-  color: #9ca3af;
-  font-size: 1rem;
-  margin: 0;
-}
 
 .loading-container {
   text-align: center;

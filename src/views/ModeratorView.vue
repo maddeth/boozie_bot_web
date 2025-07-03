@@ -858,8 +858,8 @@ const resetAlertForm = () => {
           </div>
         </div>
 
-        <!-- Alerts Management -->
-        <div class="alerts-section">
+        <!-- Alerts Management (Superadmin Only) -->
+        <div v-if="isSuperAdmin" class="alerts-section">
           <div class="section-header">
             <h2>🔔 Alert Configurations</h2>
             <button @click="showAlertForm = !showAlertForm" class="button">
