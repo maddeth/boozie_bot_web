@@ -62,6 +62,7 @@ watch(() => route.name, (newRoute) => {
   padding-top: 2rem;
   background: linear-gradient(135deg, #111827 0%, #1f2937 50%, #374151 100%);
   min-height: calc(100vh - 200px);
+  overflow-x: hidden;
 }
 
 .main-content.no-header {
@@ -90,5 +91,7 @@ body.alerts-page {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 </style>
