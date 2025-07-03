@@ -101,13 +101,21 @@ export default {
 .info-section {
   margin-top: 50px;
   padding: 30px;
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  border: 2px solid rgba(16, 185, 129, 0.2);
   border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.info-section:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
 }
 
 .info-section h2 {
   text-align: center;
-  color: #333;
+  color: #10b981;
   margin: 0 0 30px 0;
   font-size: 2rem;
 }
@@ -119,26 +127,29 @@ export default {
 }
 
 .info-card {
-  background: white;
+  background: rgba(55, 65, 81, 0.6);
+  border: 1px solid rgba(75, 85, 99, 0.5);
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s ease;
 }
 
 .info-card:hover {
+  background: rgba(55, 65, 81, 0.8);
+  border-color: rgba(16, 185, 129, 0.3);
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .info-card h3 {
-  color: #333;
+  color: #10b981;
   margin: 0 0 15px 0;
   font-size: 1.3rem;
 }
 
 .info-card p {
-  color: #666;
+  color: #d1d5db;
   line-height: 1.6;
   margin: 0;
 }
@@ -154,18 +165,19 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: #f1f3f4;
+  background: rgba(31, 41, 55, 0.5);
+  border: 1px solid rgba(75, 85, 99, 0.3);
   border-radius: 6px;
   font-size: 0.95rem;
 }
 
 .tier-name {
-  color: #333;
+  color: #f3f4f6;
   font-weight: 500;
 }
 
 .tier-eggs {
-  color: #28a745;
+  color: #10b981;
   font-weight: bold;
 }
 

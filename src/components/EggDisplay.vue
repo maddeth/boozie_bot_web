@@ -443,9 +443,21 @@ export default {
   color: #f3f4f6;
 }
 
+.first-place .username,
+.second-place .username,
+.third-place .username {
+  color: #1f2937;
+}
+
 .eggs {
   font-weight: bold;
   color: #28a745;
+}
+
+.first-place .eggs,
+.second-place .eggs,
+.third-place .eggs {
+  color: #047857;
 }
 
 .stats-grid {
