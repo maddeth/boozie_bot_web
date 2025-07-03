@@ -10,6 +10,10 @@ const {
 } = useUserRole()
 
 const metadata = ref(null)
+const userEggs = ref('Loading...')
+const availableColours = ref('Loading...')
+const userRank = ref('Loading...')
+const session = ref(null)
 
 const formatDate = (dateString) => {
   if (!dateString) return 'Unknown'
@@ -28,12 +32,85 @@ const getRoleText = (user) => {
   return roles.length > 0 ? roles.join(', ') : 'Viewer'
 }
 
+const fetchUserStats = async () => {
+  try {
+    // Get session
+    const { data: { session: userSession } } = await supabase.auth.getSession()
+    if (!userSession) return
+    
+    session.value = userSession
+    const token = userSession.access_token
+    
+    // Fetch user eggs
+    if (userRole.value?.username) {
+      try {
+        const eggsResponse = await fetch(`https://maddeth.com/api/eggs/${userRole.value.username}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        
+        if (eggsResponse.ok) {
+          const eggsData = await eggsResponse.json()
+          userEggs.value = eggsData.egg_count?.toLocaleString() || '0'
+        }
+      } catch (error) {
+        console.error('Failed to fetch eggs:', error)
+        userEggs.value = '0'
+      }
+    }
+    
+    // Fetch egg leaderboard to find user's rank
+    try {
+      const leaderboardResponse = await fetch('https://maddeth.com/api/eggs/leaderboard', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (leaderboardResponse.ok) {
+        const leaderboard = await leaderboardResponse.json()
+        const userPosition = leaderboard.findIndex(entry => 
+          entry.username === userRole.value?.username
+        )
+        userRank.value = userPosition >= 0 ? `#${userPosition + 1}` : 'Unranked'
+      }
+    } catch (error) {
+      console.error('Failed to fetch leaderboard:', error)
+      userRank.value = 'N/A'
+    }
+    
+    // Fetch available colours count
+    try {
+      const coloursResponse = await fetch('https://maddeth.com/api/colours', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (coloursResponse.ok) {
+        const coloursData = await coloursResponse.json()
+        // Count the total number of colours
+        const colourCount = Object.keys(coloursData).length
+        availableColours.value = colourCount.toLocaleString()
+      }
+    } catch (error) {
+      console.error('Failed to fetch colours:', error)
+      availableColours.value = 'N/A'
+    }
+    
+  } catch (error) {
+    console.error('Failed to fetch stats:', error)
+  }
+}
+
 onMounted(async () => {
   try {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       metadata.value = user.user_metadata
       await loadUserRole()
+      await fetchUserStats()
     }
   } catch (error) {
     console.error('Failed to fetch user data:', error)
@@ -95,17 +172,17 @@ onMounted(async () => {
         <div class="stat-card">
           <div class="stat-number">🥚</div>
           <div class="stat-label">Your Eggs</div>
-          <div class="stat-value">Loading...</div>
+          <div class="stat-value">{{ userEggs }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-number">🎨</div>
           <div class="stat-label">Available Colours</div>
-          <div class="stat-value">Loading...</div>
+          <div class="stat-value">{{ availableColours }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-number">⭐</div>
           <div class="stat-label">Your Rank</div>
-          <div class="stat-value">Loading...</div>
+          <div class="stat-value">{{ userRank }}</div>
         </div>
       </div>
     </div>
