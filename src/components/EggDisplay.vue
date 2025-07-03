@@ -344,21 +344,28 @@ export default {
 }
 
 .leaderboard-section, .stats-section {
-  background: white;
-  border-radius: 15px;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  border: 2px solid rgba(16, 185, 129, 0.2);
+  border-radius: 12px;
   padding: 25px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.leaderboard-section:hover, .stats-section:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
 }
 
 .leaderboard-section h3, .stats-section h3 {
   margin: 0 0 20px 0;
-  color: #333;
+  color: #10b981;
   text-align: center;
 }
 
 .loading-small {
   text-align: center;
-  color: #666;
+  color: #9ca3af;
   font-style: italic;
 }
 
@@ -374,13 +381,16 @@ export default {
   gap: 15px;
   align-items: center;
   padding: 10px 15px;
-  background: #f8f9fa;
+  background: rgba(55, 65, 81, 0.6);
+  border: 1px solid rgba(75, 85, 99, 0.5);
   border-radius: 8px;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .leaderboard-item:hover {
-  background: #e9ecef;
+  background: rgba(55, 65, 81, 0.8);
+  border-color: rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
 }
 
 .leaderboard-item.first-place {
@@ -413,7 +423,7 @@ export default {
 .rank {
   font-weight: bold;
   text-align: center;
-  color: #666;
+  color: #d1d5db;
 }
 
 .first-place .rank {
@@ -430,7 +440,7 @@ export default {
 
 .username {
   font-weight: 500;
-  color: #333;
+  color: #f3f4f6;
 }
 
 .eggs {
@@ -454,19 +464,19 @@ export default {
 .stat-value {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #333;
+  color: #f3f4f6;
 }
 
 .stat-label {
   font-size: 0.9rem;
-  color: #666;
+  color: #9ca3af;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .no-leaderboard, .no-eggs {
   text-align: center;
-  color: #666;
+  color: #9ca3af;
   font-style: italic;
 }
 </style>
