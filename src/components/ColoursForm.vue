@@ -4,6 +4,7 @@ import { ref, onMounted } from 'vue'
 import { supabase } from '../supabase.js'
 
 const props = defineProps(['session'])
+const emit = defineEmits(['colour-added'])
 const loading = ref(true)
 const token = ref(null)
 const colourAddResponse = ref()
@@ -71,6 +72,9 @@ async function submitColour() {
     }
     
     formData.value = getInitialData()
+    
+    // Emit event to notify parent that a colour was added
+    emit('colour-added')
   } catch (err) {
     console.error('Error adding colour:', err)
     error.value = err.message || 'Failed to add colour'

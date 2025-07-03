@@ -80,6 +80,16 @@ function updateLoadingState() {
   loading.value = loadingStates.value.last
 }
 
+// Expose method to refresh latest colour (called from parent)
+async function refreshLatestColour() {
+  await getLastColour()
+}
+
+// Expose the method to parent component
+defineExpose({
+  refreshLatestColour
+})
+
 </script>
 
 <template>
