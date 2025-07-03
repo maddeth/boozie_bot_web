@@ -165,7 +165,6 @@ function updateLoadingState() {
 }
 
 .highlight-card {
-  max-width: 500px;
   width: 100%;
   background: linear-gradient(135deg, #1f2937 0%, #2d3748 100%);
   border-color: rgba(16, 185, 129, 0.3);

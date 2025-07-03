@@ -51,7 +51,21 @@ const fetchUserStats = async () => {
       
       if (eggsResponse.ok) {
         const eggsData = await eggsResponse.json()
-        userEggs.value = eggsData.egg_count?.toLocaleString() || '0'
+        console.log('Eggs response:', eggsData)
+        
+        // Handle different response formats
+        let eggCount = 0
+        if (typeof eggsData === 'number') {
+          eggCount = eggsData
+        } else if (eggsData.egg_count !== undefined) {
+          eggCount = eggsData.egg_count
+        } else if (eggsData.eggs !== undefined) {
+          eggCount = eggsData.eggs
+        } else if (eggsData.count !== undefined) {
+          eggCount = eggsData.count
+        }
+        
+        userEggs.value = eggCount.toLocaleString()
       }
     } catch (error) {
       console.error('Failed to fetch eggs:', error)
@@ -212,9 +226,7 @@ onMounted(async () => {
 
 <style scoped>
 .home-welcome {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
+  width: 100%;
   color: #f3f4f6;
 }
 

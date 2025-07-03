@@ -268,9 +268,8 @@ function clearSearch() {
 
 <style scoped>
 .colours-manager {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 1rem;
+  width: 100%;
+  padding: 1rem 0;
   display: flex;
   flex-direction: column;
   gap: 2rem;

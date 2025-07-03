@@ -21,6 +21,8 @@ import LoggedIn from '@/components/LoggedIn.vue';
 
 .container {
   flex: 1;
-  padding: 2rem 1rem;
+  padding: 0 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 </style>

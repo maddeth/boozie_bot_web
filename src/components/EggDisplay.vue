@@ -217,9 +217,8 @@ export default {
 
 <style scoped>
 .egg-display {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  width: 100%;
+  padding: 20px 0;
   display: grid;
   gap: 30px;
   grid-template-columns: 1fr;
