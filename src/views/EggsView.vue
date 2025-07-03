@@ -81,9 +81,9 @@ export default {
 
 .page-header h1 {
   font-size: 3rem;
-  color: #333;
+  color: #10b981;
   margin: 0 0 15px 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 2px 2px 4px rgba(16, 185, 129, 0.3);
 }
 
 .page-description {
