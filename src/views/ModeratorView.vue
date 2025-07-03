@@ -640,26 +640,7 @@ const resetAlertForm = () => {
             <p>No moderators found in the database.</p>
           </div>
         </div>
-
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-          <h2>⚡ Quick Actions</h2>
-          <div class="actions-grid">
-            <router-link to="/colours" class="action-card">
-              <h3>🎨 Manage Colors</h3>
-              <p>View and manage user color preferences</p>
-            </router-link>
-            <a href="https://twitch.tv/maddeth" target="_blank" class="action-card">
-              <h3>📺 Watch Stream</h3>
-              <p>Go to the Twitch channel</p>
-            </a>
-            <router-link to="/alerts" class="action-card">
-              <h3>🔔 View Alerts</h3>
-              <p>Check alert configurations</p>
-            </router-link>
-          </div>
-        </div>
-        
+   
         <!-- Bot Admin Management (Superadmin Only) -->
         <div v-if="isSuperAdmin" class="bot-admins-section">
           <div class="section-header">

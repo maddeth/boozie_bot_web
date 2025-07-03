@@ -84,7 +84,7 @@ function updateLoadingState() {
 
 <template>
   <div class="colours-stats">
-    <h2 class="section-title">🎨 Colour Database Stats</h2>
+    <h2 class="section-title">🎨 Colour Database</h2>
     
     <div v-if="loading" class="loading-spinner">
       <div class="spinner"></div>

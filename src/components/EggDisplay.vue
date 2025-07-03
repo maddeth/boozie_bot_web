@@ -1,6 +1,7 @@
 <template>
   <div class="egg-display">
-    <div class="egg-section">
+    <!-- Personal eggs section - only show when logged in -->
+    <div v-if="session" class="egg-section">
       <h2>🥚 My Eggs</h2>
       
       <!-- Loading state -->
@@ -31,6 +32,14 @@
         <p>You don't have any eggs yet!</p>
         <p class="help-text">Watch the stream and participate in chat to earn eggs!</p>
       </div>
+    </div>
+    
+    <!-- Public notice when not logged in -->
+    <div v-else class="public-notice">
+      <h2>🥚 Egg Leaderboard</h2>
+      <p class="login-prompt">
+        <a href="/" class="login-link">Log in</a> to view your personal egg count!
+      </p>
     </div>
     
     <!-- Leaderboard section -->
@@ -91,7 +100,13 @@ import { supabase } from '../supabase.js'
 
 export default {
   name: 'EggDisplay',
-  setup() {
+  props: {
+    session: {
+      type: Object,
+      default: null
+    }
+  },
+  setup(props) {
     const loading = ref(false)
     const leaderboardLoading = ref(false)
     const error = ref(null)
@@ -106,7 +121,13 @@ export default {
         loading.value = true
         error.value = null
         
-        const { data: { session } } = await supabase.auth.getSession()
+        // Use props.session if available, otherwise get from supabase
+        let session = props.session
+        if (!session) {
+          const { data } = await supabase.auth.getSession()
+          session = data.session
+        }
+        
         if (!session) {
           error.value = 'Please log in to view your eggs'
           return
@@ -172,7 +193,10 @@ export default {
     }
     
     onMounted(() => {
-      fetchMyEggs()
+      // Only fetch personal eggs if user is logged in
+      if (props.session) {
+        fetchMyEggs()
+      }
       fetchLeaderboard()
       fetchStats()
     })
@@ -223,6 +247,34 @@ export default {
 .egg-section h2 {
   margin: 0 0 20px 0;
   font-size: 2rem;
+}
+
+.public-notice {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  padding: 30px;
+  color: white;
+  text-align: center;
+}
+
+.public-notice h2 {
+  margin: 0 0 15px 0;
+  font-size: 2rem;
+}
+
+.login-prompt {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.login-link {
+  color: #fbbf24;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.login-link:hover {
+  text-decoration: underline;
 }
 
 .loading, .error, .no-eggs {

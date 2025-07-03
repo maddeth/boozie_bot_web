@@ -8,6 +8,12 @@ import { supabase } from './supabase'
 const session = ref()
 const route = useRoute()
 
+// Define public routes that don't require authentication
+const publicRoutes = ['Alerts', 'Eggs']
+
+// Check if current route is public
+const isPublicRoute = computed(() => publicRoutes.includes(route.name))
+
 // Check if we should show the header (hide on alerts page)
 const showHeader = computed(() => route.name !== 'Alerts')
 
@@ -34,7 +40,7 @@ watch(() => route.name, (newRoute) => {
 
 <template>
   <div class="app">
-    <template v-if="session">
+    <template v-if="session || isPublicRoute">
       <Header v-if="showHeader" :session="session" />
       <main class="main-content" :class="{ 'no-header': !showHeader }">
         <router-view :session="session" />
