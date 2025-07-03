@@ -1158,8 +1158,9 @@ const resetAlertForm = () => {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
+  max-width: 100%;
 }
 
 .stat-card {
@@ -1283,8 +1284,9 @@ const resetAlertForm = () => {
 
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1rem;
+  max-width: 100%;
 }
 
 .action-card {
