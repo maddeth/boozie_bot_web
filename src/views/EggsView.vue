@@ -8,7 +8,7 @@
       </p>
     </div>
     
-    <EggDisplay />
+    <EggDisplay :session="session" />
     
     <div class="info-section">
       <h2>How to Earn Eggs</h2>
@@ -59,6 +59,12 @@ import EggDisplay from '../components/EggDisplay.vue'
 
 export default {
   name: 'EggsView',
+  props: {
+    session: {
+      type: Object,
+      default: null
+    }
+  },
   components: {
     EggDisplay
   }

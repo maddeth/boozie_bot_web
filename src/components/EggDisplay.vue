@@ -36,7 +36,7 @@
     
     <!-- Public notice when not logged in -->
     <div v-else class="public-notice">
-      <h2>🥚 Egg Leaderboard</h2>
+      <h2>🥚 Personal Eggs</h2>
       <p class="login-prompt">
         <a href="/" class="login-link">Log in</a> to view your personal egg count!
       </p>
