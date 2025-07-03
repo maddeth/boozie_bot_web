@@ -2,7 +2,7 @@
   <div class="eggs-view">
     <div class="page-header">
       <h1>🥚 Egg System</h1>
-      <p class="page-description">
+      <p>
         Earn eggs by watching the stream and participating in chat! 
         Subscribers get bonus eggs every 15 minutes while the stream is live.
       </p>
@@ -80,18 +80,14 @@ export default {
 }
 
 .page-header h1 {
-  font-size: 3rem;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
   color: #10b981;
-  margin: 0 0 15px 0;
-  text-shadow: 2px 2px 4px rgba(16, 185, 129, 0.3);
 }
 
-.page-description {
-  font-size: 1.1rem;
-  color: #666;
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
+.page-header p {
+  color: #d1d5db;
+  margin: 0;
 }
 
 .info-section {

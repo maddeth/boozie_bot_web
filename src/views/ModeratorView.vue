@@ -1023,6 +1023,11 @@ const resetAlertForm = () => {
   color: #10b981;
 }
 
+.page-header p {
+  color: #d1d5db;
+  margin: 0;
+}
+
 .loading-container, .loading {
   text-align: center;
   padding: 2rem;

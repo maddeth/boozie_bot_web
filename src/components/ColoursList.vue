@@ -84,7 +84,6 @@ function updateLoadingState() {
 
 <template>
   <div class="colours-stats">
-    <h2 class="section-title">🎨 Colour Database</h2>
     
     <div v-if="loading" class="loading-spinner">
       <div class="spinner"></div>
@@ -121,14 +120,6 @@ function updateLoadingState() {
   margin-bottom: 2rem;
 }
 
-.section-title {
-  text-align: center;
-  font-size: 2.2rem;
-  color: #10b981;
-  margin-bottom: 2rem;
-  font-weight: 600;
-  text-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
-}
 
 .loading-spinner {
   text-align: center;

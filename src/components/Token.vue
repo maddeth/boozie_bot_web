@@ -285,14 +285,11 @@ curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
   color: #10b981;
-  text-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
 }
 
 .page-header p {
   color: #d1d5db;
-  font-size: 1.1rem;
   margin: 0;
-  opacity: 0.9;
 }
 
 .section-card {
