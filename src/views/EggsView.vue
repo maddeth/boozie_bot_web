@@ -1,48 +1,50 @@
 <template>
-  <div class="eggs-view">
-    <div class="page-header">
-      <h1>🥚 Egg System</h1>
-      <p>
-        Earn eggs by watching the stream and participating in chat! 
-        Subscribers get bonus eggs every 15 minutes while the stream is live.
-      </p>
-    </div>
-    
-    <EggDisplay :session="session" />
-    
-    <div class="info-section">
-      <h2>How to Earn Eggs</h2>
-      <div class="info-grid">
-        <div class="info-card">
-          <h3>💬 Chat Participation</h3>
-          <p>Be active in chat while the stream is live to earn eggs every 15 minutes.</p>
-        </div>
-        
-        <div class="info-card">
-          <h3>⭐ Subscription Bonuses</h3>
-          <div class="tier-list">
-            <div class="tier">
-              <span class="tier-name">Viewer:</span>
-              <span class="tier-eggs">5 eggs</span>
-            </div>
-            <div class="tier">
-              <span class="tier-name">Tier 1 Sub:</span>
-              <span class="tier-eggs">10 eggs</span>
-            </div>
-            <div class="tier">
-              <span class="tier-name">Tier 2 Sub:</span>
-              <span class="tier-eggs">15 eggs</span>
-            </div>
-            <div class="tier">
-              <span class="tier-name">Tier 3 Sub:</span>
-              <span class="tier-eggs">20 eggs</span>
+  <div class="page">
+    <div class="container">
+      <div class="page-header">
+        <h1>🥚 Egg System</h1>
+        <p>
+          Earn eggs by watching the stream and participating in chat! 
+          Subscribers get bonus eggs every 15 minutes while the stream is live.
+        </p>
+      </div>
+      
+      <EggDisplay :session="session" />
+      
+      <div class="info-section">
+        <h2>How to Earn Eggs</h2>
+        <div class="info-grid">
+          <div class="info-card">
+            <h3>💬 Chat Participation</h3>
+            <p>Be active in chat while the stream is live to earn eggs every 15 minutes.</p>
+          </div>
+          
+          <div class="info-card">
+            <h3>⭐ Subscription Bonuses</h3>
+            <div class="tier-list">
+              <div class="tier">
+                <span class="tier-name">Viewer:</span>
+                <span class="tier-eggs">5 eggs</span>
+              </div>
+              <div class="tier">
+                <span class="tier-name">Tier 1 Sub:</span>
+                <span class="tier-eggs">10 eggs</span>
+              </div>
+              <div class="tier">
+                <span class="tier-name">Tier 2 Sub:</span>
+                <span class="tier-eggs">15 eggs</span>
+              </div>
+              <div class="tier">
+                <span class="tier-name">Tier 3 Sub:</span>
+                <span class="tier-eggs">20 eggs</span>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div class="info-card">
-          <h3>🎮 Special Events</h3>
-          <p>Moderators can award bonus eggs for special occasions, games, and community events.</p>
+          
+          <div class="info-card">
+            <h3>🎮 Special Events</h3>
+            <p>Moderators can award bonus eggs for special occasions, games, and community events.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -67,10 +69,17 @@ export default {
 </script>
 
 <style scoped>
-.eggs-view {
+.page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  flex: 1;
+  padding: 0 1rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
 }
 
 .page-header {

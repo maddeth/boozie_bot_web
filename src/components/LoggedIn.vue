@@ -212,15 +212,7 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-    
-    <div class="recent-activity">
-      <h2>Stream Info</h2>
-      <div class="activity-card">
-        <p>🔴 <strong>Live Status:</strong> Check Twitch for current stream status</p>
-        <p>💬 <strong>Chat Commands:</strong> Use !help in chat to see available commands</p>
-        <p>🎮 <strong>Bot Features:</strong> Participate in chat games and earn rewards</p>
-      </div>
-    </div>
+
   </div>
 </template>
 
