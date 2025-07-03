@@ -40,7 +40,7 @@ const handleLogin = async () => {
           <p>Connect your Twitch account to access:</p>
           <ul class="feature-list">
             <li>🥚 Egg collection and leaderboards</li>
-            <li>🎨 Custom chat colors</li>
+            <li>🎨 Custom chat colours</li>
             <li>🛡️ Moderator tools (if applicable)</li>
             <li>🔗 API token for integrations</li>
           </ul>

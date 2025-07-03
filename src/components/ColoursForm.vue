@@ -133,7 +133,7 @@ function upperCaseWord(word) {
   return word.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
 }
 
-function getPreviewColor() {
+function getPreviewColour() {
   const hex = formData.value.hex
   if (hex && /^[0-9A-Fa-f]{6}$/.test(hex)) {
     return `#${hex}`
@@ -195,7 +195,7 @@ function clearSearch() {
                 required
                 class="hex-input"
               >
-              <div class="colour-preview" :style="{ backgroundColor: getPreviewColor() }"></div>
+              <div class="colour-preview" :style="{ backgroundColor: getPreviewColour() }"></div>
             </div>
           </div>
         </div>

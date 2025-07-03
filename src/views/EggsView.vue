@@ -2,7 +2,7 @@
   <div class="page">
     <div class="container">
       <div class="page-header">
-        <h1>🥚 Egg System</h1>
+        <h1>🥚 Egg Collection</h1>
         <p>
           Earn eggs by watching the stream and participating in chat! 
           Subscribers get bonus eggs every 15 minutes while the stream is live.
