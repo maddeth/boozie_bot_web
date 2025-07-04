@@ -9,18 +9,96 @@ const loading = ref(true)
 const metadata = ref(null)
 const { userRole, isModerator, loadUserRole } = useUserRole()
 const showProfileDropdown = ref(false)
+const showSignOutModal = ref(false)
 const profileButton = ref(null)
 const profileDropdown = ref(null)
 
-async function signOut() {
+function showSignOutConfirmation() {
+  showProfileDropdown.value = false
+  showSignOutModal.value = true
+}
+
+async function confirmSignOut() {
+  showSignOutModal.value = false
+  
   try {
     loading.value = true
+    
     const { error } = await supabase.auth.signOut()
     if (error) throw error
+    
+    // Show success feedback
+    const successMsg = document.createElement('div')
+    successMsg.textContent = 'Successfully signed out!'
+    successMsg.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #10b981;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      font-family: inherit;
+      font-weight: 500;
+      animation: slideIn 0.3s ease-out;
+    `
+    
+    // Add slide-in animation
+    const style = document.createElement('style')
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `
+    document.head.appendChild(style)
+    document.body.appendChild(successMsg)
+    
+    // Remove the message after 3 seconds
+    setTimeout(() => {
+      successMsg.remove()
+      style.remove()
+    }, 3000)
+    
+    // The auth state change will handle the redirect automatically
+    
   } catch (error) {
-    alert(error.message)
+    // Better error handling with a styled notification
+    const errorMsg = document.createElement('div')
+    errorMsg.textContent = `Error signing out: ${error.message}`
+    errorMsg.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ef4444;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      font-family: inherit;
+      font-weight: 500;
+    `
+    document.body.appendChild(errorMsg)
+    
+    setTimeout(() => {
+      errorMsg.remove()
+    }, 5000)
   } finally {
     loading.value = false
+  }
+}
+
+function cancelSignOut() {
+  showSignOutModal.value = false
+}
+
+// Handle keyboard events for modal
+function handleKeydown(event) {
+  if (showSignOutModal.value && event.key === 'Escape') {
+    cancelSignOut()
   }
 }
 
@@ -56,10 +134,13 @@ onMounted(async () => {
   
   // Add click outside listener
   document.addEventListener('click', handleClickOutside)
+  // Add keyboard listener for modal
+  document.addEventListener('keydown', handleKeydown)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('keydown', handleKeydown)
 })
 
 </script>
@@ -88,9 +169,9 @@ onUnmounted(() => {
             Your Account
           </router-link>
           <div class="dropdown-divider"></div>
-          <button class="dropdown-item sign-out-item" @click="signOut" :disabled="loading">
+          <button class="dropdown-item sign-out-item" @click="showSignOutConfirmation" :disabled="loading">
             <span class="dropdown-icon">🚪</span>
-            {{ loading ? 'Signing out...' : 'Sign Out' }}
+            Sign Out
           </button>
         </div>
       </div>
@@ -108,6 +189,28 @@ onUnmounted(() => {
       </ul>
     </nav>
   </header>
+  
+  <!-- Sign Out Confirmation Modal -->
+  <div v-if="showSignOutModal" class="modal-overlay" @click="cancelSignOut">
+    <div class="modal-content" @click.stop>
+      <div class="modal-header">
+        <h3>Sign Out</h3>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to sign out?</p>
+        <p class="modal-subtitle">You'll need to sign in again to access your account.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" @click="cancelSignOut" :disabled="loading">
+          Cancel
+        </button>
+        <button class="btn btn-danger" @click="confirmSignOut" :disabled="loading">
+          <span v-if="loading">Signing out...</span>
+          <span v-else>Yes, Sign Out</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -361,6 +464,141 @@ onUnmounted(() => {
   .nav-link {
     padding: 0.6rem 0.8rem;
     font-size: 0.9rem;
+  }
+}
+
+/* Sign Out Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: slideUp 0.2s ease-out;
+}
+
+.modal-header {
+  padding: 1.5rem 1.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-body p {
+  margin: 0 0 0.75rem;
+  color: #374151;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.modal-subtitle {
+  font-size: 0.875rem !important;
+  color: #6b7280 !important;
+  margin-bottom: 0 !important;
+}
+
+.modal-footer {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px) scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+/* Mobile modal adjustments */
+@media (max-width: 480px) {
+  .modal-content {
+    margin: 1rem;
+    width: calc(100% - 2rem);
+  }
+  
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 1rem;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
   }
 }
 </style>
