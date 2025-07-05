@@ -76,22 +76,22 @@ onMounted(async () => {
 
 const setupTabs = () => {
   const tabs = [
-    { id: 'overview', label: '📊 Overview', icon: '📊' }
+    { id: 'overview', label: 'Overview', icon: '📊' }
   ]
   
   if (isBotModerator.value) {
-    tabs.push({ id: 'commands', label: '🤖 Commands', icon: '🤖' })
+    tabs.push({ id: 'commands', label: 'Commands', icon: '🤖' })
   }
   
   if (isSuperAdmin.value) {
     tabs.push(
-      { id: 'users', label: '👥 Users', icon: '👥' },
-      { id: 'alerts', label: '🔔 Alerts', icon: '🔔' }
+      { id: 'users', label: 'Users', icon: '👥' },
+      { id: 'alerts', label: 'Alerts', icon: '🔔' }
     )
   }
   
   // Add quotes tab when quotes management is implemented
-  // tabs.push({ id: 'quotes', label: '💬 Quotes', icon: '💬' })
+  // tabs.push({ id: 'quotes', label: 'Quotes', icon: '💬' })
   
   availableTabs.value = tabs
 }
