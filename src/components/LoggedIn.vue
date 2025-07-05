@@ -73,39 +73,8 @@ const fetchUserStats = async () => {
       userRank.value = 'N/A'
     }
     
-    // Fetch egg leaderboard to find user's rank
-    try {
-      const leaderboardResponse = await fetch('https://maddeth.com/api/eggs/leaderboard', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      if (leaderboardResponse.ok) {
-        const leaderboardData = await leaderboardResponse.json()
-        console.log('Leaderboard response:', leaderboardData)
-        
-        // Handle different response formats
-        let leaderboard = leaderboardData
-        if (leaderboardData.leaderboard) {
-          leaderboard = leaderboardData.leaderboard
-        } else if (leaderboardData.users) {
-          leaderboard = leaderboardData.users
-        }
-        
-        if (Array.isArray(leaderboard) && userRole.value?.username) {
-          const userPosition = leaderboard.findIndex(entry => 
-            entry.username === userRole.value.username
-          )
-          userRank.value = userPosition >= 0 ? `#${userPosition + 1}` : 'Unranked'
-        } else {
-          userRank.value = 'N/A'
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch leaderboard:', error)
-      userRank.value = 'N/A'
-    }
+    // Rank is already set from the my-eggs API response above
+    // No need to fetch leaderboard separately anymore
     
     // Fetch available colours count
     try {
