@@ -16,6 +16,11 @@ const {
   getModerators 
 } = useUserRole()
 
+// Tab Management
+const activeTab = ref('overview')
+const availableTabs = ref([])
+
+// Overview Data
 const stats = ref(null)
 const moderators = ref([])
 const loadingStats = ref(false)
@@ -64,20 +69,50 @@ const alertForm = ref({
 onMounted(async () => {
   await loadUserRole()
   if (isModerator.value) {
+    setupTabs()
     await loadModeratorData()
   }
 })
 
+const setupTabs = () => {
+  const tabs = [
+    { id: 'overview', label: '📊 Overview', icon: '📊' }
+  ]
+  
+  if (isBotModerator.value) {
+    tabs.push({ id: 'commands', label: '🤖 Commands', icon: '🤖' })
+  }
+  
+  if (isSuperAdmin.value) {
+    tabs.push(
+      { id: 'users', label: '👥 Users', icon: '👥' },
+      { id: 'alerts', label: '🔔 Alerts', icon: '🔔' }
+    )
+  }
+  
+  // Add quotes tab when quotes management is implemented
+  // tabs.push({ id: 'quotes', label: '💬 Quotes', icon: '💬' })
+  
+  availableTabs.value = tabs
+}
+
+const setActiveTab = (tabId) => {
+  activeTab.value = tabId
+  error.value = null
+}
+
 const loadModeratorData = async () => {
   const promises = [
     loadStats(),
-    loadModerators(),
-    loadCommands(),
-    loadAlerts()
+    loadModerators()
   ]
   
+  if (isBotModerator.value) {
+    promises.push(loadCommands())
+  }
+  
   if (isSuperAdmin.value) {
-    promises.push(loadBotAdmins())
+    promises.push(loadBotAdmins(), loadAlerts())
   }
   
   await Promise.all(promises)
@@ -529,7 +564,6 @@ const resetAlertForm = () => {
         <div class="loading">Loading user information...</div>
       </div>
 
-
       <!-- Access Denied -->
       <div v-if="userRole && !userRole.needsVisit && !isModerator" class="access-denied">
         <h2>🚫 Access Denied</h2>
@@ -572,389 +606,385 @@ const resetAlertForm = () => {
           <button @click="error = null" class="close-error">×</button>
         </div>
 
-        <!-- Statistics -->
-        <div class="stats-section">
-          <h2>📊 Bot Statistics</h2>
-          <div v-if="loadingStats" class="loading">Loading statistics...</div>
-          <div v-else-if="stats" class="stats-grid">
-            <div class="stat-card clickable" @click="showStatDetails('totalUsers')">
-              <h3>Total Users</h3>
-              <div class="stat-number">{{ stats.totalUsers.toLocaleString() }}</div>
-              <div class="stat-hint">Click to view</div>
-            </div>
-            <div class="stat-card clickable" @click="showStatDetails('moderators')">
-              <h3>Moderators</h3>
-              <div class="stat-number">{{ stats.moderators.toLocaleString() }}</div>
-              <div class="stat-hint">Click to view</div>
-            </div>
-            <div class="stat-card clickable" @click="showStatDetails('subscribers')">
-              <h3>Subscribers</h3>
-              <div class="stat-number">{{ stats.subscribers.toLocaleString() }}</div>
-              <div class="stat-hint">Click to view</div>
-            </div>
-            <div class="stat-card clickable" @click="showStatDetails('registeredUsers')">
-              <h3>Registered Users</h3>
-              <div class="stat-number">{{ stats.registeredUsers.toLocaleString() }}</div>
-              <div class="stat-hint">Click to view</div>
-            </div>
-            <div class="stat-card clickable" @click="showStatDetails('activeWeekly')">
-              <h3>Active This Week</h3>
-              <div class="stat-number">{{ stats.activeWeekly.toLocaleString() }}</div>
-              <div class="stat-hint">Click to view</div>
-            </div>
-          </div>
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+          <button 
+            v-for="tab in availableTabs" 
+            :key="tab.id"
+            @click="setActiveTab(tab.id)"
+            class="tab-button"
+            :class="{ active: activeTab === tab.id }"
+          >
+            <span class="tab-icon">{{ tab.icon }}</span>
+            <span class="tab-label">{{ tab.label }}</span>
+          </button>
         </div>
 
-        <!-- Moderators List -->
-        <div class="moderators-section">
-          <h2>👥 Current Moderators</h2>
-          <div v-if="loadingModerators" class="loading">Loading moderators...</div>
-          <div v-else-if="moderators.length > 0" class="moderators-list">
-            <div v-for="mod in moderators" :key="mod.username" class="moderator-card" :class="{ 'broadcaster': mod.twitchUserId === '30758517' }">
-              <div class="mod-info">
-                <strong>{{ mod.displayName || mod.username }}</strong>
-                <small>@{{ mod.username }}</small>
-                <div class="mod-badges">
-                  <span v-if="mod.twitchUserId === '30758517'" class="badge broadcaster">📺 BROADCASTER</span>
-                  <span v-else class="badge moderator">🛡️ MODERATOR</span>
+        <!-- Tab Content -->
+        <div class="tab-content">
+          
+          <!-- Overview Tab -->
+          <div v-if="activeTab === 'overview'" class="tab-panel">
+            <!-- Statistics -->
+            <div class="content-section">
+              <h2>📊 Bot Statistics</h2>
+              <div v-if="loadingStats" class="loading">Loading statistics...</div>
+              <div v-else-if="stats" class="stats-grid">
+                <div class="stat-card clickable" @click="showStatDetails('totalUsers')">
+                  <h3>Total Users</h3>
+                  <div class="stat-number">{{ stats.totalUsers.toLocaleString() }}</div>
+                  <div class="stat-hint">Click to view</div>
+                </div>
+                <div class="stat-card clickable" @click="showStatDetails('moderators')">
+                  <h3>Moderators</h3>
+                  <div class="stat-number">{{ stats.moderators.toLocaleString() }}</div>
+                  <div class="stat-hint">Click to view</div>
+                </div>
+                <div class="stat-card clickable" @click="showStatDetails('subscribers')">
+                  <h3>Subscribers</h3>
+                  <div class="stat-number">{{ stats.subscribers.toLocaleString() }}</div>
+                  <div class="stat-hint">Click to view</div>
+                </div>
+                <div class="stat-card clickable" @click="showStatDetails('registeredUsers')">
+                  <h3>Registered Users</h3>
+                  <div class="stat-number">{{ stats.registeredUsers.toLocaleString() }}</div>
+                  <div class="stat-hint">Click to view</div>
+                </div>
+                <div class="stat-card clickable" @click="showStatDetails('activeWeekly')">
+                  <h3>Active This Week</h3>
+                  <div class="stat-number">{{ stats.activeWeekly.toLocaleString() }}</div>
+                  <div class="stat-hint">Click to view</div>
                 </div>
               </div>
-              <div class="mod-details">
-                <span class="mod-since">Since: {{ formatDate(mod.moderatorSince) }}</span>
-                <span class="last-seen">Last seen: {{ formatDate(mod.lastSeen) }}</span>
+            </div>
+
+            <!-- Moderators List -->
+            <div class="content-section">
+              <h2>👥 Current Moderators</h2>
+              <div v-if="loadingModerators" class="loading">Loading moderators...</div>
+              <div v-else-if="moderators.length > 0" class="moderators-list">
+                <div v-for="mod in moderators" :key="mod.username" class="moderator-card" :class="{ 'broadcaster': mod.twitchUserId === '30758517' }">
+                  <div class="mod-info">
+                    <strong>{{ mod.displayName || mod.username }}</strong>
+                    <small>@{{ mod.username }}</small>
+                    <div class="mod-badges">
+                      <span v-if="mod.twitchUserId === '30758517'" class="badge broadcaster">📺 BROADCASTER</span>
+                      <span v-else class="badge moderator">🛡️ MODERATOR</span>
+                    </div>
+                  </div>
+                  <div class="mod-details">
+                    <span class="mod-since">Since: {{ formatDate(mod.moderatorSince) }}</span>
+                    <span class="last-seen">Last seen: {{ formatDate(mod.lastSeen) }}</span>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="no-moderators">
+                <p>No moderators found in the database.</p>
               </div>
             </div>
           </div>
-          <div v-else class="no-moderators">
-            <p>No moderators found in the database.</p>
-          </div>
-        </div>
-   
-        <!-- Bot Admin Management (Superadmin Only) -->
-        <div v-if="isSuperAdmin" class="bot-admins-section">
-          <div class="section-header">
-            <h2>👑 Bot Admin Management (Superadmin)</h2>
-            <button @click="showAddAdminForm = !showAddAdminForm" class="button">
-              {{ showAddAdminForm ? 'Cancel' : 'Add Bot Admin' }}
-            </button>
-          </div>
-          
-          <!-- Add Admin Form -->
-          <div v-if="showAddAdminForm" class="admin-form">
-            <div class="form-group">
-              <label for="newAdmin">Username</label>
-              <input 
-                id="newAdmin"
-                v-model="newAdminUsername" 
-                type="text" 
-                placeholder="Enter Twitch username"
-                class="form-input"
-                @keyup.enter="addBotAdmin"
-              >
-            </div>
-            <button @click="addBotAdmin" class="button">Grant Bot Admin</button>
-          </div>
-          
-          <!-- Bot Admins List -->
-          <div v-if="loadingBotAdmins" class="loading">Loading bot admins...</div>
-          <div v-else-if="botAdmins.length > 0" class="admins-list">
-            <div v-for="admin in botAdmins" :key="admin.username" class="admin-card">
-              <div class="admin-info">
-                <strong>{{ admin.display_name || admin.username }}</strong>
-                <small>@{{ admin.username }}</small>
-                <div class="admin-badges">
-                  <span v-if="admin.is_superadmin" class="badge superadmin">SUPERADMIN</span>
-                  <span v-if="admin.is_admin" class="badge admin">Bot Admin</span>
-                  <span v-if="admin.is_moderator" class="badge moderator">Moderator</span>
-                </div>
-              </div>
-              <div class="admin-actions">
-                <button 
-                  v-if="!admin.is_superadmin && admin.username !== userRole.username"
-                  @click="removeBotAdmin(admin.username)" 
-                  class="icon-button delete"
-                >
-                  Remove Admin
+
+          <!-- Commands Tab -->
+          <div v-if="activeTab === 'commands'" class="tab-panel">
+            <div class="content-section">
+              <div class="section-header">
+                <h2>🤖 Custom Commands</h2>
+                <button @click="showCommandForm = !showCommandForm" class="button">
+                  {{ showCommandForm ? 'Cancel' : 'Add Command' }}
                 </button>
               </div>
-            </div>
-          </div>
-          <div v-else class="no-admins">
-            <p>No bot admins configured.</p>
-          </div>
-        </div>
 
-        <!-- Custom Commands -->
-        <div v-if="isBotModerator" class="commands-section">
-          <div class="section-header">
-            <h2>🤖 Custom Commands (Bot Admin)</h2>
-            <button @click="showCommandForm = !showCommandForm" class="button">
-              {{ showCommandForm ? 'Cancel' : 'Add Command' }}
-            </button>
-          </div>
-
-          <!-- Command Form -->
-          <div v-if="showCommandForm" class="command-form">
-            <h3>{{ editingCommand ? 'Edit Command' : 'New Command' }}</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="trigger_type">Trigger Type</label>
-                <select id="trigger_type" v-model="commandForm.trigger_type" class="form-input">
-                  <option value="exact">Exact Match (!command)</option>
-                  <option value="contains">Contains Word</option>
-                  <option value="regex">Regular Expression</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="trigger">
-                  {{ commandForm.trigger_type === 'exact' ? 'Command Trigger' :
-                     commandForm.trigger_type === 'contains' ? 'Word/Phrase to Match' :
-                     'Regex Pattern' }}
-                </label>
-                <input 
-                  id="trigger"
-                  v-model="commandForm.trigger" 
-                  type="text" 
-                  :placeholder="commandForm.trigger_type === 'exact' ? '!example' :
-                               commandForm.trigger_type === 'contains' ? 'poggers' :
-                               '^(hi|hello|hey)'"
-                  class="form-input"
-                >
-                <small v-if="commandForm.trigger_type === 'contains'" class="help-text">
-                  Triggers when message contains this word/phrase anywhere
-                </small>
-                <small v-if="commandForm.trigger_type === 'regex'" class="help-text">
-                  Advanced: Use regex patterns for complex matching
-                </small>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="response">Text Response (Optional)</label>
-              <textarea 
-                id="response"
-                v-model="commandForm.response" 
-                placeholder="Command response... Use {user} for username (leave empty for audio-only)"
-                class="form-input"
-                rows="3"
-              ></textarea>
-            </div>
-            <div class="form-group">
-              <label for="audio_url">Audio File URL (Optional)</label>
-              <input 
-                id="audio_url"
-                v-model="commandForm.audio_url" 
-                type="url" 
-                placeholder="https://example.com/audio.mp3"
-                class="form-input"
-              >
-              <small class="help-text">
-                Link to an audio file (MP3, WAV, etc.) to play when command triggers
-              </small>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="cooldown">Cooldown (seconds)</label>
-                <input 
-                  id="cooldown"
-                  v-model.number="commandForm.cooldown" 
-                  type="number" 
-                  min="0"
-                  class="form-input"
-                >
-              </div>
-              <div class="form-group">
-                <label for="egg_cost">Egg Cost (Optional)</label>
-                <input 
-                  id="egg_cost"
-                  v-model.number="commandForm.egg_cost" 
-                  type="number" 
-                  min="0"
-                  placeholder="0"
-                  class="form-input"
-                >
-                <small class="help-text">
-                  Users must spend this many eggs to trigger the command (0 = free)
-                </small>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="permission">Permission Level</label>
-                <select id="permission" v-model="commandForm.permission" class="form-input">
-                  <option value="everyone">Everyone</option>
-                  <option value="subscriber">Subscribers</option>
-                  <option value="vip">VIP</option>
-                  <option value="moderator">Moderators</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-actions">
-              <button @click="saveCommand" class="button">
-                {{ editingCommand ? 'Update' : 'Create' }} Command
-              </button>
-              <button @click="resetCommandForm" class="button secondary">Cancel</button>
-            </div>
-          </div>
-
-          <!-- Commands List -->
-          <div v-if="loadingCommands" class="loading">Loading commands...</div>
-          <div v-else-if="commands.length > 0" class="commands-list">
-            <div v-for="cmd in commands" :key="cmd.id" class="command-card">
-              <div class="command-info">
-                <div class="command-trigger">
-                  <span v-if="cmd.trigger_type === 'contains'" class="trigger-type">[Contains]</span>
-                  <span v-else-if="cmd.trigger_type === 'regex'" class="trigger-type">[Regex]</span>
-                  {{ cmd.trigger }}
-                </div>
-                <div class="command-response">
-                  {{ cmd.response || (cmd.audio_url ? '(Audio only)' : '(No response)') }}
-                </div>
-                <div class="command-meta">
-                  <span>💿 {{ cmd.cooldown }}s cooldown</span>
-                  <span>🔒 {{ cmd.permission }}</span>
-                  <span v-if="cmd.audio_url" title="Has audio file">🔊 Audio</span>
-                  <span v-if="cmd.egg_cost > 0" title="Costs eggs to use">🥚 {{ cmd.egg_cost }} eggs</span>
-                </div>
-              </div>
-              <div class="command-actions">
-                <button @click="editCommand(cmd)" class="icon-button edit">✏️</button>
-                <button @click="deleteCommand(cmd.id)" class="icon-button delete">🗑️</button>
-              </div>
-            </div>
-          </div>
-          <div v-else class="no-commands">
-            <p>No custom commands yet. Click "Add Command" to create one!</p>
-          </div>
-        </div>
-        
-        <!-- Commands View Only (for non-bot-admins) -->
-        <div v-if="!isBotModerator" class="commands-section">
-          <h2>🤖 Custom Commands</h2>
-          <p class="info-message">Bot admin privileges required to manage commands. Current commands:</p>
-          
-          <div v-if="loadingCommands" class="loading">Loading commands...</div>
-          <div v-else-if="commands.length > 0" class="commands-list view-only">
-            <div v-for="cmd in commands" :key="cmd.id" class="command-card">
-              <div class="command-info">
-                <div class="command-trigger">
-                  <span v-if="cmd.trigger_type === 'contains'" class="trigger-type">[Contains]</span>
-                  <span v-else-if="cmd.trigger_type === 'regex'" class="trigger-type">[Regex]</span>
-                  {{ cmd.trigger }}
-                </div>
-                <div class="command-response">
-                  {{ cmd.response || (cmd.audio_url ? '(Audio only)' : '(No response)') }}
-                </div>
-                <div class="command-meta">
-                  <span>💿 {{ cmd.cooldown }}s cooldown</span>
-                  <span>🔒 {{ cmd.permission }}</span>
-                  <span v-if="cmd.audio_url" title="Has audio file">🔊 Audio</span>
-                  <span v-if="cmd.egg_cost > 0" title="Costs eggs to use">🥚 {{ cmd.egg_cost }} eggs</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div v-else class="no-commands">
-            <p>No custom commands configured yet.</p>
-          </div>
-        </div>
-
-        <!-- Alerts Management (Superadmin Only) -->
-        <div v-if="isSuperAdmin" class="alerts-section">
-          <div class="section-header">
-            <h2>🔔 Alert Configurations</h2>
-            <button @click="showAlertForm = !showAlertForm" class="button">
-              {{ showAlertForm ? 'Cancel' : 'Add Alert' }}
-            </button>
-          </div>
-
-          <!-- Alert Form -->
-          <div v-if="showAlertForm" class="alert-form">
-            <h3>{{ editingAlert ? 'Edit Alert' : 'New Alert' }}</h3>
-            <div class="form-group">
-              <label for="eventTitle">Event Title</label>
-              <input 
-                id="eventTitle"
-                v-model="alertForm.event_title" 
-                type="text" 
-                placeholder="Shadow Colour"
-                class="form-input"
-                :disabled="editingAlert"
-              >
-              <small v-if="editingAlert" class="form-hint">Event title cannot be changed</small>
-            </div>
-            <div class="form-group">
-              <label for="audioUrl">Audio URL</label>
-              <input 
-                id="audioUrl"
-                v-model="alertForm.audio_url" 
-                type="url" 
-                placeholder="https://example.com/sound.mp3"
-                class="form-input"
-              >
-            </div>
-            <div class="form-group">
-              <label for="gifUrl">GIF URL (optional)</label>
-              <input 
-                id="gifUrl"
-                v-model="alertForm.gif_url" 
-                type="url" 
-                placeholder="https://media.giphy.com/media/..."
-                class="form-input"
-              >
-            </div>
-            <div class="form-group">
-              <label for="duration">Duration (milliseconds)</label>
-              <input 
-                id="duration"
-                v-model.number="alertForm.duration_ms" 
-                type="number" 
-                min="1000"
-                max="30000"
-                step="1000"
-                class="form-input"
-              >
-              <small class="form-hint">How long to display the GIF (1000 = 1 second)</small>
-            </div>
-            <div class="form-actions">
-              <button @click="saveAlert" class="button">
-                {{ editingAlert ? 'Update' : 'Create' }} Alert
-              </button>
-              <button @click="resetAlertForm" class="button secondary">Cancel</button>
-            </div>
-          </div>
-
-          <!-- Alerts List -->
-          <div v-if="loadingAlerts" class="loading">Loading alerts...</div>
-          <div v-else-if="alerts.length > 0" class="alerts-list">
-            <div v-for="alert in alerts" :key="alert.event_title" class="alert-card">
-              <div class="alert-info">
-                <div class="alert-title">{{ alert.event_title }}</div>
-                <div class="alert-details">
-                  <div class="alert-audio">
-                    <span class="label">🔊 Audio:</span>
-                    <a :href="alert.audio" target="_blank" class="alert-link">{{ alert.audio.split('/').pop() }}</a>
+              <!-- Command Form -->
+              <div v-if="showCommandForm" class="command-form">
+                <h3>{{ editingCommand ? 'Edit Command' : 'New Command' }}</h3>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="trigger_type">Trigger Type</label>
+                    <select id="trigger_type" v-model="commandForm.trigger_type" class="form-input">
+                      <option value="exact">Exact Match (!command)</option>
+                      <option value="contains">Contains Word</option>
+                      <option value="regex">Regular Expression</option>
+                    </select>
                   </div>
-                  <div v-if="alert.gifUrl" class="alert-gif">
-                    <span class="label">🎬 GIF:</span>
-                    <a :href="alert.gifUrl" target="_blank" class="alert-link">View GIF</a>
+                  <div class="form-group">
+                    <label for="trigger">
+                      {{ commandForm.trigger_type === 'exact' ? 'Command Trigger' :
+                         commandForm.trigger_type === 'contains' ? 'Word/Phrase to Match' :
+                         'Regex Pattern' }}
+                    </label>
+                    <input 
+                      id="trigger"
+                      v-model="commandForm.trigger" 
+                      type="text" 
+                      :placeholder="commandForm.trigger_type === 'exact' ? '!example' :
+                                   commandForm.trigger_type === 'contains' ? 'poggers' :
+                                   '^(hi|hello|hey)'"
+                      class="form-input"
+                    >
+                    <small v-if="commandForm.trigger_type === 'contains'" class="help-text">
+                      Triggers when message contains this word/phrase anywhere
+                    </small>
+                    <small v-if="commandForm.trigger_type === 'regex'" class="help-text">
+                      Advanced: Use regex patterns for complex matching
+                    </small>
                   </div>
-                  <div class="alert-duration">
-                    <span class="label">⏱️ Duration:</span>
-                    {{ (alert.duration / 1000).toFixed(1) }}s
+                </div>
+                <div class="form-group">
+                  <label for="response">Text Response (Optional)</label>
+                  <textarea 
+                    id="response"
+                    v-model="commandForm.response" 
+                    placeholder="Command response... Use {user} for username (leave empty for audio-only)"
+                    class="form-input"
+                    rows="3"
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="audio_url">Audio File URL (Optional)</label>
+                  <input 
+                    id="audio_url"
+                    v-model="commandForm.audio_url" 
+                    type="url" 
+                    placeholder="https://example.com/audio.mp3"
+                    class="form-input"
+                  >
+                  <small class="help-text">
+                    Link to an audio file (MP3, WAV, etc.) to play when command triggers
+                  </small>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="cooldown">Cooldown (seconds)</label>
+                    <input 
+                      id="cooldown"
+                      v-model.number="commandForm.cooldown" 
+                      type="number" 
+                      min="0"
+                      class="form-input"
+                    >
+                  </div>
+                  <div class="form-group">
+                    <label for="egg_cost">Egg Cost (Optional)</label>
+                    <input 
+                      id="egg_cost"
+                      v-model.number="commandForm.egg_cost" 
+                      type="number" 
+                      min="0"
+                      placeholder="0"
+                      class="form-input"
+                    >
+                    <small class="help-text">
+                      Users must spend this many eggs to trigger the command (0 = free)
+                    </small>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="permission">Permission Level</label>
+                    <select id="permission" v-model="commandForm.permission" class="form-input">
+                      <option value="everyone">Everyone</option>
+                      <option value="subscriber">Subscribers</option>
+                      <option value="vip">VIP</option>
+                      <option value="moderator">Moderators</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button @click="saveCommand" class="button">
+                    {{ editingCommand ? 'Update' : 'Create' }} Command
+                  </button>
+                  <button @click="resetCommandForm" class="button secondary">Cancel</button>
+                </div>
+              </div>
+
+              <!-- Commands List -->
+              <div v-if="loadingCommands" class="loading">Loading commands...</div>
+              <div v-else-if="commands.length > 0" class="commands-list">
+                <div v-for="cmd in commands" :key="cmd.id" class="command-card">
+                  <div class="command-info">
+                    <div class="command-trigger">
+                      <span v-if="cmd.trigger_type === 'contains'" class="trigger-type">[Contains]</span>
+                      <span v-else-if="cmd.trigger_type === 'regex'" class="trigger-type">[Regex]</span>
+                      {{ cmd.trigger }}
+                    </div>
+                    <div class="command-response">
+                      {{ cmd.response || (cmd.audio_url ? '(Audio only)' : '(No response)') }}
+                    </div>
+                    <div class="command-meta">
+                      <span>💿 {{ cmd.cooldown }}s cooldown</span>
+                      <span>🔒 {{ cmd.permission }}</span>
+                      <span v-if="cmd.audio_url" title="Has audio file">🔊 Audio</span>
+                      <span v-if="cmd.egg_cost > 0" title="Costs eggs to use">🥚 {{ cmd.egg_cost }} eggs</span>
+                    </div>
+                  </div>
+                  <div class="command-actions">
+                    <button @click="editCommand(cmd)" class="icon-button edit">✏️</button>
+                    <button @click="deleteCommand(cmd.id)" class="icon-button delete">🗑️</button>
                   </div>
                 </div>
               </div>
-              <div class="alert-actions">
-                <button @click="editAlert(alert)" class="icon-button edit">✏️</button>
-                <button @click="deleteAlert(alert.event_title)" class="icon-button delete">🗑️</button>
+              <div v-else class="no-commands">
+                <p>No custom commands yet. Click "Add Command" to create one!</p>
               </div>
             </div>
           </div>
-          <div v-else class="no-alerts">
-            <p>No alerts configured yet. Click "Add Alert" to create one!</p>
-          </div>
-        </div>
 
+          <!-- Users Tab (Superadmin Only) -->
+          <div v-if="activeTab === 'users' && isSuperAdmin" class="tab-panel">
+            <div class="content-section">
+              <div class="section-header">
+                <h2>👑 Bot Admin Management</h2>
+                <button @click="showAddAdminForm = !showAddAdminForm" class="button">
+                  {{ showAddAdminForm ? 'Cancel' : 'Add Bot Admin' }}
+                </button>
+              </div>
+              
+              <!-- Add Admin Form -->
+              <div v-if="showAddAdminForm" class="admin-form">
+                <div class="form-group">
+                  <label for="newAdmin">Username</label>
+                  <input 
+                    id="newAdmin"
+                    v-model="newAdminUsername" 
+                    type="text" 
+                    placeholder="Enter Twitch username"
+                    class="form-input"
+                    @keyup.enter="addBotAdmin"
+                  >
+                </div>
+                <button @click="addBotAdmin" class="button">Grant Bot Admin</button>
+              </div>
+              
+              <!-- Bot Admins List -->
+              <div v-if="loadingBotAdmins" class="loading">Loading bot admins...</div>
+              <div v-else-if="botAdmins.length > 0" class="admins-list">
+                <div v-for="admin in botAdmins" :key="admin.username" class="admin-card">
+                  <div class="admin-info">
+                    <strong>{{ admin.display_name || admin.username }}</strong>
+                    <small>@{{ admin.username }}</small>
+                    <div class="admin-badges">
+                      <span v-if="admin.is_superadmin" class="badge superadmin">SUPERADMIN</span>
+                      <span v-if="admin.is_admin" class="badge admin">Bot Admin</span>
+                      <span v-if="admin.is_moderator" class="badge moderator">Moderator</span>
+                    </div>
+                  </div>
+                  <div class="admin-actions">
+                    <button 
+                      v-if="!admin.is_superadmin && admin.username !== userRole.username"
+                      @click="removeBotAdmin(admin.username)" 
+                      class="icon-button delete"
+                    >
+                      Remove Admin
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="no-admins">
+                <p>No bot admins configured.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alerts Tab (Superadmin Only) -->
+          <div v-if="activeTab === 'alerts' && isSuperAdmin" class="tab-panel">
+            <div class="content-section">
+              <div class="section-header">
+                <h2>🔔 Alert Configurations</h2>
+                <button @click="showAlertForm = !showAlertForm" class="button">
+                  {{ showAlertForm ? 'Cancel' : 'Add Alert' }}
+                </button>
+              </div>
+
+              <!-- Alert Form -->
+              <div v-if="showAlertForm" class="alert-form">
+                <h3>{{ editingAlert ? 'Edit Alert' : 'New Alert' }}</h3>
+                <div class="form-group">
+                  <label for="eventTitle">Event Title</label>
+                  <input 
+                    id="eventTitle"
+                    v-model="alertForm.event_title" 
+                    type="text" 
+                    placeholder="Shadow Colour"
+                    class="form-input"
+                    :disabled="editingAlert"
+                  >
+                  <small v-if="editingAlert" class="form-hint">Event title cannot be changed</small>
+                </div>
+                <div class="form-group">
+                  <label for="audioUrl">Audio URL</label>
+                  <input 
+                    id="audioUrl"
+                    v-model="alertForm.audio_url" 
+                    type="url" 
+                    placeholder="https://example.com/sound.mp3"
+                    class="form-input"
+                  >
+                </div>
+                <div class="form-group">
+                  <label for="gifUrl">GIF URL (optional)</label>
+                  <input 
+                    id="gifUrl"
+                    v-model="alertForm.gif_url" 
+                    type="url" 
+                    placeholder="https://media.giphy.com/media/..."
+                    class="form-input"
+                  >
+                </div>
+                <div class="form-group">
+                  <label for="duration">Duration (milliseconds)</label>
+                  <input 
+                    id="duration"
+                    v-model.number="alertForm.duration_ms" 
+                    type="number" 
+                    min="1000"
+                    max="30000"
+                    step="1000"
+                    class="form-input"
+                  >
+                  <small class="form-hint">How long to display the GIF (1000 = 1 second)</small>
+                </div>
+                <div class="form-actions">
+                  <button @click="saveAlert" class="button">
+                    {{ editingAlert ? 'Update' : 'Create' }} Alert
+                  </button>
+                  <button @click="resetAlertForm" class="button secondary">Cancel</button>
+                </div>
+              </div>
+
+              <!-- Alerts List -->
+              <div v-if="loadingAlerts" class="loading">Loading alerts...</div>
+              <div v-else-if="alerts.length > 0" class="alerts-list">
+                <div v-for="alert in alerts" :key="alert.event_title" class="alert-card">
+                  <div class="alert-info">
+                    <div class="alert-title">{{ alert.event_title }}</div>
+                    <div class="alert-details">
+                      <div class="alert-audio">
+                        <span class="label">🔊 Audio:</span>
+                        <a :href="alert.audio" target="_blank" class="alert-link">{{ alert.audio.split('/').pop() }}</a>
+                      </div>
+                      <div v-if="alert.gifUrl" class="alert-gif">
+                        <span class="label">🎬 GIF:</span>
+                        <a :href="alert.gifUrl" target="_blank" class="alert-link">View GIF</a>
+                      </div>
+                      <div class="alert-duration">
+                        <span class="label">⏱️ Duration:</span>
+                        {{ (alert.duration / 1000).toFixed(1) }}s
+                      </div>
+                    </div>
+                  </div>
+                  <div class="alert-actions">
+                    <button @click="editAlert(alert)" class="icon-button edit">✏️</button>
+                    <button @click="deleteAlert(alert.event_title)" class="icon-button delete">🗑️</button>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="no-alerts">
+                <p>No alerts configured yet. Click "Add Alert" to create one!</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
     
@@ -1006,8 +1036,6 @@ const resetAlertForm = () => {
   padding: 2rem 0;
 }
 
-/* Container styling is handled by global App.vue styles */
-
 .page-header {
   text-align: center;
   margin-bottom: 2rem;
@@ -1028,24 +1056,6 @@ const resetAlertForm = () => {
   text-align: center;
   padding: 2rem;
   color: #6b7280;
-}
-
-.user-info-card {
-  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  border: 1px solid #4b5563;
-}
-
-.user-info-card h2 {
-  color: #10b981;
-  margin-bottom: 1rem;
-}
-
-.user-details p {
-  margin: 0.5rem 0;
-  color: #d1d5db;
 }
 
 .access-denied, .need-visit {
@@ -1143,7 +1153,68 @@ const resetAlertForm = () => {
   color: #991b1b;
 }
 
-.stats-section, .moderators-section, .quick-actions, .commands-section, .bot-admins-section, .alerts-section {
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  border-radius: 12px;
+  padding: 0.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid #4b5563;
+  overflow-x: auto;
+  gap: 0.5rem;
+}
+
+.tab-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.tab-button:hover {
+  background: rgba(16, 185, 129, 0.1);
+  color: #d1d5db;
+}
+
+.tab-button.active {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.tab-icon {
+  font-size: 1.1rem;
+}
+
+.tab-label {
+  display: block;
+}
+
+/* Tab Content */
+.tab-content {
+  min-height: 400px;
+}
+
+.tab-panel {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.content-section {
   background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
   border-radius: 12px;
   padding: 1.5rem;
@@ -1151,9 +1222,10 @@ const resetAlertForm = () => {
   border: 1px solid #4b5563;
 }
 
-.stats-section h2, .moderators-section h2, .quick-actions h2, .commands-section h2, .bot-admins-section h2, .alerts-section h2 {
+.content-section h2 {
   color: #10b981;
   margin-bottom: 1.5rem;
+  font-size: 1.5rem;
 }
 
 .stats-grid {
@@ -1282,73 +1354,12 @@ const resetAlertForm = () => {
   padding: 2rem;
 }
 
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-  max-width: 100%;
-}
-
-.action-card {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  border-radius: 8px;
-  padding: 1.5rem;
-  text-decoration: none;
-  color: inherit;
-  transition: all 0.2s;
-}
-
-.action-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-  border-color: rgba(16, 185, 129, 0.4);
-}
-
-.action-card h3 {
-  color: #10b981;
-  margin-bottom: 0.5rem;
-}
-
-.action-card p {
-  color: #d1d5db;
-  margin: 0;
-}
-
 .actions {
   margin-top: 1rem;
 }
 
 .actions .button {
   margin: 0 0.5rem;
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: 0 0.5rem;
-  }
-  
-  .page-header h1 {
-    font-size: 2rem;
-  }
-  
-  .stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  }
-  
-  .moderator-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .mod-details {
-    text-align: left;
-    margin-top: 0.5rem;
-  }
-  
-  .actions-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Commands Section Styles */
@@ -1489,16 +1500,6 @@ const resetAlertForm = () => {
   padding: 2rem;
 }
 
-.info-message {
-  color: #9ca3af;
-  margin-bottom: 1rem;
-  font-style: italic;
-}
-
-.commands-list.view-only .command-card {
-  opacity: 0.9;
-}
-
 /* Bot Admin Styles */
 .admin-form {
   background: rgba(16, 185, 129, 0.05);
@@ -1546,14 +1547,6 @@ const resetAlertForm = () => {
   gap: 0.5rem;
 }
 
-.badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
 .badge.superadmin {
   background: rgba(251, 191, 36, 0.2);
   color: #fbbf24;
@@ -1564,12 +1557,6 @@ const resetAlertForm = () => {
   background: rgba(139, 92, 246, 0.2);
   color: #a78bfa;
   border: 1px solid rgba(139, 92, 246, 0.3);
-}
-
-.badge.moderator {
-  background: rgba(16, 185, 129, 0.2);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .admin-actions .icon-button {
@@ -1791,26 +1778,6 @@ const resetAlertForm = () => {
   padding: 2rem;
 }
 
-@media (max-width: 768px) {
-  .section-header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-  
-  .command-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .command-actions {
-    margin-top: 0.5rem;
-  }
-}
-
 /* Trigger Type Styles */
 .trigger-type {
   background: rgba(16, 185, 129, 0.2);
@@ -1827,5 +1794,62 @@ const resetAlertForm = () => {
   font-size: 0.75rem;
   margin-top: 0.25rem;
   display: block;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  .page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .tab-navigation {
+    flex-wrap: wrap;
+  }
+  
+  .tab-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .tab-label {
+    display: none;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  
+  .moderator-card, .command-card, .admin-card, .alert-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .mod-details, .command-actions, .admin-actions, .alert-actions {
+    margin-top: 0.5rem;
+    text-align: left;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .tab-navigation {
+    padding: 0.25rem;
+  }
+  
+  .tab-button {
+    padding: 0.5rem;
+    min-width: 3rem;
+  }
 }
 </style>
