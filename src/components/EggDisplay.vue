@@ -22,6 +22,9 @@
           <span class="label">eggs</span>
         </div>
         <p class="username">{{ userEggs.displayName || userEggs.username }}</p>
+        <p v-if="userEggs.rank" class="rank">
+          Rank #{{ userEggs.rank.toLocaleString() }}
+        </p>
         <p v-if="userEggs.lastUpdated" class="last-updated">
           Last updated: {{ formatDate(userEggs.lastUpdated) }}
         </p>
@@ -330,6 +333,14 @@ export default {
   font-size: 1.3rem;
   margin: 10px 0;
   opacity: 0.9;
+}
+
+.rank {
+  font-size: 1.1rem;
+  margin: 8px 0;
+  opacity: 0.9;
+  font-weight: 600;
+  color: #fbbf24;
 }
 
 .last-updated {
