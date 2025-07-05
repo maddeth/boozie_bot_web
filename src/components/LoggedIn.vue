@@ -41,7 +41,7 @@ const fetchUserStats = async () => {
     session.value = userSession
     const token = userSession.access_token
     
-    // Fetch user eggs
+    // Fetch user eggs and rank
     try {
       const eggsResponse = await fetch('https://maddeth.com/api/eggs/my-eggs', {
         headers: {
@@ -53,23 +53,24 @@ const fetchUserStats = async () => {
         const eggsData = await eggsResponse.json()
         console.log('Eggs response:', eggsData)
         
-        // Handle different response formats
-        let eggCount = 0
-        if (typeof eggsData === 'number') {
-          eggCount = eggsData
-        } else if (eggsData.egg_count !== undefined) {
-          eggCount = eggsData.egg_count
-        } else if (eggsData.eggs !== undefined) {
-          eggCount = eggsData.eggs
-        } else if (eggsData.count !== undefined) {
-          eggCount = eggsData.count
+        // Use the new API response format
+        if (eggsData.eggs !== undefined) {
+          userEggs.value = eggsData.eggs.toLocaleString()
+        } else {
+          userEggs.value = '0'
         }
         
-        userEggs.value = eggCount.toLocaleString()
+        // Set rank from the API response
+        if (eggsData.rank) {
+          userRank.value = `#${eggsData.rank.toLocaleString()}`
+        } else {
+          userRank.value = 'Unranked'
+        }
       }
     } catch (error) {
       console.error('Failed to fetch eggs:', error)
       userEggs.value = '0'
+      userRank.value = 'N/A'
     }
     
     // Fetch egg leaderboard to find user's rank
