@@ -9,7 +9,7 @@ const handleLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'twitch',
       options: {
-        redirectTo: 'https://boozie-bot-web.pages.dev',
+        redirectTo: 'https://boozie-bot.com/',
       },
     })
   } catch (error) {
