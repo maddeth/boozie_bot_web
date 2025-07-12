@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Footer from '@/components/Footer.vue';
 import ColoursList from '@/components/ColoursList.vue';
 import ColoursForm from '@/components/ColoursForm.vue';
 import { ref } from 'vue';
@@ -27,7 +26,6 @@ const handleColourAdded = () => {
       <ColoursList ref="coloursListRef" :session="session" />
       <ColoursForm :session="session" @colour-added="handleColourAdded" />
     </div>
-    <Footer />
   </div>
 </template>
 

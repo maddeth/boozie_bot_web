@@ -1,5 +1,4 @@
 <script setup>
-import Footer from '@/components/Footer.vue';
 import Token from '@/components/Token.vue';
 </script>
 
@@ -8,7 +7,6 @@ import Token from '@/components/Token.vue';
     <div class="container">
       <Token />
     </div>
-    <Footer />
   </div>
 </template>
 

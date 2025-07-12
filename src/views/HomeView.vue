@@ -1,5 +1,4 @@
 <script setup>
-import Footer from '@/components/Footer.vue';
 import LoggedIn from '@/components/LoggedIn.vue';
 </script>
 
@@ -8,7 +7,6 @@ import LoggedIn from '@/components/LoggedIn.vue';
     <div class="container">
       <LoggedIn />
     </div>
-    <Footer />
   </div>
 </template>
 

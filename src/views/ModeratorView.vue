@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useUserRole } from '../composables/useUserRole.js'
-import Footer from '../components/Footer.vue'
 
 const props = defineProps(['session'])
 
@@ -1025,8 +1024,6 @@ const resetAlertForm = () => {
         </div>
       </div>
     </div>
-    
-    <Footer />
   </div>
 </template>
 
