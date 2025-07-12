@@ -3,6 +3,7 @@ import { onMounted, ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Auth from './components/Auth.vue'
 import Header from './components/Header.vue'
+import Footer from './components/Footer.vue'
 import { supabase } from './supabase'
 
 const session = ref()
@@ -16,6 +17,9 @@ const isPublicRoute = computed(() => publicRoutes.includes(route.name))
 
 // Check if we should show the header (hide on alerts page)
 const showHeader = computed(() => route.name !== 'Alerts')
+
+// Check if we should show the footer (hide on alerts page)
+const showFooter = computed(() => route.name !== 'Alerts')
 
 onMounted(() => {
   supabase.auth.getSession().then(({ data }) => {
@@ -45,6 +49,7 @@ watch(() => route.name, (newRoute) => {
       <main class="main-content" :class="{ 'no-header': !showHeader }">
         <router-view :session="session" />
       </main>
+      <Footer v-if="showFooter" />
     </template>
     <Auth v-else />
   </div>
