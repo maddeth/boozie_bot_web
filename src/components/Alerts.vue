@@ -120,7 +120,7 @@ export default {
     }
 
     function playTts(id) {
-      audioQueue.push(`https://maddeth.com/tts/${id}.mp3`);
+      audioQueue.push(`https://maddeth.com/tts/${id}`);
       if (!isPlaying) {
         isPlaying = true;
         dequeueAudio();
