@@ -57,7 +57,7 @@ export default {
       
       function processMessage(msg) {
         if (msg.type == "redeem") {
-          playRedeem(msg.id)
+          playRedeem(msg.audioUrl)
           // Check if this redeem has an associated gif
           if (msg.gifUrl) {
             displayGif(msg.gifUrl, msg.duration || 5000)
