@@ -129,13 +129,7 @@ export default {
 
     function dequeueAudio() {
       if (audioQueue.length > 0) {
-        const audioUrl = audioQueue.shift();
-        const audio = new Audio(audioUrl);
-        
-        // Start muted to bypass autoplay restrictions
-        audio.muted = true;
-        audio.volume = 1.0;
-        
+        const audio = new Audio(audioQueue.shift());
         audio.onended = () => {
           if (audioQueue.length > 0) {
             dequeueAudio();
@@ -143,28 +137,14 @@ export default {
             isPlaying = false;
           }
         };
-        
-        audio.onerror = () => {
-          console.log('Audio error for:', audioUrl);
+        audio.onerror = (error) => {
           if (audioQueue.length > 0) {
             dequeueAudio();
           } else {
             isPlaying = false;
           }
         };
-        
-        // Play muted first, then unmute
-        audio.play().then(() => {
-          // Small delay then unmute
-          setTimeout(() => {
-            audio.muted = false;
-          }, 10);
-        }).catch((error) => {
-          console.log('Muted audio play failed:', error);
-          // Fallback to direct play attempt
-          audio.muted = false;
-          audio.play().catch(e => console.log('Direct play failed:', e));
-        });
+        audio.play();
       }
     }
 
