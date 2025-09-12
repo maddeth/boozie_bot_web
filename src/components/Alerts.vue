@@ -111,8 +111,8 @@ export default {
       }
     }
 
-    function playRedeem(id) {
-      audioQueue.push(id);
+    function playRedeem(audioUrl) {
+      audioQueue.push(audioUrl);
       if (!isPlaying) {
         isPlaying = true;
         dequeueAudio();
