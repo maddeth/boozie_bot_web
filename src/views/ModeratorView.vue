@@ -65,6 +65,26 @@ const alertForm = ref({
   duration_ms: 5000
 })
 
+// Auto-Shoutouts State
+const shoutouts = ref([])
+const loadingShoutouts = ref(false)
+const showShoutoutForm = ref(false)
+const shoutoutForm = ref({
+  userId: '',
+  username: '',
+  displayName: ''
+})
+
+// Quotes State
+const quotes = ref([])
+const loadingQuotes = ref(false)
+const showQuoteForm = ref(false)
+const editingQuote = ref(null)
+const quoteForm = ref({
+  quote_text: '',
+  quoted_by: ''
+})
+
 onMounted(async () => {
   await loadUserRole()
   if (isModerator.value) {
@@ -77,21 +97,22 @@ const setupTabs = () => {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: '📊' }
   ]
-  
+
   if (isBotModerator.value) {
-    tabs.push({ id: 'commands', label: 'Commands', icon: '🤖' })
+    tabs.push(
+      { id: 'commands', label: 'Commands', icon: '🤖' },
+      { id: 'shoutouts', label: 'Auto-Shoutouts', icon: '📢' },
+      { id: 'quotes', label: 'Quotes', icon: '💬' }
+    )
   }
-  
+
   if (isSuperAdmin.value) {
     tabs.push(
       { id: 'users', label: 'Users', icon: '👥' },
       { id: 'alerts', label: 'Alerts', icon: '🔔' }
     )
   }
-  
-  // Add quotes tab when quotes management is implemented
-  // tabs.push({ id: 'quotes', label: 'Quotes', icon: '💬' })
-  
+
   availableTabs.value = tabs
 }
 
@@ -105,15 +126,15 @@ const loadModeratorData = async () => {
     loadStats(),
     loadModerators()
   ]
-  
+
   if (isBotModerator.value) {
-    promises.push(loadCommands())
+    promises.push(loadCommands(), loadShoutouts(), loadQuotes())
   }
-  
+
   if (isSuperAdmin.value) {
     promises.push(loadBotAdmins(), loadAlerts())
   }
-  
+
   await Promise.all(promises)
 }
 
@@ -548,6 +569,191 @@ const resetAlertForm = () => {
     duration_ms: 5000
   }
 }
+
+// Auto-Shoutouts Management Functions
+const loadShoutouts = async () => {
+  loadingShoutouts.value = true
+  try {
+    const response = await fetch('https://maddeth.com/api/shoutouts/auto-shoutouts', {
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+    shoutouts.value = data.users || []
+  } catch (err) {
+    error.value = `Failed to load auto-shoutouts: ${err.message}`
+  } finally {
+    loadingShoutouts.value = false
+  }
+}
+
+const saveShoutout = async () => {
+  try {
+    if (!shoutoutForm.value.userId || !shoutoutForm.value.username) {
+      error.value = 'User ID and username are required'
+      return
+    }
+
+    const response = await fetch('https://maddeth.com/api/shoutouts/auto-shoutouts', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(shoutoutForm.value)
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+    }
+
+    await loadShoutouts()
+    resetShoutoutForm()
+  } catch (err) {
+    error.value = `Failed to add shoutout user: ${err.message}`
+  }
+}
+
+const deleteShoutout = async (userId) => {
+  if (!confirm('Are you sure you want to remove this user from auto-shoutouts?')) return
+
+  try {
+    const response = await fetch(`https://maddeth.com/api/shoutouts/auto-shoutouts/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`
+      }
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+    }
+
+    await loadShoutouts()
+  } catch (err) {
+    error.value = `Failed to remove shoutout user: ${err.message}`
+  }
+}
+
+const resetShoutoutForm = () => {
+  showShoutoutForm.value = false
+  shoutoutForm.value = {
+    userId: '',
+    username: '',
+    displayName: ''
+  }
+}
+
+// Quotes Management Functions
+const loadQuotes = async () => {
+  loadingQuotes.value = true
+  try {
+    const response = await fetch('https://maddeth.com/api/quotes', {
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+    quotes.value = data.quotes || []
+  } catch (err) {
+    error.value = `Failed to load quotes: ${err.message}`
+  } finally {
+    loadingQuotes.value = false
+  }
+}
+
+const saveQuote = async () => {
+  try {
+    if (!quoteForm.value.quote_text) {
+      error.value = 'Quote text is required'
+      return
+    }
+
+    let response
+    if (editingQuote.value) {
+      response = await fetch(`https://maddeth.com/api/quotes/${editingQuote.value.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${props.session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(quoteForm.value)
+      })
+    } else {
+      response = await fetch('https://maddeth.com/api/quotes', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${props.session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(quoteForm.value)
+      })
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+    }
+
+    await loadQuotes()
+    resetQuoteForm()
+  } catch (err) {
+    error.value = `Failed to save quote: ${err.message}`
+  }
+}
+
+const editQuote = (quote) => {
+  editingQuote.value = quote
+  quoteForm.value = {
+    quote_text: quote.quote_text,
+    quoted_by: quote.quoted_by || ''
+  }
+  showQuoteForm.value = true
+}
+
+const deleteQuote = async (quoteId) => {
+  if (!confirm('Are you sure you want to delete this quote?')) return
+
+  try {
+    const response = await fetch(`https://maddeth.com/api/quotes/${quoteId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`
+      }
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+    }
+
+    await loadQuotes()
+  } catch (err) {
+    error.value = `Failed to delete quote: ${err.message}`
+  }
+}
+
+const resetQuoteForm = () => {
+  showQuoteForm.value = false
+  editingQuote.value = null
+  quoteForm.value = {
+    quote_text: '',
+    quoted_by: ''
+  }
+}
 </script>
 
 <template>
@@ -824,6 +1030,147 @@ const resetAlertForm = () => {
               </div>
               <div v-else class="no-commands">
                 <p>No custom commands yet. Click "Add Command" to create one!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Auto-Shoutouts Tab -->
+          <div v-if="activeTab === 'shoutouts'" class="tab-panel">
+            <div class="content-section">
+              <div class="section-header">
+                <h2>📢 Auto-Shoutouts</h2>
+                <button @click="showShoutoutForm = !showShoutoutForm" class="button">
+                  {{ showShoutoutForm ? 'Cancel' : 'Add User' }}
+                </button>
+              </div>
+              <p class="section-description">Users in this list will automatically receive a shoutout when they chat (once per stream, only when live).</p>
+
+              <!-- Shoutout Form -->
+              <div v-if="showShoutoutForm" class="shoutout-form">
+                <h3>Add User to Auto-Shoutout</h3>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="shoutoutUserId">Twitch User ID</label>
+                    <input
+                      id="shoutoutUserId"
+                      v-model="shoutoutForm.userId"
+                      type="text"
+                      placeholder="e.g., 1305632688"
+                      class="form-input"
+                    >
+                    <small class="help-text">You can find this using a Twitch ID lookup tool</small>
+                  </div>
+                  <div class="form-group">
+                    <label for="shoutoutUsername">Username</label>
+                    <input
+                      id="shoutoutUsername"
+                      v-model="shoutoutForm.username"
+                      type="text"
+                      placeholder="e.g., retrodadson"
+                      class="form-input"
+                    >
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="shoutoutDisplayName">Display Name (Optional)</label>
+                  <input
+                    id="shoutoutDisplayName"
+                    v-model="shoutoutForm.displayName"
+                    type="text"
+                    placeholder="e.g., RetroDADson"
+                    class="form-input"
+                  >
+                </div>
+                <div class="form-actions">
+                  <button @click="saveShoutout" class="button">Add User</button>
+                  <button @click="resetShoutoutForm" class="button secondary">Cancel</button>
+                </div>
+              </div>
+
+              <!-- Shoutouts List -->
+              <div v-if="loadingShoutouts" class="loading">Loading auto-shoutouts...</div>
+              <div v-else-if="shoutouts.length > 0" class="shoutouts-list">
+                <div v-for="user in shoutouts" :key="user.user_id" class="shoutout-card">
+                  <div class="shoutout-info">
+                    <div class="shoutout-name">{{ user.display_name || user.username }}</div>
+                    <div class="shoutout-username">@{{ user.username }}</div>
+                    <div class="shoutout-meta">
+                      <span>ID: {{ user.user_id }}</span>
+                      <span v-if="user.added_at">Added: {{ formatDate(user.added_at) }}</span>
+                    </div>
+                  </div>
+                  <div class="shoutout-actions">
+                    <button @click="deleteShoutout(user.user_id)" class="icon-button delete">🗑️</button>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="no-shoutouts">
+                <p>No users in auto-shoutout list. Click "Add User" to add one!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quotes Tab -->
+          <div v-if="activeTab === 'quotes'" class="tab-panel">
+            <div class="content-section">
+              <div class="section-header">
+                <h2>💬 Quotes</h2>
+                <button @click="showQuoteForm = !showQuoteForm" class="button">
+                  {{ showQuoteForm ? 'Cancel' : 'Add Quote' }}
+                </button>
+              </div>
+
+              <!-- Quote Form -->
+              <div v-if="showQuoteForm" class="quote-form">
+                <h3>{{ editingQuote ? 'Edit Quote' : 'New Quote' }}</h3>
+                <div class="form-group">
+                  <label for="quoteText">Quote Text</label>
+                  <textarea
+                    id="quoteText"
+                    v-model="quoteForm.quote_text"
+                    placeholder="Enter the quote..."
+                    class="form-input"
+                    rows="3"
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="quotedBy">Quoted By (Optional)</label>
+                  <input
+                    id="quotedBy"
+                    v-model="quoteForm.quoted_by"
+                    type="text"
+                    placeholder="Who said this?"
+                    class="form-input"
+                  >
+                </div>
+                <div class="form-actions">
+                  <button @click="saveQuote" class="button">
+                    {{ editingQuote ? 'Update' : 'Create' }} Quote
+                  </button>
+                  <button @click="resetQuoteForm" class="button secondary">Cancel</button>
+                </div>
+              </div>
+
+              <!-- Quotes List -->
+              <div v-if="loadingQuotes" class="loading">Loading quotes...</div>
+              <div v-else-if="quotes.length > 0" class="quotes-list">
+                <div v-for="quote in quotes" :key="quote.id" class="quote-card">
+                  <div class="quote-info">
+                    <div class="quote-number">#{{ quote.id }}</div>
+                    <div class="quote-text">"{{ quote.quote_text }}"</div>
+                    <div class="quote-meta">
+                      <span v-if="quote.quoted_by">— {{ quote.quoted_by }}</span>
+                      <span v-if="quote.date_said">{{ formatDate(quote.date_said) }}</span>
+                    </div>
+                  </div>
+                  <div class="quote-actions">
+                    <button @click="editQuote(quote)" class="icon-button edit">✏️</button>
+                    <button @click="deleteQuote(quote.id)" class="icon-button delete">🗑️</button>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="no-quotes">
+                <p>No quotes yet. Click "Add Quote" to create one!</p>
               </div>
             </div>
           </div>
@@ -1791,6 +2138,124 @@ const resetAlertForm = () => {
   font-size: 0.75rem;
   margin-top: 0.25rem;
   display: block;
+}
+
+/* Auto-Shoutouts Styles */
+.section-description {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.shoutout-form, .quote-form {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.shoutout-form h3, .quote-form h3 {
+  color: #10b981;
+  margin-bottom: 1rem;
+}
+
+.shoutouts-list, .quotes-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.shoutout-card {
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.shoutout-info {
+  flex: 1;
+}
+
+.shoutout-name {
+  color: #3b82f6;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.shoutout-username {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.shoutout-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.shoutout-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.no-shoutouts {
+  text-align: center;
+  color: #6b7280;
+  padding: 2rem;
+}
+
+/* Quotes Styles */
+.quote-card {
+  background: rgba(251, 191, 36, 0.05);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.quote-info {
+  flex: 1;
+}
+
+.quote-number {
+  color: #fbbf24;
+  font-weight: bold;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.quote-text {
+  color: #d1d5db;
+  font-style: italic;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.quote-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.quote-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.no-quotes {
+  text-align: center;
+  color: #6b7280;
+  padding: 2rem;
 }
 
 @media (max-width: 768px) {
