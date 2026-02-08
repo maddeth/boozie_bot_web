@@ -70,9 +70,7 @@ const shoutouts = ref([])
 const loadingShoutouts = ref(false)
 const showShoutoutForm = ref(false)
 const shoutoutForm = ref({
-  userId: '',
-  username: '',
-  displayName: ''
+  username: ''
 })
 
 // Quotes State
@@ -595,8 +593,8 @@ const loadShoutouts = async () => {
 
 const saveShoutout = async () => {
   try {
-    if (!shoutoutForm.value.userId || !shoutoutForm.value.username) {
-      error.value = 'User ID and username are required'
+    if (!shoutoutForm.value.username) {
+      error.value = 'Username is required'
       return
     }
 
@@ -646,9 +644,7 @@ const deleteShoutout = async (userId) => {
 const resetShoutoutForm = () => {
   showShoutoutForm.value = false
   shoutoutForm.value = {
-    userId: '',
-    username: '',
-    displayName: ''
+    username: ''
   }
 }
 
@@ -1048,38 +1044,17 @@ const resetQuoteForm = () => {
               <!-- Shoutout Form -->
               <div v-if="showShoutoutForm" class="shoutout-form">
                 <h3>Add User to Auto-Shoutout</h3>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="shoutoutUserId">Twitch User ID</label>
-                    <input
-                      id="shoutoutUserId"
-                      v-model="shoutoutForm.userId"
-                      type="text"
-                      placeholder="e.g., 1305632688"
-                      class="form-input"
-                    >
-                    <small class="help-text">You can find this using a Twitch ID lookup tool</small>
-                  </div>
-                  <div class="form-group">
-                    <label for="shoutoutUsername">Username</label>
-                    <input
-                      id="shoutoutUsername"
-                      v-model="shoutoutForm.username"
-                      type="text"
-                      placeholder="e.g., retrodadson"
-                      class="form-input"
-                    >
-                  </div>
-                </div>
                 <div class="form-group">
-                  <label for="shoutoutDisplayName">Display Name (Optional)</label>
+                  <label for="shoutoutUsername">Twitch Username</label>
                   <input
-                    id="shoutoutDisplayName"
-                    v-model="shoutoutForm.displayName"
+                    id="shoutoutUsername"
+                    v-model="shoutoutForm.username"
                     type="text"
-                    placeholder="e.g., RetroDADson"
+                    placeholder="e.g., retrodadson"
                     class="form-input"
+                    @keyup.enter="saveShoutout"
                   >
+                  <small class="help-text">The user ID and display name will be looked up automatically</small>
                 </div>
                 <div class="form-actions">
                   <button @click="saveShoutout" class="button">Add User</button>
