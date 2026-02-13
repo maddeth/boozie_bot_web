@@ -258,7 +258,7 @@ const saveCommand = async () => {
       })
     } else {
       // Create new command
-      response = await fetch('https://maddeth.com/api/commands', {
+      response = await fetch('https://maddeth.com/api/commands/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${props.session.access_token}`,
