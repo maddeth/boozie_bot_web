@@ -128,6 +128,7 @@ async function SearchByColour() {
 }
 
 function upperCaseWord(word) {
+  if (!word) return ''
   return word.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
 }
 
