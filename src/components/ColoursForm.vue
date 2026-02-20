@@ -1,5 +1,4 @@
 <script setup>
-import { addColour, getByColourName } from '../colours'
 import { ref, onMounted } from 'vue'
 import { supabase } from '../supabase.js'
 
