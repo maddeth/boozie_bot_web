@@ -17,7 +17,6 @@ const getInitialData = () => ({
 })
 const formData = ref(getInitialData());
 const searchColour = ref()
-const upperCased = ref()
 
 onMounted(async () => {
   try {
