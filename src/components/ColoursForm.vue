@@ -104,7 +104,7 @@ async function SearchByColour() {
         body: JSON.stringify({ colour: colour })
     }
     
-    const res = await fetch('https://maddeth.com/api/colours/colourName', requestOptions)
+    const res = await fetch('https://maddeth.com/api/colours/search', requestOptions)
     
     if (!res.ok) {
       throw new Error(`Failed to search colours: ${res.statusText}`)
