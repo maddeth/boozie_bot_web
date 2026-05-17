@@ -5,6 +5,7 @@ import Token from '../views/TokenView.vue'
 import Alerts from '../views/AlertsView.vue'
 import Moderator from '../views/ModeratorView.vue'
 import Eggs from '../views/EggsView.vue'
+import Spotify from '../views/SpotifyView.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -13,6 +14,7 @@ const routes = [
   { path: '/alerts', name: 'Alerts', component: Alerts },
   { path: '/moderator', name: 'Moderator', component: Moderator },
   { path: '/eggs', name: 'Eggs', component: Eggs },
+  { path: '/spotify', name: 'Spotify', component: Spotify },
 ]
 
 const router = createRouter({

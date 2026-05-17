@@ -10,16 +10,19 @@ const session = ref()
 const route = useRoute()
 
 // Define public routes that don't require authentication
-const publicRoutes = ['Alerts', 'Eggs']
+const publicRoutes = ['Alerts', 'Eggs', 'Spotify']
 
 // Check if current route is public
 const isPublicRoute = computed(() => publicRoutes.includes(route.name))
 
-// Check if we should show the header (hide on alerts page)
-const showHeader = computed(() => route.name !== 'Alerts')
+// Routes that render as a full-page overlay (no header, no footer, transparent background)
+const overlayRoutes = ['Alerts', 'Spotify']
 
-// Check if we should show the footer (hide on alerts page)
-const showFooter = computed(() => route.name !== 'Alerts')
+// Check if we should show the header (hide on overlay pages)
+const showHeader = computed(() => !overlayRoutes.includes(route.name))
+
+// Check if we should show the footer (hide on overlay pages)
+const showFooter = computed(() => !overlayRoutes.includes(route.name))
 
 onMounted(() => {
   supabase.auth.getSession().then(({ data }) => {
@@ -34,7 +37,7 @@ onMounted(() => {
 // Watch for route changes to update body class
 import { watch } from 'vue'
 watch(() => route.name, (newRoute) => {
-  if (newRoute === 'Alerts') {
+  if (overlayRoutes.includes(newRoute)) {
     document.body.classList.add('alerts-page')
   } else {
     document.body.classList.remove('alerts-page')
