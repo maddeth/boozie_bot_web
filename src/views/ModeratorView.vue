@@ -107,15 +107,15 @@ const setupTabs = () => {
     tabs.push(
       { id: 'commands', label: 'Commands', icon: '🤖' },
       { id: 'shoutouts', label: 'Auto-Shoutouts', icon: '📢' },
-      { id: 'quotes', label: 'Quotes', icon: '💬' }
+      { id: 'quotes', label: 'Quotes', icon: '💬' },
+      { id: 'spotify', label: 'Spotify', icon: '🎵' }
     )
   }
 
   if (isSuperAdmin.value) {
     tabs.push(
       { id: 'users', label: 'Users', icon: '👥' },
-      { id: 'alerts', label: 'Alerts', icon: '🔔' },
-      { id: 'spotify', label: 'Spotify', icon: '🎵' }
+      { id: 'alerts', label: 'Alerts', icon: '🔔' }
     )
   }
 
@@ -134,11 +134,11 @@ const loadModeratorData = async () => {
   ]
 
   if (isBotModerator.value) {
-    promises.push(loadCommands(), loadShoutouts(), loadQuotes())
+    promises.push(loadCommands(), loadShoutouts(), loadQuotes(), loadSpotifySettings())
   }
 
   if (isSuperAdmin.value) {
-    promises.push(loadBotAdmins(), loadAlerts(), loadSpotifySettings())
+    promises.push(loadBotAdmins(), loadAlerts())
   }
 
   await Promise.all(promises)
@@ -1363,8 +1363,8 @@ const resetQuoteForm = () => {
             </div>
           </div>
 
-          <!-- Spotify Tab (Superadmin Only) -->
-          <div v-if="activeTab === 'spotify' && isSuperAdmin" class="tab-panel">
+          <!-- Spotify Tab (Bot Moderator) -->
+          <div v-if="activeTab === 'spotify' && isBotModerator" class="tab-panel">
             <div class="content-section">
               <div class="section-header">
                 <h2>🎵 Spotify Controls</h2>

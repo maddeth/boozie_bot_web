@@ -210,7 +210,7 @@ export default {
       <p v-if="authError" class="error">{{ authError }}</p>
     </div>
 
-    <!-- Now playing card -->
+    <!-- Now playing card — hidden entirely when paused/idle so it's invisible in OBS. -->
     <transition name="fade" mode="out-in">
       <div v-if="authorized && isPlaying" :key="trackName + trackArtists" class="now-playing">
         <div class="art-wrap">
@@ -221,12 +221,6 @@ export default {
           <div class="title">{{ trackName }}</div>
           <div class="artist">{{ trackArtists }}</div>
           <div class="album">{{ trackAlbum }}</div>
-        </div>
-      </div>
-      <div v-else-if="authorized" class="now-playing idle">
-        <div class="meta">
-          <div class="title">Nothing playing</div>
-          <div class="artist">Spotify is paused or idle</div>
         </div>
       </div>
     </transition>
