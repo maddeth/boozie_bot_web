@@ -83,6 +83,13 @@ const quoteForm = ref({
   quoted_by: ''
 })
 
+// Spotify State
+const spotifyConfigured = ref(false)
+const spotifyAuthorized = ref(false)
+const spotifySettings = ref({ songRequestsEnabled: true, overlayEnabled: true })
+const loadingSpotify = ref(false)
+const spotifyError = ref('')
+
 onMounted(async () => {
   await loadUserRole()
   if (isModerator.value) {
@@ -107,7 +114,8 @@ const setupTabs = () => {
   if (isSuperAdmin.value) {
     tabs.push(
       { id: 'users', label: 'Users', icon: '👥' },
-      { id: 'alerts', label: 'Alerts', icon: '🔔' }
+      { id: 'alerts', label: 'Alerts', icon: '🔔' },
+      { id: 'spotify', label: 'Spotify', icon: '🎵' }
     )
   }
 
@@ -130,10 +138,60 @@ const loadModeratorData = async () => {
   }
 
   if (isSuperAdmin.value) {
-    promises.push(loadBotAdmins(), loadAlerts())
+    promises.push(loadBotAdmins(), loadAlerts(), loadSpotifySettings())
   }
 
   await Promise.all(promises)
+}
+
+const loadSpotifySettings = async () => {
+  loadingSpotify.value = true
+  spotifyError.value = ''
+  try {
+    // status is public — tells us if Spotify is configured + authorized
+    const statusRes = await fetch('https://maddeth.com/api/spotify/status')
+    if (statusRes.ok) {
+      const data = await statusRes.json()
+      spotifyConfigured.value = !!data.configured
+      spotifyAuthorized.value = !!data.authorized
+    }
+
+    if (!spotifyConfigured.value) {
+      return
+    }
+
+    const res = await fetch('https://maddeth.com/api/spotify/settings', {
+      headers: { 'Authorization': `Bearer ${props.session.access_token}` }
+    })
+    if (!res.ok) throw new Error(`status ${res.status}`)
+    spotifySettings.value = await res.json()
+  } catch (err) {
+    spotifyError.value = `Failed to load Spotify settings: ${err.message}`
+  } finally {
+    loadingSpotify.value = false
+  }
+}
+
+const updateSpotifySetting = async (key, value) => {
+  spotifyError.value = ''
+  // Optimistic update so the toggle feels instant.
+  const previous = spotifySettings.value[key]
+  spotifySettings.value = { ...spotifySettings.value, [key]: value }
+  try {
+    const res = await fetch('https://maddeth.com/api/spotify/settings', {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ [key]: value })
+    })
+    if (!res.ok) throw new Error(`status ${res.status}`)
+    spotifySettings.value = await res.json()
+  } catch (err) {
+    spotifySettings.value = { ...spotifySettings.value, [key]: previous }
+    spotifyError.value = `Failed to update setting: ${err.message}`
+  }
 }
 
 const loadStats = async () => {
@@ -1305,6 +1363,59 @@ const resetQuoteForm = () => {
             </div>
           </div>
 
+          <!-- Spotify Tab (Superadmin Only) -->
+          <div v-if="activeTab === 'spotify' && isSuperAdmin" class="tab-panel">
+            <div class="content-section">
+              <div class="section-header">
+                <h2>🎵 Spotify Controls</h2>
+              </div>
+
+              <div v-if="loadingSpotify" class="loading">Loading Spotify settings...</div>
+
+              <div v-else-if="!spotifyConfigured" class="no-alerts">
+                <p>Spotify is not configured. Set <code>spotify.enabled = true</code> with credentials in <code>config.json</code>, then restart the bot.</p>
+              </div>
+
+              <div v-else>
+                <div v-if="!spotifyAuthorized" class="spotify-status warning">
+                  <p>Spotify is configured but not yet authorized. Visit the <a href="/spotify">Spotify page</a> to connect the broadcaster's account.</p>
+                </div>
+
+                <div class="spotify-toggle-row">
+                  <div class="spotify-toggle-meta">
+                    <div class="spotify-toggle-title">Song requests (<code>!sr</code>)</div>
+                    <div class="spotify-toggle-desc">When off, the <code>!sr</code> command replies that requests are disabled.</div>
+                  </div>
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      :checked="spotifySettings.songRequestsEnabled"
+                      @change="updateSpotifySetting('songRequestsEnabled', $event.target.checked)"
+                    >
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <div class="spotify-toggle-row">
+                  <div class="spotify-toggle-meta">
+                    <div class="spotify-toggle-title">Now-playing overlay</div>
+                    <div class="spotify-toggle-desc">When off, polling pauses and the <code>/spotify</code> overlay clears.</div>
+                  </div>
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      :checked="spotifySettings.overlayEnabled"
+                      @change="updateSpotifySetting('overlayEnabled', $event.target.checked)"
+                    >
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <div v-if="spotifyError" class="error-banner">{{ spotifyError }}</div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -2288,5 +2399,113 @@ const resetQuoteForm = () => {
     padding: 0.5rem;
     min-width: 3rem;
   }
+}
+
+/* Spotify toggle controls */
+.spotify-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  background: rgba(31, 41, 55, 0.6);
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+}
+
+.spotify-toggle-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.spotify-toggle-title {
+  font-weight: 600;
+  color: #f3f4f6;
+  margin-bottom: 0.25rem;
+}
+
+.spotify-toggle-desc {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.spotify-toggle-desc code,
+.spotify-status code {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.25rem;
+  font-size: 0.85em;
+}
+
+.spotify-status {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid;
+}
+
+.spotify-status.warning {
+  background: rgba(202, 138, 4, 0.12);
+  border-color: rgba(202, 138, 4, 0.5);
+  color: #fde68a;
+}
+
+.spotify-status a {
+  color: #1db954;
+  text-decoration: underline;
+}
+
+.error-banner {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.5);
+  border-radius: 0.5rem;
+  color: #fecaca;
+}
+
+/* Toggle switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch .slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #4b5563;
+  transition: background 0.2s;
+  border-radius: 999px;
+}
+
+.switch .slider::before {
+  content: "";
+  position: absolute;
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  transition: transform 0.2s;
+  border-radius: 50%;
+}
+
+.switch input:checked + .slider {
+  background: #1db954;
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(22px);
 }
 </style>
