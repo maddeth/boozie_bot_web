@@ -13,11 +13,21 @@ export default {
     const showAuthButton = ref(false)    // surfaces "Authorize" for the admin
     const authError = ref('')
 
+    // --- Slide-in/slide-out display cycle ---
+    const visible = ref(false)          // whether the card is currently shown
+    const lastShownTrack = ref('')      // track key of last shown song
+    let displayTimer = null             // 4s display timer
+    let cooldownTimer = null            // 60s cooldown timer
+    let isOnCooldown = false            // prevents re-showing during cooldown
+    const DISPLAY_MS = 4000
+    const COOLDOWN_MS = 60000
+
     let socket = null
     let reconnectTimer = null
     let reconnectDelay = 1000
     const maxReconnectDelay = 30000
     let heartbeatTimer = null
+    let pollTimer = null
 
     // Track display values — flatten the structure for the template
     const trackName = computed(() => nowPlaying.value?.track?.name || '')
@@ -94,6 +104,46 @@ export default {
       }
     }
 
+    // Show the card: slide in, display for DISPLAY_MS, then slide out + start cooldown
+    function showCard() {
+      visible.value = true
+      if (displayTimer) clearTimeout(displayTimer)
+      displayTimer = setTimeout(() => {
+        visible.value = false
+        displayTimer = null
+        isOnCooldown = true
+        if (cooldownTimer) clearTimeout(cooldownTimer)
+        cooldownTimer = setTimeout(() => {
+          isOnCooldown = false
+          cooldownTimer = null
+        }, COOLDOWN_MS)
+      }, DISPLAY_MS)
+    }
+
+    // Called on song change or when data first arrives — respects cooldown
+    function maybeShow() {
+      if (!isPlaying.value) {
+        visible.value = false
+        return
+      }
+      const trackKey = trackName.value + '|' + trackArtists.value
+      if (trackKey === lastShownTrack.value) return  // same song, no change
+      lastShownTrack.value = trackKey
+      if (isOnCooldown) return  // within 60s cooldown, skip
+      showCard()
+    }
+
+    // Force show (bypasses cooldown) — used by the 60s poll fallback
+    function forceShow() {
+      if (!isPlaying.value) return
+      isOnCooldown = false
+      if (cooldownTimer) {
+        clearTimeout(cooldownTimer)
+        cooldownTimer = null
+      }
+      showCard()
+    }
+
     function startSocket() {
       if (socket && socket.readyState === WebSocket.OPEN) return
 
@@ -132,6 +182,7 @@ export default {
     function processMessage(msg) {
       if (msg.type === 'spotify_now_playing') {
         nowPlaying.value = msg.nowPlaying
+        maybeShow()
       }
     }
 
@@ -163,6 +214,10 @@ export default {
       if (configured.value) {
         await loadInitial()
         startSocket()
+        // Re-show every 60s if still playing (covers long songs / no song change)
+        pollTimer = setInterval(() => {
+          if (isPlaying.value) forceShow()
+        }, COOLDOWN_MS)
       }
       if (!authorized.value) {
         await checkIfAdmin()
@@ -172,6 +227,9 @@ export default {
     onUnmounted(() => {
       stopHeartbeat()
       if (reconnectTimer) clearTimeout(reconnectTimer)
+      if (displayTimer) clearTimeout(displayTimer)
+      if (cooldownTimer) clearTimeout(cooldownTimer)
+      if (pollTimer) clearInterval(pollTimer)
       if (socket) socket.close()
     })
 
@@ -186,6 +244,7 @@ export default {
       trackAlbum,
       trackArt,
       authorize,
+      visible,
     }
   }
 }
@@ -210,9 +269,9 @@ export default {
       <p v-if="authError" class="error">{{ authError }}</p>
     </div>
 
-    <!-- Now playing card — hidden entirely when paused/idle so it's invisible in OBS. -->
-    <transition name="fade" mode="out-in">
-      <div v-if="authorized && isPlaying" :key="trackName + trackArtists" class="now-playing">
+    <!-- Now playing card — slides in from right, shows 4s, slides out. Reappears every 60s or on song change. -->
+    <transition name="slide">
+      <div v-if="authorized && isPlaying && visible" :key="trackName + trackArtists" class="now-playing">
         <div class="art-wrap">
           <img v-if="trackArt" :src="trackArt" alt="" class="art" />
           <div v-else class="art art-placeholder"></div>
@@ -233,11 +292,12 @@ export default {
   height: 100vh;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 2rem;
+  justify-content: flex-end;
+  padding: 2rem 3rem 2rem 0;
   background: transparent;
   color: #f3f4f6;
   font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+  overflow: hidden;
 }
 
 .now-playing {
@@ -350,18 +410,21 @@ export default {
   margin-top: 0.75rem;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease, transform 0.5s ease;
+.slide-enter-active {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 }
 
-.fade-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
+.slide-leave-active {
+  transition: transform 0.5s cubic-bezier(0.7, 0, 0.84, 0), opacity 0.4s ease;
 }
 
-.fade-leave-to {
+.slide-enter-from {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateX(120%);
+}
+
+.slide-leave-to {
+  opacity: 0;
+  transform: translateX(120%);
 }
 </style>
