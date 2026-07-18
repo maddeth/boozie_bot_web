@@ -120,7 +120,9 @@ export default {
       }, DISPLAY_MS)
     }
 
-    // Called on song change or when data first arrives — respects cooldown
+    // Called on song change or when data first arrives.
+    // Song changes always show (bypass cooldown) so the card pops on skip/next.
+    // Cooldown only prevents the 60s poll from re-showing the same track too soon.
     function maybeShow() {
       if (!isPlaying.value) {
         visible.value = false
@@ -129,7 +131,12 @@ export default {
       const trackKey = trackName.value + '|' + trackArtists.value
       if (trackKey === lastShownTrack.value) return  // same song, no change
       lastShownTrack.value = trackKey
-      if (isOnCooldown) return  // within 60s cooldown, skip
+      // New track — always show, even if in cooldown
+      isOnCooldown = false
+      if (cooldownTimer) {
+        clearTimeout(cooldownTimer)
+        cooldownTimer = null
+      }
       showCard()
     }
 
