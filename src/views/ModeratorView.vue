@@ -47,6 +47,12 @@ const loadingBotAdmins = ref(false)
 const showAddAdminForm = ref(false)
 const newAdminUsername = ref('')
 
+// Bot Moderators State (for superadmin)
+const botModerators = ref([])
+const loadingBotModerators = ref(false)
+const showAddModForm = ref(false)
+const newModUsername = ref('')
+
 // Stats Detail Modal State
 const showStatsModal = ref(false)
 const modalTitle = ref('')
@@ -138,7 +144,7 @@ const loadModeratorData = async () => {
   }
 
   if (isSuperAdmin.value) {
-    promises.push(loadBotAdmins(), loadAlerts())
+    promises.push(loadBotAdmins(), loadBotModerators(), loadAlerts())
   }
 
   await Promise.all(promises)
@@ -426,6 +432,61 @@ const updateBotAdmin = async (username, isAdmin) => {
   } catch (err) {
     error.value = `Failed to update bot admin: ${err.message}`
   }
+}
+
+// Bot Moderator management
+const loadBotModerators = async () => {
+  loadingBotModerators.value = true
+  try {
+    const response = await fetch('https://maddeth.com/api/user/moderators', {
+      headers: { 'Authorization': `Bearer ${props.session.access_token}` }
+    })
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+    const data = await response.json()
+    botModerators.value = data.moderators || []
+  } catch (err) {
+    error.value = `Failed to load bot moderators: ${err.message}`
+  } finally {
+    loadingBotModerators.value = false
+  }
+}
+
+const updateBotModerator = async (username, isModerator) => {
+  try {
+    const response = await fetch(`https://maddeth.com/api/user/moderator/${username}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ isModerator })
+    })
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+    }
+    await loadBotModerators()
+    error.value = null
+  } catch (err) {
+    error.value = `Failed to update bot moderator: ${err.message}`
+  }
+}
+
+const addBotModerator = async () => {
+  if (!newModUsername.value.trim()) {
+    error.value = 'Please enter a username'
+    return
+  }
+  await updateBotModerator(newModUsername.value.trim(), true)
+  if (!error.value) {
+    newModUsername.value = ''
+    showAddModForm.value = false
+  }
+}
+
+const removeBotModerator = async (username) => {
+  if (!confirm(`Remove bot moderator privileges from ${username}?`)) return
+  await updateBotModerator(username, false)
 }
 
 const addBotAdmin = async () => {
@@ -1260,6 +1321,59 @@ const resetQuoteForm = () => {
               </div>
               <div v-else class="no-admins">
                 <p>No bot admins configured.</p>
+              </div>
+            </div>
+
+            <!-- Bot Moderator Management Section -->
+            <div class="content-section">
+              <div class="section-header">
+                <h2>🛡️ Bot Moderator Management</h2>
+                <button @click="showAddModForm = !showAddModForm" class="button">
+                  {{ showAddModForm ? 'Cancel' : 'Add Bot Moderator' }}
+                </button>
+              </div>
+              
+              <!-- Add Moderator Form -->
+              <div v-if="showAddModForm" class="admin-form">
+                <div class="form-group">
+                  <label for="newMod">Username</label>
+                  <input 
+                    id="newMod"
+                    v-model="newModUsername" 
+                    type="text" 
+                    placeholder="Enter Twitch username"
+                    class="form-input"
+                    @keyup.enter="addBotModerator"
+                  >
+                </div>
+                <button @click="addBotModerator" class="button">Grant Bot Moderator</button>
+              </div>
+              
+              <!-- Bot Moderators List -->
+              <div v-if="loadingBotModerators" class="loading">Loading bot moderators...</div>
+              <div v-else-if="botModerators.length > 0" class="admins-list">
+                <div v-for="mod in botModerators" :key="mod.username" class="admin-card">
+                  <div class="admin-info">
+                    <strong>{{ mod.displayName || mod.username }}</strong>
+                    <small>@{{ mod.username }}</small>
+                    <div class="admin-badges">
+                      <span class="badge moderator">Moderator</span>
+                      <span v-if="mod.moderatorSince" class="badge">Since {{ formatDate(mod.moderatorSince) }}</span>
+                    </div>
+                  </div>
+                  <div class="admin-actions">
+                    <button 
+                      v-if="mod.username !== userRole.username"
+                      @click="removeBotModerator(mod.username)" 
+                      class="icon-button delete"
+                    >
+                      Remove Moderator
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="no-admins">
+                <p>No bot moderators configured.</p>
               </div>
             </div>
           </div>

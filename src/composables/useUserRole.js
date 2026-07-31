@@ -9,7 +9,7 @@ const error = ref(null)
 export function useUserRole() {
   const isModerator = computed(() => userRole.value?.roles?.isModerator || false)
   const isAdmin = computed(() => userRole.value?.roles?.isAdmin || false)
-  const isBotModerator = computed(() => userRole.value?.roles?.isAdmin || false) // Alias for clarity
+  const isBotModerator = computed(() => userRole.value?.roles?.isModerator || false)
   const isSuperAdmin = computed(() => userRole.value?.roles?.isSuperAdmin || false)
   const isSubscriber = computed(() => userRole.value?.roles?.isSubscriber || false)
   
