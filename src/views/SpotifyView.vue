@@ -29,7 +29,7 @@ export default {
     let heartbeatTimer = null
     let pollTimer = null
 
-    // Track display values — flatten the structure for the template
+    // Track display values - flatten the structure for the template
     const trackName = computed(() => nowPlaying.value?.track?.name || '')
     const trackArtists = computed(() => (nowPlaying.value?.track?.artists || []).join(', '))
     const trackAlbum = computed(() => nowPlaying.value?.track?.album || '')
@@ -61,7 +61,7 @@ export default {
 
     async function checkIfAdmin() {
       // Quietly check whether the viewer is an admin so we can show the auth button.
-      // Anonymous viewers (the common case — this is a stream overlay) see nothing.
+      // Anonymous viewers (the common case - this is a stream overlay) see nothing.
       try {
         const session = await supabase.auth.getSession()
         if (!session.data.session) return
@@ -75,7 +75,7 @@ export default {
           showAuthButton.value = true
         }
       } catch {
-        /* viewer isn't logged in — fine */
+        /* viewer isn't logged in - fine */
       }
     }
 
@@ -131,7 +131,7 @@ export default {
       const trackKey = trackName.value + '|' + trackArtists.value
       if (trackKey === lastShownTrack.value) return  // same song, no change
       lastShownTrack.value = trackKey
-      // New track — always show, even if in cooldown
+      // New track - always show, even if in cooldown
       isOnCooldown = false
       if (cooldownTimer) {
         clearTimeout(cooldownTimer)
@@ -140,7 +140,7 @@ export default {
       showCard()
     }
 
-    // Force show (bypasses cooldown) — used by the 60s poll fallback
+    // Force show (bypasses cooldown) - used by the 60s poll fallback
     function forceShow() {
       if (!isPlaying.value) return
       isOnCooldown = false
@@ -276,7 +276,7 @@ export default {
       <p v-if="authError" class="error">{{ authError }}</p>
     </div>
 
-    <!-- Now playing card — slides in from right, shows 4s, slides out. Reappears every 60s or on song change. -->
+    <!-- Now playing card - slides in from right, shows 4s, slides out. Reappears every 60s or on song change. -->
     <transition name="slide">
       <div v-if="authorized && isPlaying && visible" :key="trackName + trackArtists" class="now-playing">
         <div class="art-wrap">

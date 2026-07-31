@@ -154,7 +154,7 @@ const loadSpotifySettings = async () => {
   loadingSpotify.value = true
   spotifyError.value = ''
   try {
-    // status is public — tells us if Spotify is configured + authorized
+    // status is public - tells us if Spotify is configured + authorized
     const statusRes = await fetch('https://maddeth.com/api/spotify/status')
     if (statusRes.ok) {
       const data = await statusRes.json()
@@ -1253,7 +1253,7 @@ const resetQuoteForm = () => {
                     <div class="quote-number">#{{ quote.id }}</div>
                     <div class="quote-text">"{{ quote.quote_text }}"</div>
                     <div class="quote-meta">
-                      <span v-if="quote.quoted_by">— {{ quote.quoted_by }}</span>
+                      <span v-if="quote.quoted_by">- {{ quote.quoted_by }}</span>
                       <span v-if="quote.date_said">{{ formatDate(quote.date_said) }}</span>
                     </div>
                   </div>
