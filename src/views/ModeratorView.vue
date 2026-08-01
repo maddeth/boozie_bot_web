@@ -88,6 +88,15 @@ const quoteForm = ref({
   quote_text: '',
   quoted_by: ''
 })
+const quotesPage = ref(1)
+const quotesLimit = ref(20)
+const quotesTotal = ref(0)
+const quotesTotalPages = ref(0)
+const quotesSearch = ref('')
+const quotesSearchInput = ref('')
+const quoteIdSearch = ref('')
+const searchingQuoteById = ref(false)
+const foundQuote = ref(null)
 
 // Spotify State
 const spotifyConfigured = ref(false)
@@ -768,10 +777,22 @@ const resetShoutoutForm = () => {
 }
 
 // Quotes Management Functions
-const loadQuotes = async () => {
+const loadQuotes = async (page = null) => {
   loadingQuotes.value = true
+  foundQuote.value = null
   try {
-    const response = await fetch('https://maddeth.com/api/quotes', {
+    if (page !== null) {
+      quotesPage.value = page
+    }
+
+    const params = new URLSearchParams()
+    params.set('page', String(quotesPage.value))
+    params.set('limit', String(quotesLimit.value))
+    if (quotesSearch.value) {
+      params.set('search', quotesSearch.value)
+    }
+
+    const response = await fetch(`https://maddeth.com/api/quotes?${params.toString()}`, {
       headers: {
         'Authorization': `Bearer ${props.session.access_token}`
       }
@@ -783,10 +804,63 @@ const loadQuotes = async () => {
 
     const data = await response.json()
     quotes.value = data.quotes || []
+    quotesTotal.value = data.total || 0
+    quotesTotalPages.value = data.totalPages || 0
   } catch (err) {
     error.value = `Failed to load quotes: ${err.message}`
   } finally {
     loadingQuotes.value = false
+  }
+}
+
+const searchQuotes = () => {
+  quotesSearch.value = quotesSearchInput.value.trim()
+  quotesPage.value = 1
+  loadQuotes()
+}
+
+const clearQuoteSearch = () => {
+  quotesSearchInput.value = ''
+  quotesSearch.value = ''
+  quoteIdSearch.value = ''
+  foundQuote.value = null
+  quotesPage.value = 1
+  loadQuotes()
+}
+
+const nextQuotePage = () => {
+  if (quotesPage.value < quotesTotalPages.value) {
+    loadQuotes(quotesPage.value + 1)
+  }
+}
+
+const prevQuotePage = () => {
+  if (quotesPage.value > 1) {
+    loadQuotes(quotesPage.value - 1)
+  }
+}
+
+const searchQuoteById = async () => {
+  if (!quoteIdSearch.value.trim()) return
+  searchingQuoteById.value = true
+  foundQuote.value = null
+  try {
+    const response = await fetch(`https://maddeth.com/api/quotes/${quoteIdSearch.value.trim()}`, {
+      headers: {
+        'Authorization': `Bearer ${props.session.access_token}`
+      }
+    })
+    if (response.ok) {
+      foundQuote.value = await response.json()
+    } else if (response.status === 404) {
+      error.value = `Quote #${quoteIdSearch.value.trim()} not found`
+    } else {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+  } catch (err) {
+    error.value = `Failed to find quote: ${err.message}`
+  } finally {
+    searchingQuoteById.value = false
   }
 }
 
@@ -1245,26 +1319,89 @@ const resetQuoteForm = () => {
                 </div>
               </div>
 
-              <!-- Quotes List -->
-              <div v-if="loadingQuotes" class="loading">Loading quotes...</div>
-              <div v-else-if="quotes.length > 0" class="quotes-list">
-                <div v-for="quote in quotes" :key="quote.id" class="quote-card">
+              <!-- Quote Search Controls -->
+              <div class="quote-search-bar">
+                <div class="quote-search-group">
+                  <input
+                    v-model="quotesSearchInput"
+                    type="text"
+                    placeholder="Search quotes..."
+                    class="form-input quote-search-input"
+                    @keyup.enter="searchQuotes"
+                  >
+                  <button @click="searchQuotes" class="button">Search</button>
+                  <button @click="clearQuoteSearch" class="button secondary">Clear</button>
+                </div>
+                <div class="quote-search-group">
+                  <input
+                    v-model="quoteIdSearch"
+                    type="number"
+                    placeholder="Quote #"
+                    class="form-input quote-id-input"
+                    @keyup.enter="searchQuoteById"
+                  >
+                  <button @click="searchQuoteById" class="button" :disabled="searchingQuoteById">
+                    {{ searchingQuoteById ? '...' : 'Find' }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Found quote by ID -->
+              <div v-if="foundQuote" class="quotes-list">
+                <div :key="foundQuote.id" class="quote-card">
                   <div class="quote-info">
-                    <div class="quote-number">#{{ quote.id }}</div>
-                    <div class="quote-text">"{{ quote.quote_text }}"</div>
+                    <div class="quote-number">#{{ foundQuote.id }}</div>
+                    <div class="quote-text">"{{ foundQuote.quote_text }}"</div>
                     <div class="quote-meta">
-                      <span v-if="quote.quoted_by">- {{ quote.quoted_by }}</span>
-                      <span v-if="quote.date_said">{{ formatDate(quote.date_said) }}</span>
+                      <span v-if="foundQuote.quoted_by">- {{ foundQuote.quoted_by }}</span>
+                      <span v-if="foundQuote.date_said">{{ formatDate(foundQuote.date_said) }}</span>
                     </div>
                   </div>
                   <div class="quote-actions">
-                    <button @click="editQuote(quote)" class="icon-button edit">✏️</button>
-                    <button @click="deleteQuote(quote.id)" class="icon-button delete">🗑️</button>
+                    <button @click="editQuote(foundQuote)" class="icon-button edit">✏️</button>
+                    <button @click="deleteQuote(foundQuote.id)" class="icon-button delete">🗑️</button>
                   </div>
                 </div>
               </div>
-              <div v-else class="no-quotes">
-                <p>No quotes yet. Click "Add Quote" to create one!</p>
+
+              <!-- Quotes List (normal paginated view) -->
+              <div v-else>
+                <div v-if="loadingQuotes" class="loading">Loading quotes...</div>
+                <div v-else-if="quotes.length > 0" class="quotes-list">
+                  <div v-for="quote in quotes" :key="quote.id" class="quote-card">
+                    <div class="quote-info">
+                      <div class="quote-number">#{{ quote.id }}</div>
+                      <div class="quote-text">"{{ quote.quote_text }}"</div>
+                      <div class="quote-meta">
+                        <span v-if="quote.quoted_by">- {{ quote.quoted_by }}</span>
+                        <span v-if="quote.date_said">{{ formatDate(quote.date_said) }}</span>
+                      </div>
+                    </div>
+                    <div class="quote-actions">
+                      <button @click="editQuote(quote)" class="icon-button edit">✏️</button>
+                      <button @click="deleteQuote(quote.id)" class="icon-button delete">🗑️</button>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="no-quotes">
+                  <p>No quotes found{{ quotesSearch ? ' matching your search' : '' }}.</p>
+                </div>
+
+                <!-- Pagination -->
+                <div v-if="quotesTotalPages > 1 && !foundQuote" class="quote-pagination">
+                  <button @click="prevQuotePage" class="button" :disabled="quotesPage <= 1">
+                    &larr; Prev
+                  </button>
+                  <span class="quote-pagination-info">
+                    Page {{ quotesPage }} of {{ quotesTotalPages }} ({{ quotesTotal }} quotes)
+                  </span>
+                  <button @click="nextQuotePage" class="button" :disabled="quotesPage >= quotesTotalPages">
+                    Next &rarr;
+                  </button>
+                </div>
+                <div v-else-if="quotesTotal > 0 && !foundQuote" class="quote-pagination-info">
+                  {{ quotesTotal }} quote{{ quotesTotal === 1 ? '' : 's' }} total
+                </div>
               </div>
             </div>
           </div>
@@ -2622,4 +2759,59 @@ const resetQuoteForm = () => {
 .switch input:checked + .slider::before {
   transform: translateX(22px);
 }
+
+/* Quote search and pagination */
+.quote-search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+}
+
+.quote-search-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.quote-search-input {
+  min-width: 250px;
+}
+
+.quote-id-input {
+  width: 100px;
+}
+
+.quote-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.quote-pagination-info {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .quote-search-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .quote-search-group {
+    width: 100%;
+  }
+
+  .quote-search-input {
+    min-width: unset;
+    flex: 1;
+  }
+}
+
 </style>
